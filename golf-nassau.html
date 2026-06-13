@@ -505,20 +505,13 @@ function startRound(){
     if(isNaN(idx)){err.textContent=`Enter handicap for ${name}.`;return;}
     G.players.push({name,idx,playHdcp:0,strokes:[]});
   }
-  const minH=Math.min(...G.players.map(p=>p.idx));
-  G.players.forEach(p=>p.playHdcp=Math.round(p.idx-minH));
-
   G.par=[...DERRICK_PAR]; G.si=[...DERRICK_SI];
   if(G.teamGames.length===0&&G.singleGames.length===0){err.textContent='Add at least one Nassau game.';return;}
   if(G.teamGames.length>0&&G.n<4){err.textContent='Need 4 players for 2v2 games.';return;}
 
-  G.players.forEach(p=>{
-    p.strokes=G.si.map(si=>{
-      if(p.playHdcp>=si+18)return 2;
-      if(p.playHdcp>=si)return 1;
-      return 0;
-    });
-  });
+  // Strokes are calculated per-matchup, not globally.
+  // Set a default playHdcp=0 and strokes=[] — will be overridden per matchup.
+  G.players.forEach(p=>{ p.playHdcp=0; p.strokes=Array(18).fill(0); });
   // Default scores to par for each hole
   G.scores=G.players.map(()=>Array(18).fill(null));
   G.hole=0;
@@ -531,10 +524,42 @@ function startRound(){
 /* ═══════════════════════════════════════════════
    NET SCORE HELPERS
 ═══════════════════════════════════════════════ */
+// Calculate strokes per hole for a player given their playing handicap in a specific match
+function matchStrokes(playHdcp){
+  return G.si.map(si=>{
+    if(playHdcp>=si+18) return 2;
+    if(playHdcp>=si)    return 1;
+    return 0;
+  });
+}
+
+// Get match-specific playing handicaps for a set of player indexes
+function matchPlayHdcps(playerIdxs){
+  const idxs = playerIdxs.map(i=>G.players[i].idx);
+  const minIdx = Math.min(...idxs);
+  return playerIdxs.map(i=>Math.round(G.players[i].idx - minIdx));
+}
+
 function netS(pi,h){const g=G.scores[pi][h];return g===null?null:g-G.players[pi].strokes[h];}
+
+// Match-specific net score: uses strokes calculated off lowest handicap in this match
+function matchNetS(pi, h, playHdcp){
+  const g=G.scores[pi][h];
+  if(g===null) return null;
+  const stk=G.si[h]<=playHdcp?1:0;
+  return g-stk;
+}
+
 function sideNet(idxs,h,ball){
   const nets=idxs.map(i=>netS(i,h)).filter(n=>n!==null);
   if(!nets.length)return null;
+  return ball==='low'?Math.min(...nets):Math.max(...nets);
+}
+
+// Match-specific sideNet using per-match playing handicaps
+function matchSideNet(idxs, playHdcps, h, ball){
+  const nets=idxs.map((pi,ii)=>matchNetS(pi,h,playHdcps[ii])).filter(n=>n!==null);
+  if(!nets.length) return null;
   return ball==='low'?Math.min(...nets):Math.max(...nets);
 }
 
@@ -558,12 +583,28 @@ function scoreClass(gross,par,strokes){
 function holeResult(matchup,h){
   const allPlayers=[...matchup.sideA,...matchup.sideB];
   if(allPlayers.some(i=>G.scores[i][h]===null))return null;
+
+  // Calculate playing handicaps specific to this matchup's players
+  const phA = matchPlayHdcps(matchup.sideA);
+  const phB = matchPlayHdcps(matchup.sideB);
+  // Combined for full match (all 4 players zeroed off lowest in match)
+  const allIdxs = [...matchup.sideA,...matchup.sideB];
+  const allPh   = matchPlayHdcps(allIdxs);
+  const phAFull = allPh.slice(0, matchup.sideA.length);
+  const phBFull = allPh.slice(matchup.sideA.length);
+
   if(matchup.type==='2v2-combined'){
-    const aHi=sideNet(matchup.sideA,h,'high'),bHi=sideNet(matchup.sideB,h,'high');
-    const aLo=sideNet(matchup.sideA,h,'low'), bLo=sideNet(matchup.sideB,h,'low');
+    const aHi=matchSideNet(matchup.sideA,phAFull,h,'high');
+    const bHi=matchSideNet(matchup.sideB,phBFull,h,'high');
+    const aLo=matchSideNet(matchup.sideA,phAFull,h,'low');
+    const bLo=matchSideNet(matchup.sideB,phBFull,h,'low');
     return (aHi<bHi?1:bHi<aHi?-1:0)+(aLo<bLo?1:bLo<aLo?-1:0);
   }
-  const a=sideNet(matchup.sideA,h,'low'),b=sideNet(matchup.sideB,h,'low');
+  // 1v1: zero off lowest of the two players
+  const ph1v1 = matchPlayHdcps([...matchup.sideA,...matchup.sideB]);
+  const a=matchNetS(matchup.sideA[0],h,ph1v1[0]);
+  const b=matchNetS(matchup.sideB[0],h,ph1v1[1]);
+  if(a===null||b===null) return null;
   return a<b?1:b<a?-1:0;
 }
 
@@ -711,10 +752,21 @@ function renderCard(){
   document.getElementById('tabB').classList.toggle('active',h>=9);
 
   const money=computeMoney();
+
+  // Pre-compute per-player match-specific strokes for display
+  const _matchups=buildMatchups();
+  const displayStrokes=G.players.map((_,pi)=>{
+    const mu=_matchups.find(m=>[...m.sideA,...m.sideB].includes(pi));
+    if(!mu) return Array(18).fill(0);
+    const allInMatch=[...mu.sideA,...mu.sideB];
+    const phs=matchPlayHdcps(allInMatch);
+    return matchStrokes(phs[allInMatch.indexOf(pi)]);
+  });
+
   let html='';
 
   G.players.forEach((p,pi)=>{
-    const gross=G.scores[pi][h], str=p.strokes[h];
+    const gross=G.scores[pi][h], str=displayStrokes[pi][h];
     const net=gross!==null?gross-str:null;
     const par=G.par[h], tp=net!==null?net-par:null;
     const tpStr=tp===null?'—':tp===0?'E':tp>0?`+${tp}`:`${tp}`;
@@ -733,7 +785,7 @@ function renderCard(){
       <div class="pcard-hdr">
         <div>
           <div class="pcard-name">${p.name}</div>
-          <div class="pcard-hdcp" onclick="updateHandicap(${pi})" style="cursor:pointer" title="Tap to edit handicap">Idx ${p.idx} · Playing ${p.playHdcp} · ${str} stroke${str!==1?'s':''} this hole ✏️</div>
+          <div class="pcard-hdcp" onclick="updateHandicap(${pi})" style="cursor:pointer" title="Tap to edit handicap">Idx ${p.idx} · Playing ${displayStrokes[pi].reduce((a,b)=>a+b,0)} · ${str} stroke${str!==1?'s':''} this hole ✏️</div>
         </div>
         <div class="pcard-mon" style="${monCls}">${fmt(money[pi])}</div>
       </div>
@@ -1019,6 +1071,12 @@ function renderMatchScorecard(m){
   function buildCard(){
     let tbl=`<table class="msc">`;
 
+    // Match-specific playing handicaps for all players in this matchup
+    const allIdxs=[...m.sideA,...m.sideB];
+    const allPh=matchPlayHdcps(allIdxs);
+    // Map from allPi index to playing handicap
+    const matchPh=allPi.map(pi=>allPh[allIdxs.indexOf(pi)]);
+
     // ── Pre-compute per-hole running score for each game ──
     // For each game, build an array of cumulative scores indexed by hole (0-17)
     // null = hole not in this game's range or not yet scored
@@ -1049,9 +1107,9 @@ function renderMatchScorecard(m){
 
     // ── Header row ──
     tbl+=`<thead><tr><td class="row-lbl par" style="text-align:center">Hole</td>`;
-    allPi.forEach(pi=>{
+    allPi.forEach((pi,ii)=>{
       const p=G.players[pi];
-      tbl+=`<td class="hdr-name">${p.name}<br><span style="font-size:8px;font-weight:400">Idx ${p.idx.toFixed(1)}</span></td>`;
+      tbl+=`<td class="hdr-name">${p.name}<br><span style="font-size:8px;font-weight:400">Idx ${p.idx.toFixed(1)} (${matchPh[ii]})</span></td>`;
     });
     tbl+=`<td class="hdr-tot nine-sep">HCP</td>`;
     activeGames.forEach(g=>{
@@ -1084,7 +1142,8 @@ function renderMatchScorecard(m){
 
       // Player score cells
       allPi.forEach((pi,ii)=>{
-        const g=G.scores[pi][h], s=G.players[pi].strokes[h];
+        const g=G.scores[pi][h];
+        const s=matchStrokes(matchPh[ii])[h]; // match-specific strokes
         if(g!==null){
           if(h<9){gross[ii]+=g;scored[ii]=true;}
           else{bGross[ii]+=g;bScored[ii]=true;}
@@ -1476,17 +1535,7 @@ function updateHandicap(pi){
     return;
   }
   p.idx = newIdx;
-  // Recalculate all playing handicaps from new indexes
-  const minH = Math.min(...G.players.map(p=>p.idx));
-  G.players.forEach(p=>p.playHdcp = Math.round(p.idx - minH));
-  // Recalculate strokes per hole for every player
-  G.players.forEach(p=>{
-    p.strokes = G.si.map(si=>{
-      if(p.playHdcp >= si+18) return 2;
-      if(p.playHdcp >= si)    return 1;
-      return 0;
-    });
-  });
+  // Strokes are now match-specific — no global recalculation needed.
   saveG();
   renderCard();
 }
