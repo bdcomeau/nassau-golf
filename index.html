@@ -654,15 +654,15 @@ function renderCard(){
     matchups.forEach(m=>{
       const games=computeMatchGames(m);
       const tl=m.type==='2v2-combined'?'High-Low':m.type==='1v1'?'1v1':'Nassau';
-      const vs=m.labelA.split(' ')[0]+' vs '+m.labelB.split(' ')[0];
+      const vs=m.labelA+' vs '+m.labelB;
       html+=`<div style="font-size:11px;color:rgba(201,168,76,.75);margin:6px 0 3px;letter-spacing:.5px">${tl} · ${vs}</div>`;
       games.forEach(g=>{
         let sv,sc;
-        if(g.winner==='A'){sv=m.labelA.split(' ')[0]+` W $${g.value}`;sc='lead';}
-        else if(g.winner==='B'){sv=m.labelB.split(' ')[0]+` W $${g.value}`;sc='trail';}
+        if(g.winner==='A'){sv=m.labelA+` W $${g.value}`;sc='lead';}
+        else if(g.winner==='B'){sv=m.labelB+` W $${g.value}`;sc='trail';}
         else if(g.winner==='tie'){sv='Tied';sc='as';}
         else if(g.score===0){sv='All Square';sc='as';}
-        else{const ld=g.score>0?m.labelA.split(' ')[0]:m.labelB.split(' ')[0];sv=`${ld} +${Math.abs(g.score)}`;sc='lead';}
+        else{const ld=g.score>0?m.labelA:m.labelB;sv=`${ld} +${Math.abs(g.score)}`;sc='lead';}
         const pt=g.isPress?'<span class="ptag">PRESS</span>':'';
         html+=`<div class="nrow"><div class="nrl">${g.label} $${g.value}${pt}</div><div class="nrv ${sc}">${sv}</div></div>`;
       });
@@ -693,11 +693,11 @@ function renderBets(){
     html+=`<div class="npanel"><div class="ntitle">🏌️ ${tl} — ${m.labelA} vs ${m.labelB}</div>`;
     games.forEach(g=>{
       let sv,sc;
-      if(g.winner==='A'){sv=m.labelA.split(' ')[0]+` wins $${g.value}`;sc='lead';}
-      else if(g.winner==='B'){sv=m.labelB.split(' ')[0]+` wins $${g.value}`;sc='trail';}
+      if(g.winner==='A'){sv=m.labelA+` wins $${g.value}`;sc='lead';}
+      else if(g.winner==='B'){sv=m.labelB+` wins $${g.value}`;sc='trail';}
       else if(g.winner==='tie'){sv='Tied — $0';sc='as';}
       else if(g.score===0){sv='All Square';sc='as';}
-      else{const ld=g.score>0?m.labelA.split(' ')[0]:m.labelB.split(' ')[0];sv=`${ld} +${Math.abs(g.score)} (${g.holesLeft} left)`;sc='lead';}
+      else{const ld=g.score>0?m.labelA:m.labelB;sv=`${ld} +${Math.abs(g.score)} (${g.holesLeft} left)`;sc='lead';}
       const pt=g.isPress?'<span class="ptag">PRESS</span>':'';
       html+=`<div class="nrow"><div class="nrl">${g.label} $${g.value}${pt}</div><div class="nrv ${sc}">${sv}</div></div>`;
     });
