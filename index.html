@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Nassau Golf">
+<meta name="theme-color" content="#1a3a2a">
+<link rel="manifest" href="nassau-manifest.json">
+<link rel="apple-touch-icon" href="nassau-icon.png">
+<title>Nassau Golf · Derrick GWC</title>
+<style>
+:root {
+  --gd:#1a3a2a;--gm:#2d6a4f;--gl:#52b788;--gp:#d8f3dc;
+  --gold:#c9a84c;--cream:#f5f0e8;--ink:#1a1a1a;--inkl:#888;
+  --red:#c0392b;--white:#fff;--border:#d4c9b0;
+  --shadow:0 2px 12px rgba(26,58,42,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;background:var(--gd);color:var(--ink);min-height:100vh;overscroll-behavior:none;-webkit-text-size-adjust:100%}
+
+/* ── HEADER ── */
+.hdr{background:var(--gd);padding:12px 16px 10px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(201,168,76,.3)}
+.hdr-title{font-size:20px;font-weight:700;color:var(--gold);font-family:Georgia,serif;letter-spacing:-.3px}
+.hdr-sub{font-size:10px;color:var(--gl);letter-spacing:1px;text-transform:uppercase}
+.badge{background:var(--gold);color:var(--gd);font-size:11px;font-weight:700;padding:3px 8px;border-radius:10px;white-space:nowrap}
+
+/* ── SCREENS ── */
+.screen{display:none}.screen.active{display:block}
+
+/* ── SETUP ── */
+.setup{padding:16px;padding-bottom:100px}
+.slabel{font-size:11px;font-weight:700;color:var(--gl);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px;margin-top:20px}
+.card{background:#fff;border-radius:14px;padding:14px;box-shadow:var(--shadow);margin-bottom:12px}
+
+.p-row{display:grid;grid-template-columns:28px 1fr 80px;gap:8px;align-items:center;margin-bottom:10px}
+.p-row:last-child{margin-bottom:0}
+.p-num{width:28px;height:28px;background:var(--gd);color:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+
+input[type=text],input[type=number]{border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:15px;width:100%;background:var(--cream);color:var(--ink);-webkit-appearance:none}
+input[type=number]{text-align:center}
+input:focus{outline:none;border-color:var(--gm);background:#fff}
+input::placeholder{color:#bbb}
+.hlbl{font-size:11px;color:var(--inkl);text-align:center;margin-top:2px}
+
+.tog-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0ebe0}
+.tog-row:last-child{border-bottom:none}
+.tog-lbl{font-size:15px}.tog-sub{font-size:12px;color:var(--inkl)}
+.tog{width:44px;height:26px;background:#ccc;border-radius:13px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.tog.on{background:var(--gm)}
+.tog::after{content:'';position:absolute;width:22px;height:22px;background:#fff;border-radius:50%;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.tog.on::after{left:20px}
+
+.pair-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.pbtn{border:2px solid var(--border);background:var(--cream);border-radius:10px;padding:10px 8px;text-align:center;font-size:13px;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.pbtn.sel{border-color:var(--gm);background:var(--gp);color:var(--gd);font-weight:600}
+.pbtn .pn{font-size:11px;color:var(--inkl);margin-top:3px}
+.pbtn.sel .pn{color:var(--gm)}
+
+.bet-row{display:flex;align-items:center;gap:10px;padding:10px 0}
+.bet-lbl{flex:1;font-size:15px}
+.bet-inp{display:flex;align-items:center;gap:6px}
+.bet-inp span{font-size:16px;color:var(--inkl)}
+.chip{background:var(--gp);color:var(--gd);border-radius:8px;padding:8px 12px;font-size:13px;margin-top:8px}
+.errmsg{color:var(--red);font-size:13px;padding:8px 0;text-align:center}
+
+.cnt-row{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:4px}
+.cnt-btn{width:36px;height:36px;background:var(--gp);border:none;border-radius:50%;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--gd);font-weight:700;-webkit-tap-highlight-color:transparent}
+.cnt-val{font-size:28px;font-weight:800;color:var(--ink);min-width:40px;text-align:center}
+
+.btn-go{background:var(--gold);color:var(--gd);border:none;border-radius:14px;padding:16px;font-size:17px;font-weight:700;width:100%;cursor:pointer;margin-top:8px;-webkit-tap-highlight-color:transparent}
+.btn-go:active{opacity:.85}
+
+/* ── SCORE SCREEN ── */
+.shdr{background:var(--gd);padding:10px 16px;border-bottom:1px solid rgba(201,168,76,.2)}
+.hnav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.hnav-btn{width:38px;height:38px;background:rgba(255,255,255,.1);border:none;border-radius:50%;color:var(--gold);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+.hnav-btn:disabled{opacity:.3}
+.hinfo{text-align:center;flex:1}
+.hnum{font-size:22px;font-weight:800;color:var(--gold);font-family:Georgia,serif}
+.hmeta{font-size:12px;color:var(--gl)}
+.nine-tabs{display:flex;gap:6px;padding:8px 16px;background:var(--gd)}
+.ntab{flex:1;padding:6px;text-align:center;font-size:12px;font-weight:600;color:var(--gl);border-radius:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ntab.active{background:var(--gold);color:var(--gd)}
+.sbody{padding:12px 16px;padding-bottom:120px}
+
+/* ── PLAYER SCORE CARD ── */
+.pcard{background:#fff;border-radius:14px;margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow)}
+.pcard-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--gd)}
+.pcard-name{font-size:16px;font-weight:700;color:#fff}
+.pcard-hdcp{font-size:12px;color:var(--gl)}
+.pcard-mon{font-size:14px;font-weight:700}
+.pcard-body{padding:10px 14px}
+
+/* ── SCROLL WHEEL SCORE ── */
+.score-row{display:flex;align-items:center;gap:12px}
+
+.scroll-wheel{display:flex;flex-direction:column;align-items:center;width:72px;flex-shrink:0;user-select:none;-webkit-user-select:none}
+.sw-btn{width:44px;height:32px;background:var(--gp);border:none;border-radius:8px;font-size:18px;font-weight:700;color:var(--gm);cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:background .1s}
+.sw-btn:active{background:var(--gm);color:#fff}
+.sw-score{width:64px;height:56px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;position:relative;-webkit-tap-highlight-color:transparent}
+.sw-score.par-score{background:#f0f7f2;border:2.5px solid var(--gm)}
+.sw-score.birdie{background:#e8f5e9;border:2.5px solid #2e7d32}
+.sw-score.eagle{background:#c8e6c9;border:2.5px solid #1b5e20}
+.sw-score.bogey{background:#fff5f5;border:2.5px solid var(--red)}
+.sw-score.double{background:#ffebee;border:2.5px solid #b71c1c}
+.sw-score.triple{background:#fce4ec;border:2.5px solid #880e4f}
+.sw-score.stroke-1{border-color:var(--red)!important}
+.sw-score.stroke-2{border-color:#8e0000!important}
+.sw-num{font-size:30px;font-weight:800;color:var(--ink);line-height:1}
+.sw-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:1px}
+.sw-label.par-lbl{color:var(--gm)}
+.sw-label.birdie-lbl{color:#2e7d32}
+.sw-label.eagle-lbl{color:#1b5e20}
+.sw-label.bogey-lbl{color:var(--red)}
+.sw-label.double-lbl{color:#b71c1c}
+.sw-label.triple-lbl{color:#880e4f}
+.sw-label.other-lbl{color:var(--inkl)}
+
+.pip{display:inline-block;width:7px;height:7px;background:var(--red);border-radius:50%;position:absolute;top:3px;right:3px}
+.pip2{background:#8e0000;width:6px;height:6px;top:3px;right:10px}
+
+.sdet{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.sdi{background:#f5f2ec;border-radius:8px;padding:6px 8px}
+.sdl{font-size:10px;color:var(--inkl);text-transform:uppercase;letter-spacing:.5px}
+.sdv{font-size:16px;font-weight:700}
+.sdv.under{color:var(--gm)}.sdv.over{color:var(--red)}
+
+/* ── NASSAU PANEL ── */
+.npanel{background:var(--gd);border-radius:14px;padding:14px;margin-bottom:10px}
+.ntitle{font-size:13px;font-weight:700;color:var(--gold);letter-spacing:.5px;margin-bottom:10px}
+.nrow{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07)}
+.nrow:last-child{border-bottom:none}
+.nrl{font-size:12px;color:rgba(255,255,255,.8)}
+.nrv{font-size:13px;font-weight:700}
+.nrv.lead{color:var(--gl)}.nrv.trail{color:#e74c3c}.nrv.as{color:var(--gold)}
+.ptag{font-size:9px;background:var(--gold);color:var(--gd);padding:1px 4px;border-radius:3px;font-weight:700;margin-left:4px;vertical-align:middle}
+
+/* ── BETS ── */
+.msum{background:#fff;border-radius:14px;overflow:hidden;margin-bottom:12px;box-shadow:var(--shadow)}
+.msum-hdr{background:var(--gd);padding:10px 14px;font-size:13px;font-weight:700;color:var(--gold)}
+.mrow{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid #f0ebe0}
+.mrow:last-child{border-bottom:none}
+.mname{font-size:16px;font-weight:600}
+.mamt{font-size:20px;font-weight:800}
+.mamt.pos{color:var(--gm)}.mamt.neg{color:var(--red)}.mamt.zero{color:var(--inkl)}
+
+/* ── TOTALS ── */
+.totbody{padding:16px;padding-bottom:100px}
+.tottitle{font-size:22px;font-weight:800;color:var(--gold);font-family:Georgia,serif;text-align:center;padding:16px 0 10px}
+.scwrap{overflow-x:auto}
+.sct{width:100%;border-collapse:collapse;font-size:11px}
+.sct th{background:var(--gd);color:var(--gold);padding:5px 3px;text-align:center;font-size:10px;white-space:nowrap}
+.sct td{padding:4px 3px;text-align:center;border-bottom:1px solid #f0ebe0;min-width:22px}
+.sct .pnm{text-align:left;padding-left:6px;font-weight:600;font-size:11px;max-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sct .tot{background:#faf7f0;font-weight:700}
+.sct .ns{border-left:2px solid var(--gl)}
+.dot{display:inline-block;width:4px;height:4px;background:var(--red);border-radius:50%;vertical-align:super;margin-left:1px}
+.dot2{background:#8e0000}
+.nu{color:var(--gm);font-weight:700}.no{color:var(--red);font-weight:700}
+
+/* ── BOTTOM NAV ── */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--gd);border-top:1px solid rgba(201,168,76,.3);display:flex;z-index:200;padding-bottom:env(safe-area-inset-bottom)}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ni-icon{font-size:22px}
+.ni-lbl{font-size:10px;color:var(--gl);margin-top:2px}
+.ni.active .ni-lbl{color:var(--gold)}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div><div class="hdr-title">Nassau Golf</div><div class="hdr-sub">Derrick GWC</div></div>
+  <div class="badge" id="badge">SETUP</div>
+</div>
+
+<!-- ══════════ SETUP ══════════ -->
+<div class="screen active" id="screen-setup">
+<div class="setup">
+
+  <div class="slabel">Number of Players</div>
+  <div class="card">
+    <div class="cnt-row">
+      <button class="cnt-btn" id="btnMinus">−</button>
+      <div class="cnt-val" id="cntVal">4</div>
+      <button class="cnt-btn" id="btnPlus">+</button>
+    </div>
+  </div>
+
+  <div class="slabel">Players & Handicap Index (RCGA)</div>
+  <div class="card" id="playerInputs"></div>
+
+  <div class="slabel">Nassau Bet Amount</div>
+  <div class="card">
+    <div class="bet-row">
+      <div class="bet-lbl">$ per Nassau (Front / Back / 18)</div>
+      <div class="bet-inp"><span>$</span><input type="number" id="betAmt" value="2" min="1" step="1" style="width:70px"></div>
+    </div>
+    <div class="chip" id="betChip">$2 Nassau · Presses = $4 each</div>
+  </div>
+
+  <div class="slabel">Nassau Games</div>
+  <div class="card">
+    <div class="tog-row">
+      <div><div class="tog-lbl">2v2 Team Nassau (High + Low ball)</div><div class="tog-sub">High ball and Low ball scored as separate bets</div></div>
+      <div class="tog on" id="tog2v2" onclick="togBet('2v2')"></div>
+    </div>
+    <div id="teamSetup">
+      <div style="font-size:12px;color:#666;margin:8px 0 4px">Team Pairings</div>
+      <div class="pair-grid" id="pairGrid"></div>
+    </div>
+    <div class="tog-row" style="margin-top:4px">
+      <div><div class="tog-lbl">1v1 Individual Nassau</div><div class="tog-sub">Net score matchups</div></div>
+      <div class="tog" id="tog1v1" onclick="togBet('1v1')"></div>
+    </div>
+    <div id="singlesSetup" style="display:none">
+      <div style="font-size:12px;color:#666;margin:8px 0 4px">Select Matchups</div>
+      <div id="singlesGrid"></div>
+    </div>
+  </div>
+
+  <div class="errmsg" id="setupErr"></div>
+  <button class="btn-go" onclick="startRound()">Start Round →</button>
+</div>
+</div>
+
+<!-- ══════════ SCORECARD ══════════ -->
+<div class="screen" id="screen-score">
+  <div class="shdr">
+    <div class="hnav">
+      <button class="hnav-btn" id="btnPrev" onclick="goH(-1)">‹</button>
+      <div class="hinfo">
+        <div class="hnum" id="hnum">Hole 1</div>
+        <div class="hmeta" id="hmeta">Par 4 · SI 6</div>
+      </div>
+      <button class="hnav-btn" id="btnNext" onclick="goH(1)">›</button>
+    </div>
+  </div>
+  <div class="nine-tabs">
+    <div class="ntab active" id="tabF" onclick="jumpN(0)">Front 9</div>
+    <div class="ntab" id="tabB" onclick="jumpN(9)">Back 9</div>
+  </div>
+  <div class="sbody" id="sbody"></div>
+</div>
+
+<!-- ══════════ BETS ══════════ -->
+<div class="screen" id="screen-bets">
+  <div class="sbody" id="betsBody"></div>
+</div>
+
+<!-- ══════════ TOTALS ══════════ -->
+<div class="screen" id="screen-totals">
+  <div class="totbody" id="totBody"></div>
+</div>
+
+<!-- ══════════ BOTTOM NAV ══════════ -->
+<div class="bnav" id="bnav" style="display:none">
+  <div class="ni active" id="ni-score"  onclick="showS('score')"><div class="ni-icon">⛳</div><div class="ni-lbl">Scorecard</div></div>
+  <div class="ni"        id="ni-bets"   onclick="showS('bets')"><div class="ni-icon">💰</div><div class="ni-lbl">Nassau</div></div>
+  <div class="ni"        id="ni-totals" onclick="showS('totals')"><div class="ni-icon">📊</div><div class="ni-lbl">Totals</div></div>
+  <div class="ni"        id="ni-new"    onclick="newRound()"><div class="ni-icon">🔄</div><div class="ni-lbl">New Round</div></div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   DERRICK GOLF & WINTER CLUB  (pre-loaded)
+═══════════════════════════════════════════════ */
+const DERRICK_PAR = [4,3,4,4,3,5,4,3,4, 4,4,4,4,3,4,4,4,5];
+const DERRICK_SI  = [6,18,4,12,16,2,10,14,8, 9,1,15,7,17,3,11,13,5];
+
+/* ═══════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════ */
+const G = {
+  n:4, players:[], par:[], si:[],
+  bet:2, use2v2:true, use1v1:false,
+  team:null, singles:[],
+  scores:[], hole:0,
+};
+
+/* ═══════════════════════════════════════════════
+   SETUP UI
+═══════════════════════════════════════════════ */
+function initSetup(){
+  renderPlayers();
+  document.getElementById('betAmt').addEventListener('input',updateChip);
+  updateChip();
+}
+function renderPlayers(){
+  let h='';
+  for(let i=0;i<5;i++){
+    const act=i<G.n,nm=G.players[i]?.name||'',hx=G.players[i]?.idx!==undefined?G.players[i].idx:'';
+    h+=`<div class="p-row" style="${act?'':'opacity:.3;pointer-events:none'}">
+      <div class="p-num" style="${act?'':'background:#ddd;color:#aaa'}">${i+1}</div>
+      <input type="text" id="pn${i}" placeholder="Player ${i+1}" value="${nm}" ${act?'':'disabled'}>
+      <div><input type="number" id="ph${i}" placeholder="0.0" step=".1" min="0" max="54" value="${hx}" style="width:72px" ${act?'':'disabled'}><div class="hlbl">Hdcp</div></div>
+    </div>`;
+  }
+  document.getElementById('playerInputs').innerHTML=h;
+}
+document.getElementById('btnMinus').onclick=()=>{if(G.n>2){G.n--;document.getElementById('cntVal').textContent=G.n;renderPlayers();renderPairs();renderSingles();}};
+document.getElementById('btnPlus').onclick=()=>{if(G.n<5){G.n++;document.getElementById('cntVal').textContent=G.n;renderPlayers();renderPairs();renderSingles();}};
+function togBet(tp){
+  if(tp==='2v2'){document.getElementById('tog2v2').classList.toggle('on');G.use2v2=document.getElementById('tog2v2').classList.contains('on');document.getElementById('teamSetup').style.display=G.use2v2?'block':'none';}
+  else{document.getElementById('tog1v1').classList.toggle('on');G.use1v1=document.getElementById('tog1v1').classList.contains('on');document.getElementById('singlesSetup').style.display=G.use1v1?'block':'none';if(G.use1v1)renderSingles();}
+}
+function updateChip(){const v=parseFloat(document.getElementById('betAmt').value)||2;document.getElementById('betChip').textContent=`$${v} Nassau · Presses = $${v*2} each`;}
+
+function renderPairs(){
+  const n=G.n;
+  if(n<4){document.getElementById('pairGrid').innerHTML='<div style="font-size:13px;color:var(--red)">Need 4+ players for 2v2.</div>';return;}
+  const names=Array.from({length:n},(_,i)=>document.getElementById(`pn${i}`)?.value||`P${i+1}`);
+  const seen=new Set(),u=[];
+  for(let a=0;a<n;a++)for(let b=a+1;b<n;b++){
+    const rest=Array.from({length:n},(_,i)=>i).filter(i=>i!==a&&i!==b);
+    if(rest.length>=2){const c={a:[a,b],b:[rest[0],rest[1]]},k=[...c.a].sort().join('-')+'|'+[...c.b].sort().join('-'),k2=[...c.b].sort().join('-')+'|'+[...c.a].sort().join('-');if(!seen.has(k)&&!seen.has(k2)){seen.add(k);u.push(c);}}
+  }
+  window._pairs=u;if(!G.team&&u.length)G.team=u[0];
+  let h='';
+  u.forEach((c,i)=>{
+    const sel=G.team&&JSON.stringify(G.team)===JSON.stringify(c)?'sel':'';
+    h+=`<div class="pbtn ${sel}" onclick="selPair(${i})">Team A vs B<div class="pn">${names[c.a[0]]} & ${names[c.a[1]]}<br>vs<br>${names[c.b[0]]} & ${names[c.b[1]]}</div></div>`;
+  });
+  document.getElementById('pairGrid').innerHTML=h;
+}
+function selPair(i){G.team=window._pairs[i];document.querySelectorAll('#pairGrid .pbtn').forEach((b,j)=>b.classList.toggle('sel',i===j));}
+
+function renderSingles(){
+  const n=G.n,names=Array.from({length:n},(_,i)=>document.getElementById(`pn${i}`)?.value||`P${i+1}`);
+  let h='';
+  for(let a=0;a<n;a++)for(let b=a+1;b<n;b++){
+    const sel=G.singles.some(s=>s.p1===a&&s.p2===b)?'sel':'';
+    h+=`<div class="pbtn ${sel}" style="margin-bottom:6px" onclick="togSingle(${a},${b},this)">${names[a]} vs ${names[b]}</div>`;
+  }
+  document.getElementById('singlesGrid').innerHTML=h;
+}
+function togSingle(a,b,el){const i=G.singles.findIndex(s=>s.p1===a&&s.p2===b);if(i>=0){G.singles.splice(i,1);el.classList.remove('sel');}else{G.singles.push({p1:a,p2:b});el.classList.add('sel');}}
+
+/* ═══════════════════════════════════════════════
+   START ROUND
+═══════════════════════════════════════════════ */
+function startRound(){
+  const err=document.getElementById('setupErr');err.textContent='';
+  G.players=[];
+  for(let i=0;i<G.n;i++){
+    const name=document.getElementById(`pn${i}`).value.trim()||`Player ${i+1}`;
+    const idx=parseFloat(document.getElementById(`ph${i}`).value);
+    if(isNaN(idx)){err.textContent=`Enter handicap for ${name}.`;return;}
+    G.players.push({name,idx,playHdcp:0,strokes:[]});
+  }
+  const minH=Math.min(...G.players.map(p=>p.idx));
+  G.players.forEach(p=>p.playHdcp=Math.round(p.idx-minH));
+
+  G.par=[...DERRICK_PAR]; G.si=[...DERRICK_SI];
+  G.bet=parseFloat(document.getElementById('betAmt').value)||2;
+  if(G.use2v2&&G.n<4){err.textContent='Need 4 players for 2v2.';return;}
+  if(G.use2v2&&!G.team){err.textContent='Select a team pairing.';return;}
+
+  G.players.forEach(p=>{
+    p.strokes=G.si.map(si=>{
+      if(p.playHdcp>=si+18)return 2;
+      if(p.playHdcp>=si)return 1;
+      return 0;
+    });
+  });
+  // Default scores to par for each hole
+  G.scores=G.players.map(()=>Array(18).fill(null));
+  G.hole=0;
+  document.getElementById('bnav').style.display='flex';
+  document.getElementById('badge').textContent='HOLE 1';
+  showS('score');renderCard();
+}
+
+/* ═══════════════════════════════════════════════
+   NET SCORE HELPERS
+═══════════════════════════════════════════════ */
+function netS(pi,h){const g=G.scores[pi][h];return g===null?null:g-G.players[pi].strokes[h];}
+function sideNet(idxs,h,ball){
+  const nets=idxs.map(i=>netS(i,h)).filter(n=>n!==null);
+  if(!nets.length)return null;
+  return ball==='low'?Math.min(...nets):Math.max(...nets);
+}
+
+/* ═══════════════════════════════════════════════
+   SCORE STYLING
+═══════════════════════════════════════════════ */
+function scoreClass(gross,par,strokes){
+  const net=gross-strokes, toPar=net-par;
+  if(toPar<=-2)return{box:'eagle',lbl:'Eagle',lblCls:'eagle-lbl'};
+  if(toPar===-1)return{box:'birdie',lbl:'Birdie',lblCls:'birdie-lbl'};
+  if(toPar===0)return{box:'par-score',lbl:'Par',lblCls:'par-lbl'};
+  if(toPar===1)return{box:'bogey',lbl:'Bogey',lblCls:'bogey-lbl'};
+  if(toPar===2)return{box:'double',lbl:'Double',lblCls:'double-lbl'};
+  if(toPar>=3)return{box:'triple',lbl:`+${toPar}`,lblCls:'triple-lbl'};
+  return{box:'',lbl:'',lblCls:'other-lbl'};
+}
+
+/* ═══════════════════════════════════════════════
+   NASSAU ENGINE  (verified: $74 for lose-every-hole)
+═══════════════════════════════════════════════ */
+function holeResult(matchup,h){
+  const allPlayers=[...matchup.sideA,...matchup.sideB];
+  if(allPlayers.some(i=>G.scores[i][h]===null))return null;
+  if(matchup.type==='2v2-combined'){
+    const aHi=sideNet(matchup.sideA,h,'high'),bHi=sideNet(matchup.sideB,h,'high');
+    const aLo=sideNet(matchup.sideA,h,'low'), bLo=sideNet(matchup.sideB,h,'low');
+    return (aHi<bHi?1:bHi<aHi?-1:0)+(aLo<bLo?1:bLo<aLo?-1:0);
+  }
+  const a=sideNet(matchup.sideA,h,'low'),b=sideNet(matchup.sideB,h,'low');
+  return a<b?1:b<a?-1:0;
+}
+
+function computeMatchGames(matchup){
+  const base=G.bet, pressVal=base*2;
+  const front={label:'Front 9',  startH:0, endH:8,  value:base, isPress:false, score:0, holesPlayed:0};
+  const back= {label:'Back 9',   startH:9, endH:17, value:base, isPress:false, score:0, holesPlayed:0};
+  const full= {label:'Full 18',  startH:0, endH:17, value:base, isPress:false, score:0, holesPlayed:0};
+  const origGames=[front,back,full];
+  const pressGames=[];
+  let runScore=0, lastPressPos=0, lastPressNeg=0;
+
+  for(let h=0;h<18;h++){
+    const r=holeResult(matchup,h);
+    if(r===null)break;
+    origGames.forEach(g=>{if(h>=g.startH&&h<=g.endH){g.score+=r;g.holesPlayed++;}});
+    pressGames.forEach(g=>{if(h>=g.startH&&h<=g.endH){g.score+=r;g.holesPlayed++;}});
+    runScore+=r;
+    const ps=h+1;
+    if(ps>17) continue;
+    // SideB 2-down (runScore positive, crosses +2,+4,+6...)
+    while(runScore>=lastPressPos+2){
+      lastPressPos+=2;
+      if(ps<=8){
+        pressGames.push({label:`Press H${ps+1}–9`,  startH:ps,endH:8,  value:base,     isPress:true,score:0,holesPlayed:0});
+        pressGames.push({label:`Press H${ps+1}–18`, startH:ps,endH:17, value:base,     isPress:true,score:0,holesPlayed:0});
+      } else {
+        pressGames.push({label:`Press H${ps+1}–18`, startH:ps,endH:17, value:pressVal, isPress:true,score:0,holesPlayed:0});
+      }
+    }
+    // SideA 2-down (runScore negative, crosses -2,-4,-6...)
+    while(runScore<=lastPressNeg-2){
+      lastPressNeg-=2;
+      if(ps<=8){
+        pressGames.push({label:`Press H${ps+1}–9`,  startH:ps,endH:8,  value:base,     isPress:true,score:0,holesPlayed:0});
+        pressGames.push({label:`Press H${ps+1}–18`, startH:ps,endH:17, value:base,     isPress:true,score:0,holesPlayed:0});
+      } else {
+        pressGames.push({label:`Press H${ps+1}–18`, startH:ps,endH:17, value:pressVal, isPress:true,score:0,holesPlayed:0});
+      }
+    }
+  }
+
+  const all=[...origGames,...pressGames];
+  all.forEach(g=>{
+    const holesLeft=g.endH-g.startH+1-g.holesPlayed;
+    const decided=Math.abs(g.score)>holesLeft;
+    g.settled=holesLeft===0||decided;
+    g.holesLeft=holesLeft;
+    g.winner=g.settled?(g.score>0?'A':g.score<0?'B':'tie'):null;
+  });
+  return all;
+}
+
+function buildMatchups(){
+  const m=[];
+  if(G.use2v2&&G.team){
+    const{a,b}=G.team;
+    const nA=G.players[a[0]].name+' & '+G.players[a[1]].name;
+    const nB=G.players[b[0]].name+' & '+G.players[b[1]].name;
+    m.push({type:'2v2-combined',sideA:a,sideB:b,labelA:nA,labelB:nB});
+  }
+  G.singles.forEach(s=>m.push({type:'1v1',sideA:[s.p1],sideB:[s.p2],labelA:G.players[s.p1].name,labelB:G.players[s.p2].name}));
+  return m;
+}
+
+function computeMoney(){
+  const money=G.players.map(()=>0);
+  buildMatchups().forEach(m=>{
+    computeMatchGames(m).forEach(g=>{
+      if(!g.settled||g.winner==='tie')return;
+      const wi=g.winner==='A'?m.sideA:m.sideB, li=g.winner==='A'?m.sideB:m.sideA;
+      wi.forEach(i=>money[i]+=g.value);
+      li.forEach(i=>money[i]-=g.value);
+    });
+  });
+  return money;
+}
+
+function fmt(v){return v===0?'$0':(v>0?'+$':'-$')+Math.abs(v).toFixed(2).replace(/\.00$/,'');}
+
+/* ═══════════════════════════════════════════════
+   SCORE WHEEL — tap +/- to adjust, swipe to scroll
+═══════════════════════════════════════════════ */
+function adjustScore(pi, h, delta){
+  const cur=G.scores[pi][h];
+  const next = cur===null ? G.par[h] : cur+delta;
+  if(next<1||next>15)return;
+  G.scores[pi][h]=next;
+  renderCard();
+}
+
+// Touch swipe support on scroll wheel
+let _touch={pi:null,h:null,y0:null};
+function swipeStart(pi,h,e){
+  _touch={pi,h,y0:(e.touches?e.touches[0].clientY:e.clientY)};
+  e.preventDefault();
+}
+function swipeMove(e){
+  if(_touch.pi===null)return;
+  e.preventDefault();
+  const y=(e.touches?e.touches[0].clientY:e.clientY);
+  const dy=_touch.y0-y;
+  if(Math.abs(dy)>18){
+    adjustScore(_touch.pi,_touch.h,dy>0?1:-1);
+    _touch.y0=y;
+  }
+}
+function swipeEnd(){_touch={pi:null,h:null,y0:null};}
+
+/* ═══════════════════════════════════════════════
+   SCORECARD RENDER
+═══════════════════════════════════════════════ */
+function renderCard(){
+  const h=G.hole;
+  document.getElementById('hnum').textContent=`Hole ${h+1}`;
+  document.getElementById('hmeta').textContent=`Par ${G.par[h]} · SI ${G.si[h]}`;
+  document.getElementById('badge').textContent=`HOLE ${h+1}`;
+  document.getElementById('btnPrev').disabled=h===0;
+  document.getElementById('btnNext').disabled=h===17;
+  document.getElementById('tabF').classList.toggle('active',h<9);
+  document.getElementById('tabB').classList.toggle('active',h>=9);
+
+  const money=computeMoney();
+  let html='';
+
+  G.players.forEach((p,pi)=>{
+    const gross=G.scores[pi][h], str=p.strokes[h];
+    const net=gross!==null?gross-str:null;
+    const par=G.par[h], tp=net!==null?net-par:null;
+    const tpStr=tp===null?'—':tp===0?'E':tp>0?`+${tp}`:`${tp}`;
+    const netCls=tp===null?'':tp<0?'under':tp>0?'over':'';
+    const sc=gross!==null?scoreClass(gross,par,str):{box:'',lbl:'',lblCls:'other-lbl'};
+    const p1=str>=1?'<span class="pip"></span>':'';
+    const p2=str>=2?'<span class="pip pip2"></span>':'';
+
+    let fG=0,bG=0,fAny=false,bAny=false;
+    for(let i=0;i<9;i++){if(G.scores[pi][i]!==null){fG+=G.scores[pi][i];fAny=true;}}
+    for(let i=9;i<18;i++){if(G.scores[pi][i]!==null){bG+=G.scores[pi][i];bAny=true;}}
+
+    const monCls=money[pi]>0?'color:var(--gl)':money[pi]<0?'color:#e74c3c':'color:var(--gold)';
+
+    html+=`<div class="pcard">
+      <div class="pcard-hdr">
+        <div>
+          <div class="pcard-name">${p.name}</div>
+          <div class="pcard-hdcp">Idx ${p.idx} · Playing ${p.playHdcp} · ${str} stroke${str!==1?'s':''} this hole</div>
+        </div>
+        <div class="pcard-mon" style="${monCls}">${fmt(money[pi])}</div>
+      </div>
+      <div class="pcard-body">
+        <div class="score-row">
+          <div class="scroll-wheel">
+            <button class="sw-btn" ontouchstart="adjustScore(${pi},${h},1)" onclick="adjustScore(${pi},${h},1)">▲</button>
+            <div class="sw-score ${sc.box} ${str===2?'stroke-2':str===1?'stroke-1':''}"
+              ontouchstart="swipeStart(${pi},${h},event)"
+              ontouchmove="swipeMove(event)"
+              ontouchend="swipeEnd()"
+              onmousedown="swipeStart(${pi},${h},event)"
+              onmousemove="swipeMove(event)"
+              onmouseup="swipeEnd()">
+              ${p1}${p2}
+              <div class="sw-num" style="${gross===null?'font-size:22px;color:#bbb;font-weight:400':''}">
+                ${gross!==null?gross:'—'}
+              </div>
+              <div class="sw-label ${sc.lblCls}">${sc.lbl}</div>
+            </div>
+            <button class="sw-btn" ontouchstart="adjustScore(${pi},${h},-1)" onclick="adjustScore(${pi},${h},-1)">▼</button>
+          </div>
+          <div class="sdet">
+            <div class="sdi"><div class="sdl">Net</div><div class="sdv ${netCls}">${net!==null?net:'—'}</div></div>
+            <div class="sdi"><div class="sdl">To Par</div><div class="sdv ${netCls}">${tpStr}</div></div>
+            <div class="sdi"><div class="sdl">Front</div><div class="sdv">${fAny?fG:'—'}</div></div>
+            <div class="sdi"><div class="sdl">Back</div><div class="sdv">${bAny?bG:'—'}</div></div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  // Nassau mini panel
+  const matchups=buildMatchups();
+  if(matchups.length){
+    html+=`<div class="npanel"><div class="ntitle">💰 Nassau Running</div>`;
+    matchups.forEach(m=>{
+      const games=computeMatchGames(m);
+      const tl=m.type==='2v2-combined'?'High-Low':m.type==='1v1'?'1v1':'Nassau';
+      const vs=m.labelA.split(' ')[0]+' vs '+m.labelB.split(' ')[0];
+      html+=`<div style="font-size:11px;color:rgba(201,168,76,.75);margin:6px 0 3px;letter-spacing:.5px">${tl} · ${vs}</div>`;
+      games.forEach(g=>{
+        let sv,sc;
+        if(g.winner==='A'){sv=m.labelA.split(' ')[0]+` W $${g.value}`;sc='lead';}
+        else if(g.winner==='B'){sv=m.labelB.split(' ')[0]+` W $${g.value}`;sc='trail';}
+        else if(g.winner==='tie'){sv='Tied';sc='as';}
+        else if(g.score===0){sv='All Square';sc='as';}
+        else{const ld=g.score>0?m.labelA.split(' ')[0]:m.labelB.split(' ')[0];sv=`${ld} +${Math.abs(g.score)}`;sc='lead';}
+        const pt=g.isPress?'<span class="ptag">PRESS</span>':'';
+        html+=`<div class="nrow"><div class="nrl">${g.label} $${g.value}${pt}</div><div class="nrv ${sc}">${sv}</div></div>`;
+      });
+    });
+    html+='</div>';
+  }
+
+  document.getElementById('sbody').innerHTML=html;
+
+  // Attach mouse events for desktop swipe
+  document.addEventListener('mousemove',swipeMove,{passive:false});
+  document.addEventListener('mouseup',swipeEnd);
+  document.addEventListener('touchmove',swipeMove,{passive:false});
+}
+
+/* ═══════════════════════════════════════════════
+   BETS SCREEN
+═══════════════════════════════════════════════ */
+function renderBets(){
+  const money=computeMoney();
+  let html='<div style="padding-top:12px">';
+  html+=`<div class="msum"><div class="msum-hdr">💵 Running Money</div>`;
+  G.players.forEach((p,i)=>{const v=money[i],c=v>0?'pos':v<0?'neg':'zero';html+=`<div class="mrow"><div class="mname">${p.name}</div><div class="mamt ${c}">${fmt(v)}</div></div>`;});
+  html+='</div>';
+  buildMatchups().forEach(m=>{
+    const games=computeMatchGames(m);
+    const tl=m.type==='2v2-combined'?'High-Low':m.type==='1v1'?'1v1':'Nassau';
+    html+=`<div class="npanel"><div class="ntitle">🏌️ ${tl} — ${m.labelA} vs ${m.labelB}</div>`;
+    games.forEach(g=>{
+      let sv,sc;
+      if(g.winner==='A'){sv=m.labelA.split(' ')[0]+` wins $${g.value}`;sc='lead';}
+      else if(g.winner==='B'){sv=m.labelB.split(' ')[0]+` wins $${g.value}`;sc='trail';}
+      else if(g.winner==='tie'){sv='Tied — $0';sc='as';}
+      else if(g.score===0){sv='All Square';sc='as';}
+      else{const ld=g.score>0?m.labelA.split(' ')[0]:m.labelB.split(' ')[0];sv=`${ld} +${Math.abs(g.score)} (${g.holesLeft} left)`;sc='lead';}
+      const pt=g.isPress?'<span class="ptag">PRESS</span>':'';
+      html+=`<div class="nrow"><div class="nrl">${g.label} $${g.value}${pt}</div><div class="nrv ${sc}">${sv}</div></div>`;
+    });
+    html+='</div>';
+  });
+  html+='</div>';
+  document.getElementById('betsBody').innerHTML=html;
+}
+
+/* ═══════════════════════════════════════════════
+   TOTALS SCREEN
+═══════════════════════════════════════════════ */
+function renderTotals(){
+  const money=computeMoney();
+  let html=`<div class="tottitle">Derrick GWC · Results</div>`;
+  html+=`<div class="msum"><div class="msum-hdr">Final Money</div>`;
+  G.players.forEach((p,i)=>{const v=money[i],c=v>0?'pos':v<0?'neg':'zero';html+=`<div class="mrow"><div class="mname">${p.name}</div><div class="mamt ${c}">${fmt(v)}</div></div>`;});
+  html+='</div>';
+
+  html+=`<div class="msum"><div class="msum-hdr">Scorecard</div><div class="scwrap"><table class="sct"><thead><tr><th class="pnm">Player</th>`;
+  for(let h=0;h<9;h++)html+=`<th>${h+1}</th>`;
+  html+=`<th class="ns tot">F</th>`;
+  for(let h=9;h<18;h++)html+=`<th>${h+1}</th>`;
+  html+=`<th class="ns tot">B</th><th class="tot">T</th></tr></thead><tbody>`;
+
+  G.players.forEach((p,pi)=>{
+    let fG=0,bG=0,fN=0,bN=0;
+    html+=`<tr><td class="pnm">${p.name}<br><span style="font-size:9px;color:var(--inkl)">Gross (${p.playHdcp})</span></td>`;
+    for(let h=0;h<9;h++){const g=G.scores[pi][h],s=p.strokes[h];const d=s===2?'<span class="dot dot2"></span><span class="dot dot2"></span>':s===1?'<span class="dot"></span>':'';html+=`<td>${g!==null?g+''+d:'·'}</td>`;if(g!==null)fG+=g;}
+    html+=`<td class="ns tot">${fG||'·'}</td>`;
+    for(let h=9;h<18;h++){const g=G.scores[pi][h],s=p.strokes[h];const d=s===2?'<span class="dot dot2"></span><span class="dot dot2"></span>':s===1?'<span class="dot"></span>':'';html+=`<td>${g!==null?g+''+d:'·'}</td>`;if(g!==null)bG+=g;}
+    html+=`<td class="ns tot">${bG||'·'}</td><td class="tot">${fG&&bG?fG+bG:'·'}</td></tr>`;
+
+    html+=`<tr style="background:#fafafa"><td class="pnm"><span style="font-size:9px;color:var(--inkl)">Net</span></td>`;
+    for(let h=0;h<9;h++){const n=netS(pi,h),tp=n!==null?n-G.par[h]:null,c=tp===null?'':tp<0?'nu':tp>0?'no':'';html+=`<td class="${c}">${n!==null?n:'·'}</td>`;if(n!==null)fN+=n;}
+    html+=`<td class="ns tot">${fN||'·'}</td>`;
+    for(let h=9;h<18;h++){const n=netS(pi,h),tp=n!==null?n-G.par[h]:null,c=tp===null?'':tp<0?'nu':tp>0?'no':'';html+=`<td class="${c}">${n!==null?n:'·'}</td>`;if(n!==null)bN+=n;}
+    html+=`<td class="ns tot">${bN||'·'}</td><td class="tot">${fN&&bN?fN+bN:'·'}</td></tr>`;
+  });
+
+  let fp=0,bp=0;
+  html+=`<tr style="background:var(--gp);font-weight:700"><td class="pnm">Par</td>`;
+  for(let h=0;h<9;h++){html+=`<td>${G.par[h]}</td>`;fp+=G.par[h];}
+  html+=`<td class="ns tot">${fp}</td>`;
+  for(let h=9;h<18;h++){html+=`<td>${G.par[h]}</td>`;bp+=G.par[h];}
+  html+=`<td class="ns tot">${bp}</td><td class="tot">${fp+bp}</td></tr>`;
+  html+='</tbody></table></div></div>';
+  document.getElementById('totBody').innerHTML=html;
+}
+
+/* ═══════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════ */
+function goH(d){const n=G.hole+d;if(n<0||n>17)return;G.hole=n;renderCard();}
+function jumpN(s){G.hole=s;renderCard();}
+function showS(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(`screen-${name}`).classList.add('active');
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById(`ni-${name}`)?.classList.add('active');
+  if(name==='bets')renderBets();
+  if(name==='totals')renderTotals();
+  if(name==='score')renderCard();
+}
+function newRound(){
+  if(confirm('New round? Scores will be reset.')){
+    G.scores=[];
+    document.getElementById('bnav').style.display='none';
+    document.getElementById('badge').textContent='SETUP';
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById('screen-setup').classList.add('active');
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   BOOT
+═══════════════════════════════════════════════ */
+renderPairs();renderSingles();initSetup();
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('nassau-sw.js')
+      .then(r => console.log('SW registered'))
+      .catch(e => console.log('SW failed', e));
+  });
+}
+</script>
+</body>
+</html>

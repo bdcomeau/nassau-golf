@@ -1,0 +1,24 @@
+{
+  "name": "Nassau Golf · Derrick GWC",
+  "short_name": "Nassau Golf",
+  "description": "Score tracker and Nassau betting calculator for the Derrick Golf & Winter Club",
+  "start_url": "golf-nassau.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1a3a2a",
+  "theme_color": "#1a3a2a",
+  "icons": [
+    {
+      "src": "nassau-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "nassau-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
