@@ -9,6 +9,7 @@
 <meta name="theme-color" content="#1a3a2a">
 <link rel="manifest" href="nassau-manifest.json">
 <link rel="apple-touch-icon" href="nassau-icon.png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <title>Nassau Golf · Derrick GWC</title>
 <style>
 :root {
@@ -147,6 +148,67 @@ input::placeholder{color:#bbb}
 .game-del{width:28px;height:28px;background:#ffe0e0;border:none;border-radius:7px;color:var(--red);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-tap-highlight-color:transparent}
 .add-hint{font-size:12px;color:#aaa;text-align:center;padding:8px 0}
 
+/* ── MATCH SCORECARD ── */
+/* Outer card */
+.msc-card{background:#fff;border-radius:14px;margin-bottom:20px;overflow:hidden;box-shadow:var(--shadow)}
+.msc-card-hdr{background:var(--gd);padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
+.export-btn{background:var(--gold);color:var(--gd);border:none;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap;-webkit-tap-highlight-color:transparent;flex-shrink:0}
+.export-btn:active{opacity:.8}
+.export-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.export-overlay img{max-width:100%;max-height:70vh;border-radius:8px;box-shadow:0 4px 24px rgba(0,0,0,.5)}
+.export-overlay-btns{display:flex;gap:12px;margin-top:16px}
+.export-overlay-btn{padding:12px 20px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;border:none;-webkit-tap-highlight-color:transparent}
+.export-overlay-btn.save{background:var(--gold);color:var(--gd)}
+.export-overlay-btn.close{background:rgba(255,255,255,.15);color:#fff}
+.export-hint{color:rgba(255,255,255,.7);font-size:12px;margin-top:10px;text-align:center}
+.msc-card-title{font-size:14px;font-weight:700;color:var(--gold)}
+.msc-card-sub{font-size:11px;color:var(--gl)}
+/* Scrollable table */
+.msc-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.msc{border-collapse:collapse;font-size:10px;min-width:100%}
+/* Header row — player names + handicap */
+.msc .hdr-hole{background:#b0bec5;color:#1a1a1a;font-weight:700;padding:3px 2px;text-align:center;border:1px solid #90a4ae;min-width:22px;font-size:9px}
+.msc .hdr-name{background:#cfd8dc;color:#1a1a1a;font-weight:700;padding:3px 4px;text-align:center;border:1px solid #90a4ae;white-space:nowrap;font-size:9px}
+.msc .hdr-match{background:var(--gd);color:var(--gold);font-weight:700;padding:3px 2px;text-align:center;border:1px solid #2d6a4f;white-space:nowrap;font-size:9px;min-width:28px}
+.msc .hdr-tot{background:#78909c;color:#fff;font-weight:700;padding:3px 2px;text-align:center;border:1px solid #546e7a;font-size:9px;min-width:28px}
+/* Label column */
+.msc .row-lbl{background:#eceff1;color:#37474f;font-weight:700;padding:3px 4px;text-align:left;border:1px solid #b0bec5;white-space:nowrap;font-size:9px;min-width:36px}
+.msc .row-lbl.par{background:var(--gp);color:var(--gd)}
+.msc .row-lbl.out{background:#b0bec5;color:#1a1a1a}
+.msc .row-lbl.match{background:var(--gd);color:var(--gold)}
+.msc .row-lbl.settle{background:#fff8e1;color:#5d4037}
+.msc .row-lbl.grand{background:var(--gd);color:var(--gold);font-size:10px}
+/* Score cells */
+.msc .sc{padding:3px 2px;text-align:center;border:1px solid #ddd;background:#fff;font-size:10px;font-weight:600}
+.msc .sc.stroke{border-color:var(--red)}
+/* circle: use outline on the td itself */
+.msc .sc.circ{border-radius:0}
+.circ-val{display:inline-block;width:16px;height:16px;border:1.5px solid var(--red);border-radius:50%;line-height:14px;text-align:center;font-size:10px;font-weight:700;vertical-align:middle}
+.circ-val.c2{border-width:2.5px;border-color:#8e0000}
+/* net score cells */
+.msc .net{background:#f0f7f2;color:var(--gm);font-weight:700;padding:3px 2px;text-align:center;border:1px solid #c8e6c9;font-size:10px}
+.msc .net.ov{background:#fff5f5;color:var(--red)}
+/* OUT/IN/TOT totals */
+.msc .tot{background:#e8eaf6;font-weight:700;padding:3px 2px;text-align:center;border:1px solid #9fa8da;font-size:10px}
+.msc .tot.out{background:#b0bec5;color:#1a1a1a}
+/* Match score column */
+.msc .ms{padding:3px 2px;text-align:center;border:1px solid #2d6a4f;background:#e8f5e9;font-weight:700;font-size:10px;color:var(--gd)}
+.msc .ms.pos{background:#c8e6c9;color:#1b5e20}
+.msc .ms.neg{background:#ffcdd2;color:#b71c1c}
+.msc .ms.press{background:var(--gold);color:var(--gd)}
+.msc .ms.even{background:#fff9c4;color:#827717}
+.msc .ms.blank{background:#f5f5f5;color:#ccc}
+/* Settlement rows */
+.msc .stl{background:#fff8e1;padding:3px 4px;text-align:left;border:1px solid #ffe082;font-size:9px;color:#5d4037}
+.msc .stv{background:#fff8e1;padding:3px 4px;text-align:center;border:1px solid #ffe082;font-size:10px;font-weight:700}
+.msc .stv.pos{color:var(--gm)}.msc .stv.neg{color:var(--red)}.msc .stv.zero{color:#999}
+/* Grand total row */
+.msc .gtl{background:var(--gd);color:rgba(255,255,255,.7);padding:4px 6px;text-align:left;border:1px solid var(--gm);font-size:10px}
+.msc .gtv{background:var(--gd);padding:4px 3px;text-align:center;border:1px solid var(--gm);font-size:11px;font-weight:800}
+.msc .gtv.pos{color:var(--gl)}.msc .gtv.neg{color:#ef9a9a}.msc .gtv.zero{color:var(--gold)}
+/* nine separator */
+.msc .nine-sep{border-left:3px solid var(--gm)!important}
+
 /* ── BETS ── */
 .msum{background:#fff;border-radius:14px;overflow:hidden;margin-bottom:12px;box-shadow:var(--shadow)}
 .msum-hdr{background:var(--gd);padding:10px 14px;font-size:13px;font-weight:700;color:var(--gold)}
@@ -273,6 +335,22 @@ const G = {
   singleGames:[], // [{p1:i, p2:i, bet:2}]
   scores:[], hole:0,
 };
+
+/* ── PERSISTENCE ── */
+function saveG(){
+  try{ localStorage.setItem('nassau_G', JSON.stringify(G)); }catch(e){}
+}
+function loadG(){
+  try{
+    const raw=localStorage.getItem('nassau_G');
+    if(!raw) return false;
+    const saved=JSON.parse(raw);
+    // Only restore if a round is in progress (players set up)
+    if(!saved.players||!saved.players.length) return false;
+    Object.assign(G, saved);
+    return true;
+  }catch(e){ return false; }
+}
 const BET_OPTIONS=[1,2,5,10];
 
 /* ═══════════════════════════════════════════════
@@ -426,6 +504,7 @@ function startRound(){
   // Default scores to par for each hole
   G.scores=G.players.map(()=>Array(18).fill(null));
   G.hole=0;
+  saveG();
   document.getElementById('bnav').style.display='flex';
   document.getElementById('badge').textContent='HOLE 1';
   showS('score');renderCard();
@@ -471,53 +550,45 @@ function holeResult(matchup,h){
 }
 
 function computeMatchGames(matchup){
-  const base=matchup.bet||G.bet||2, pressVal=base*2;
-  const front={label:'Front 9',  startH:0, endH:8,  value:base, isPress:false, score:0, holesPlayed:0};
-  const back= {label:'Back 9',   startH:9, endH:17, value:base, isPress:false, score:0, holesPlayed:0};
-  const full= {label:'Full 18',  startH:0, endH:17, value:base, isPress:false, score:0, holesPlayed:0};
-  const origGames=[front,back,full];
-  const pressGames=[];
-  let runScore=0, lastPressPos=0, lastPressNeg=0;
+  const base = matchup.bet || G.bet || 2;
+  const pressVal = base * 2;
+  const games = [];
 
-  for(let h=0;h<18;h++){
-    const r=holeResult(matchup,h);
-    if(r===null)break;
-    origGames.forEach(g=>{if(h>=g.startH&&h<=g.endH){g.score+=r;g.holesPlayed++;}});
-    pressGames.forEach(g=>{if(h>=g.startH&&h<=g.endH){g.score+=r;g.holesPlayed++;}});
-    runScore+=r;
-    const ps=h+1;
-    if(ps>17) continue;
-    // SideB 2-down (runScore positive, crosses +2,+4,+6...)
-    while(runScore>=lastPressPos+2){
-      lastPressPos+=2;
-      if(ps<=8){
-        pressGames.push({label:`Press H${ps+1}–9`,  startH:ps,endH:8,  value:base,     isPress:true,score:0,holesPlayed:0});
-        pressGames.push({label:`Press H${ps+1}–18`, startH:ps,endH:17, value:base,     isPress:true,score:0,holesPlayed:0});
-      } else {
-        pressGames.push({label:`Press H${ps+1}–18`, startH:ps,endH:17, value:pressVal, isPress:true,score:0,holesPlayed:0});
+  // Score a game from startH to endH, return score, holesPlayed, pressStartH (first hole ±2 crossed)
+  function scoreGame(startH, endH, label, value, isPress){
+    let score=0, holesPlayed=0, pressStartH=null;
+    for(let h=startH; h<=endH; h++){
+      const r = holeResult(matchup, h);
+      if(r === null) break;
+      score += r;
+      holesPlayed++;
+      // First time this game hits ±2 with holes still remaining → press starts next hole
+      if(pressStartH === null && Math.abs(score) >= 2 && h < endH){
+        pressStartH = h + 1; // 0-indexed start of press
       }
     }
-    // SideA 2-down (runScore negative, crosses -2,-4,-6...)
-    while(runScore<=lastPressNeg-2){
-      lastPressNeg-=2;
-      if(ps<=8){
-        pressGames.push({label:`Press H${ps+1}–9`,  startH:ps,endH:8,  value:base,     isPress:true,score:0,holesPlayed:0});
-        pressGames.push({label:`Press H${ps+1}–18`, startH:ps,endH:17, value:base,     isPress:true,score:0,holesPlayed:0});
-      } else {
-        pressGames.push({label:`Press H${ps+1}–18`, startH:ps,endH:17, value:pressVal, isPress:true,score:0,holesPlayed:0});
-      }
-    }
+    const holesLeft = (endH - startH + 1) - holesPlayed;
+    const settled = holesLeft === 0 || Math.abs(score) > holesLeft;
+    const winner = settled ? (score > 0 ? 'A' : score < 0 ? 'B' : 'tie') : null;
+    games.push({ label, startH, endH, value, isPress, score, holesPlayed, settled, winner });
+    return pressStartH;
   }
 
-  const all=[...origGames,...pressGames];
-  all.forEach(g=>{
-    const holesLeft=g.endH-g.startH+1-g.holesPlayed;
-    const decided=Math.abs(g.score)>holesLeft;
-    g.settled=holesLeft===0||decided;
-    g.holesLeft=holesLeft;
-    g.winner=g.settled?(g.score>0?'A':g.score<0?'B':'tie'):null;
-  });
-  return all;
+  // ── Original 3 bets ──
+  scoreGame(0, 8,  'Front 9',  base, false);
+  scoreGame(9, 17, 'Back 9',   base, false);
+
+  // ── Full 18 + single press chain ──
+  // Each press runs H(pressStart)–18 and can spawn the next press
+  let pressStart = scoreGame(0, 17, 'Full 18', base, false);
+  let pressNum = 1;
+  while(pressStart !== null){
+    const label = `Press H${pressStart + 1}–18`;
+    pressStart = scoreGame(pressStart, 17, label, pressVal, true);
+    pressNum++;
+  }
+
+  return games;
 }
 
 function buildMatchups(){
@@ -556,6 +627,7 @@ function adjustScore(pi, h, delta){
   const next = cur===null ? G.par[h] : cur+delta;
   if(next<1||next>15)return;
   G.scores[pi][h]=next;
+  saveG();
   renderCard();
 }
 
@@ -679,30 +751,492 @@ function renderCard(){
 }
 
 /* ═══════════════════════════════════════════════
-   BETS SCREEN
+   BETS SCREEN — full match scorecards (Derrick-style)
 ═══════════════════════════════════════════════ */
+
+function renderMatchScorecard(m){
+  const allPi=[...m.sideA,...m.sideB];
+  const is2v2=m.type==='2v2-combined';
+
+  // Compute match running scores hole by hole
+  // games = computeMatchGames gives us the press structure
+  const games=computeMatchGames(m);
+
+  // Build per-hole running score for each game (for the match score columns)
+  // We'll show: one column per game (original 3 + each press), showing cumulative score after each hole
+  // Value shown: blank until game starts, then running score, 'P' when press triggered, 'E' for even
+
+  // For each game, compute hole-by-hole cumulative score
+  function gameRunning(g){
+    const scores=[];
+    let cum=0;
+    for(let h=0;h<18;h++){
+      if(h<g.startH||g.holesPlayed===0){scores.push(null);continue;}
+      const r=holeResult(m,h);
+      if(r===null||h>=g.startH+g.holesPlayed){scores.push(null);continue;}
+      if(h>=g.startH) cum+=r;
+      scores.push(cum);
+    }
+    return scores;
+  }
+
+  // Determine which press started on which hole (for 'P' annotation in running score)
+  const pressStartHoles=new Set();
+  games.filter(g=>g.isPress).forEach(g=>pressStartHoles.add(g.startH));
+
+  // Show all 18 holes if any back nine score exists, else just front 9
+  const hasBack=allPi.some(i=>G.scores[i].slice(9).some(s=>s!==null));
+  const totalCols=hasBack?18:9;
+
+  // Column definitions: hole cols + OUT + [back hole cols + IN] + TOT + [match game cols]
+  // Show all games (including future presses already triggered)
+  const activeGames=games;
+
+  // ── HEADER ROW ──
+  // Row 1: hole numbers / PAR / player names / match col headers
+  let nameRow=`<tr>
+    <td class="row-lbl par">Par</td>`;
+  for(let h=0;h<Math.min(totalCols,9);h++)
+    nameRow+=`<td class="hdr-hole">${h+1}</td>`;
+  nameRow+=`<td class="hdr-tot nine-sep">OUT</td>`;
+  if(hasBack){
+    for(let h=9;h<18;h++) nameRow+=`<td class="hdr-hole">${h+1}</td>`;
+    nameRow+=`<td class="hdr-tot nine-sep">IN</td><td class="hdr-tot">TOT</td>`;
+  }
+  // Match game column headers
+  activeGames.forEach((g,gi)=>{
+    const lbl=g.isPress?`P${gi}`:(g.endH<=8?'F':g.startH>=9?'B':'18');
+    nameRow+=`<td class="hdr-match nine-sep">${lbl}<br><span style="font-size:8px">$${g.value}</span></td>`;
+  });
+  nameRow+='</tr>';
+
+  // ── PAR ROW ──
+  let parRow=`<tr><td class="row-lbl par">Par</td>`;
+  let fPar=0,bPar=0;
+  for(let h=0;h<Math.min(totalCols,9);h++){parRow+=`<td class="sc" style="background:var(--gp);font-weight:700">${G.par[h]}</td>`;fPar+=G.par[h];}
+  parRow+=`<td class="tot out nine-sep">${fPar}</td>`;
+  if(hasBack){
+    for(let h=9;h<18;h++){parRow+=`<td class="sc" style="background:var(--gp);font-weight:700">${G.par[h]}</td>`;bPar+=G.par[h];}
+    parRow+=`<td class="tot nine-sep">${bPar}</td><td class="tot">${fPar+bPar}</td>`;
+  }
+  activeGames.forEach(()=>parRow+=`<td class="ms blank nine-sep"></td>`);
+  parRow+='</tr>';
+
+  // ── PLAYER ROWS (gross + net per player) ──
+  function playerGrossRow(pi,bgCls){
+    const p=G.players[pi];
+    let fG=0,bG=0,fA=false,bA=false;
+    let row=`<tr>
+      <td class="row-lbl" style="background:${bgCls}">
+        ${p.name}<br>
+        <span style="font-size:7px;color:#777;font-weight:400">Hdcp ${p.idx.toFixed(1)}</span>
+      </td>`;
+    for(let h=0;h<Math.min(totalCols,9);h++){
+      const g=G.scores[pi][h], s=p.strokes[h];
+      if(g!==null){fG+=g;fA=true;}
+      const inner=g!==null
+        ?(s>=2?`<span class="circ-val c2">${g}</span>`
+          :s>=1?`<span class="circ-val">${g}</span>`
+          :`${g}`)
+        :'<span style="color:#ddd">—</span>';
+      row+=`<td class="sc">${inner}</td>`;
+    }
+    row+=`<td class="tot out nine-sep">${fA?fG:'—'}</td>`;
+    if(hasBack){
+      for(let h=9;h<18;h++){
+        const g=G.scores[pi][h], s=p.strokes[h];
+        if(g!==null){bG+=g;bA=true;}
+        const inner=g!==null
+          ?(s>=2?`<span class="circ-val c2">${g}</span>`
+            :s>=1?`<span class="circ-val">${g}</span>`
+            :`${g}`)
+          :'<span style="color:#ddd">—</span>';
+        row+=`<td class="sc">${inner}</td>`;
+      }
+      row+=`<td class="tot nine-sep">${bA?bG:'—'}</td><td class="tot">${fA&&bA?fG+bG:'—'}</td>`;
+    }
+    // Match columns — blank for player rows
+    activeGames.forEach(()=>row+=`<td class="ms blank nine-sep"></td>`);
+    row+='</tr>';
+    return row;
+  }
+
+  function playerNetRow(pi){
+    const p=G.players[pi];
+    let fN=0,bN=0,fA=false,bA=false;
+    let row=`<tr>
+      <td class="row-lbl" style="background:#f0f7f2;color:var(--gm);font-style:italic">
+        Net<br>
+        <span style="font-size:7px;font-weight:400">(${p.playHdcp})</span>
+      </td>`;
+    for(let h=0;h<Math.min(totalCols,9);h++){
+      const n=netS(pi,h);
+      if(n!==null){fN+=n;fA=true;}
+      const tp=n!==null?n-G.par[h]:null;
+      const cls=tp===null?'net':tp>0?'net ov':'net';
+      row+=`<td class="${cls}">${n!==null?n:'—'}</td>`;
+    }
+    row+=`<td class="tot nine-sep" style="background:#d4edda;color:var(--gm)">${fA?fN:'—'}</td>`;
+    if(hasBack){
+      for(let h=9;h<18;h++){
+        const n=netS(pi,h);
+        if(n!==null){bN+=n;bA=true;}
+        const tp=n!==null?n-G.par[h]:null;
+        const cls=tp===null?'net':tp>0?'net ov':'net';
+        row+=`<td class="${cls}">${n!==null?n:'—'}</td>`;
+      }
+      row+=`<td class="tot nine-sep" style="background:#d4edda;color:var(--gm)">${bA?bN:'—'}</td>`;
+      row+=`<td class="tot" style="background:#d4edda;color:var(--gm)">${fA&&bA?fN+bN:'—'}</td>`;
+    }
+    activeGames.forEach(()=>row+=`<td class="ms blank nine-sep"></td>`);
+    row+='</tr>';
+    return row;
+  }
+
+  // ── MATCH SCORE ROWS ──
+  // One combined row per hole showing the running score for each active game
+  // Actually: show all player rows first, then a single "MATCH" row per hole
+  // But the Derrick card shows it inline — running score after EACH hole in the match columns
+  // So: for each hole h, the match columns show the cumulative score of each game up to hole h
+  // We render this as rows — one row per hole showing the match column values
+  // But that's 18 rows which is too many. Instead: one row showing the CURRENT running score
+  // per game at each hole. This IS the hole-by-hole match column.
+
+  // Build match score rows — one row per hole, showing score for each active game
+  function matchRows(){
+    let rows='';
+    // Running totals for each game
+    const cumScores=activeGames.map(()=>0);
+    const pressTriggered=new Set(); // track which holes triggered presses
+
+    // Pre-compute: which holes triggered presses and which game press threshold
+    let runScore=0,lastPressPos=0,lastPressNeg=0;
+    for(let h=0;h<18;h++){
+      const r=holeResult(m,h);
+      if(r===null) break;
+      runScore+=r;
+      const ps=h+1;
+      if(ps<=17){
+        while(runScore>=lastPressPos+2){lastPressPos+=2;pressTriggered.add(h);}
+        while(runScore<=lastPressNeg-2){lastPressNeg-=2;pressTriggered.add(h);}
+      }
+    }
+
+    for(let h=0;h<Math.min(totalCols,18);h++){
+      const r=holeResult(m,h);
+      const isNineSep=(h===9);
+      let row=`<tr>
+        <td class="row-lbl match" style="font-size:8px">H${h+1}</td>`;
+
+      // Score columns — blank for match rows
+      for(let c=0;c<Math.min(totalCols,9);c++) row+=`<td class="ms blank${c===0?'':''}">${c===h?'◀':''}</td>`;
+      row+=`<td class="ms blank nine-sep"></td>`;
+      if(hasBack){
+        for(let c=9;c<18;c++) row+=`<td class="ms blank"></td>`;
+        row+=`<td class="ms blank nine-sep"></td><td class="ms blank"></td>`;
+      }
+
+      // Match columns
+      activeGames.forEach((g,gi)=>{
+        let cellVal='', cellCls='ms blank';
+        if(h>=g.startH && r!==null && h<g.startH+g.holesPlayed){
+          cumScores[gi]+=r;
+          const cv=cumScores[gi];
+          const isPress=pressTriggered.has(h);
+          if(cv===0){cellVal='E';cellCls='ms even';}
+          else if(cv>0){cellVal=`+${cv}`;cellCls='ms pos';}
+          else{cellVal=`${cv}`;cellCls='ms neg';}
+          // Show P if a new press was triggered after this hole
+          if(isPress && !g.isPress) cellVal+=' P';
+        }
+        row+=`<td class="${cellCls} nine-sep">${cellVal}</td>`;
+      });
+      row+='</tr>';
+      rows+=row;
+    }
+    return rows;
+  }
+
+  // ── SIMPLIFIED APPROACH: single match-score row per hole ──
+  // Actually the Derrick card shows ONE column per match with the running score per hole.
+  // Player score columns fill the left, match score columns fill the right.
+  // Let me rebuild as: player name header row, then hole rows where each row = one hole,
+  // player scores in player columns, running match score in match columns.
+
+  // FINAL LAYOUT matching the Derrick card:
+  // Rows = holes (H1..H18)
+  // Columns: PAR | P1 gross | P2 gross | P3 gross | P4 gross | OUT | [back...] | Game1 | Game2 | ...
+  // Below hole rows: OUT totals, IN totals, TOT, then net scores, then settlement
+
+  function buildCard(){
+    let tbl=`<table class="msc">`;
+
+    // ── Pre-compute per-hole running score for each game ──
+    // For each game, build an array of cumulative scores indexed by hole (0-17)
+    // null = hole not in this game's range or not yet scored
+    const gameRunScores = activeGames.map(g=>{
+      const arr = Array(18).fill(null);
+      let cum = 0;
+      for(let h=g.startH; h<=g.endH; h++){
+        const r = holeResult(m, h);
+        if(r===null) break; // not scored yet
+        cum += r;
+        arr[h] = cum;
+      }
+      return arr;
+    });
+
+    // Pre-compute which holes trigger a press (for 'P' marker)
+    let runS=0,lPPos=0,lPNeg=0;
+    const pressTriggerHoles=new Set();
+    for(let h=0;h<18;h++){
+      const r=holeResult(m,h);
+      if(r===null) break;
+      runS+=r;
+      if(h+1<=17){
+        while(runS>=lPPos+2){lPPos+=2;pressTriggerHoles.add(h);}
+        while(runS<=lPNeg-2){lPNeg-=2;pressTriggerHoles.add(h);}
+      }
+    }
+
+    // ── Header row ──
+    tbl+=`<thead><tr><td class="row-lbl par" style="text-align:center">Hole</td>`;
+    allPi.forEach(pi=>{
+      const p=G.players[pi];
+      tbl+=`<td class="hdr-name">${p.name}<br><span style="font-size:8px;font-weight:400">Idx ${p.idx.toFixed(1)}</span></td>`;
+    });
+    tbl+=`<td class="hdr-tot nine-sep">F/B/Tot</td>`;
+    activeGames.forEach(g=>{
+      // Label: Frt / Bck / 18 for originals, press number for presses
+      const pressGames = activeGames.filter(g=>g.isPress);
+      const pressIdx = pressGames.indexOf(g);
+      const lbl = !g.isPress
+        ? (g.endH<=8 ? 'Frt' : g.startH>=9 ? 'Bck' : '18')
+        : `P${pressIdx+1}`;
+      tbl+=`<td class="hdr-match nine-sep">${lbl}<br><span style="font-size:8px">$${g.value}</span></td>`;
+    });
+    tbl+='</tr></thead><tbody>';
+
+    // ── Par row ──
+    const fPar=G.par.slice(0,9).reduce((a,b)=>a+b,0);
+    const bPar=G.par.slice(9).reduce((a,b)=>a+b,0);
+    tbl+=`<tr><td class="row-lbl par">Par</td>`;
+    allPi.forEach(()=>tbl+=`<td class="sc" style="background:var(--gp);font-weight:700"></td>`);
+    tbl+=`<td class="tot out nine-sep" style="font-size:9px">${fPar}/${bPar}/${fPar+bPar}</td>`;
+    activeGames.forEach(()=>tbl+=`<td class="ms blank nine-sep"></td>`);
+    tbl+='</tr>';
+
+    // ── Hole rows 1–18 ──
+    const gross=allPi.map(()=>0), scored=allPi.map(()=>false);
+    const bGross=allPi.map(()=>0), bScored=allPi.map(()=>false);
+
+    for(let h=0; h<(hasBack?18:9); h++){
+      const parVal = G.par[h];
+      tbl+=`<tr><td class="row-lbl" style="font-weight:700;text-align:center;font-size:11px">${h+1}<br><span style="font-size:8px;font-weight:400;color:#999">${parVal}</span></td>`;
+
+      // Player score cells
+      allPi.forEach((pi,ii)=>{
+        const g=G.scores[pi][h], s=G.players[pi].strokes[h];
+        if(g!==null){
+          if(h<9){gross[ii]+=g;scored[ii]=true;}
+          else{bGross[ii]+=g;bScored[ii]=true;}
+        }
+        const inner=g!==null
+          ?(s>=2?`<span class="circ-val c2">${g}</span>`
+            :s>=1?`<span class="circ-val">${g}</span>`
+            :`${g}`)
+          :'';
+        tbl+=`<td class="sc">${inner}</td>`;
+      });
+
+      // F/B/Tot col — blank per hole
+      tbl+=`<td class="tot nine-sep" style="background:#f9f9f9"></td>`;
+
+      // Match game columns — use pre-computed running scores
+      activeGames.forEach((g,gi)=>{
+        const cv = gameRunScores[gi][h];
+        let cellVal='', cellCls='ms blank';
+        if(cv !== null){
+          if(cv===0){cellVal='E';cellCls='ms even';}
+          else if(cv>0){cellVal=`+${cv}`;cellCls='ms pos';}
+          else{cellVal=String(cv);cellCls='ms neg';}
+          // Mark holes where a new press was triggered (only on original games)
+          // Mark 'P' on the hole before a press starts (the hole that triggered it)
+      // For the Full 18 game: mark P when a new press starts
+      // For press games: mark P when the next press starts
+      // pressStartH stored in game object
+      // We detect this by checking if the NEXT game's startH === h+1
+      const nextGame = activeGames[gi+1];
+      if(nextGame && nextGame.startH === h+1 && h >= g.startH && h <= g.endH){
+        cellVal += ' P';
+      }
+        }
+        tbl+=`<td class="${cellCls} nine-sep">${cellVal}</td>`;
+      });
+      tbl+='</tr>';
+
+      // OUT summary row after hole 9
+      if(h===8){
+        tbl+=`<tr style="border-top:2px solid var(--gm);border-bottom:2px solid var(--gm)">
+          <td class="row-lbl out">OUT</td>`;
+        allPi.forEach((pi,ii)=>tbl+=`<td class="tot out">${scored[ii]?gross[ii]:'—'}</td>`);
+        tbl+=`<td class="tot out nine-sep">${fPar}</td>`;
+        activeGames.forEach(()=>tbl+=`<td class="ms blank nine-sep"></td>`);
+        tbl+='</tr>';
+      }
+    }
+
+    // ── IN row ──
+    if(hasBack){
+      tbl+=`<tr style="border-top:2px solid var(--gm)"><td class="row-lbl out">IN</td>`;
+      allPi.forEach((pi,ii)=>tbl+=`<td class="tot out">${bScored[ii]?bGross[ii]:'—'}</td>`);
+      tbl+=`<td class="tot out nine-sep">${bPar}</td>`;
+      activeGames.forEach(()=>tbl+=`<td class="ms blank nine-sep"></td>`);
+      tbl+='</tr>';
+
+      // ── TOT row ──
+      tbl+=`<tr style="border-top:2px solid #546e7a"><td class="row-lbl out" style="font-weight:800">TOT</td>`;
+      allPi.forEach((pi,ii)=>{
+        const tot=(scored[ii]?gross[ii]:0)+(bScored[ii]?bGross[ii]:0);
+        tbl+=`<td class="tot" style="font-weight:800">${(scored[ii]||bScored[ii])?tot:'—'}</td>`;
+      });
+      tbl+=`<td class="tot nine-sep">${fPar+bPar}</td>`;
+      activeGames.forEach(()=>tbl+=`<td class="ms blank nine-sep"></td>`);
+      tbl+='</tr>';
+    }
+
+    // NET row removed
+
+    // ── TOTAL row ──
+    let grandTotalA=0;
+    const gameTotals=activeGames.map(g=>{
+      let resAmt=0;
+      if(g.winner==='A') resAmt=g.value;
+      else if(g.winner==='B') resAmt=-g.value;
+      grandTotalA+=resAmt;
+      return resAmt;
+    });
+    const colSpan=1+allPi.length+1;
+    const gtCls=grandTotalA>0?'pos':grandTotalA<0?'neg':'zero';
+    const gtWinner=grandTotalA>0?m.labelA:grandTotalA<0?m.labelB:null;
+    tbl+=`<tr style="border-top:3px solid var(--gold)">
+      <td class="gtl" colspan="${colSpan}" style="font-size:11px;font-weight:800">
+        ${gtWinner?gtWinner+' wins':'All Square'}
+        <span style="color:var(--gold);margin-left:8px;font-size:13px">${grandTotalA===0?'$0':'$'+Math.abs(grandTotalA)}</span>
+      </td>`;
+    gameTotals.forEach(amt=>{
+      const cls=amt>0?'pos':amt<0?'neg':'zero';
+      const disp=amt===0?'—':(amt>0?'+$':'-$')+Math.abs(amt);
+      tbl+=`<td class="gtv ${cls} nine-sep">${disp}</td>`;
+    });
+    if(activeGames.length===0) tbl+=`<td class="gtv nine-sep">—</td>`;
+    tbl+='</tr></tbody></table>';
+    return tbl;
+  }
+
+  // ── (unused stubs kept for reference) ──
+  if(false){
+    allPi.forEach(pi=>{
+      let fN=0,fA=false;
+      for(let h=0;h<9;h++){const n=netS(pi,h);if(n!==null){fN+=n;fA=true;}}
+    });
+    if(hasBack){
+      allPi.forEach(pi=>{
+        let bN=0,bA=false;
+        for(let h=9;h<18;h++){const n=netS(pi,h);if(n!==null){bN+=n;bA=true;}}
+      });
+      allPi.forEach(pi=>{
+        let fN=0,bN=0,fA=false,bA=false;
+        for(let h=0;h<9;h++){const n=netS(pi,h);if(n!==null){fN+=n;fA=true;}}
+        for(let h=9;h<18;h++){const n=netS(pi,h);if(n!==null){bN+=n;bA=true;}}
+        tbl+=`<td class="net" style="font-weight:800">${fA&&bA?fN+bN:'—'}</td>`;
+      });
+    }
+    activeGames.forEach(()=>tbl+=`<td class="ms blank nine-sep"></td>`);
+    tbl+='</tr>';
+
+    // ── Settlement rows — one row per active game ──
+    tbl+=`<tr style="border-top:3px solid var(--gold)"><td class="row-lbl settle" colspan="${allPi.length+1+(hasBack?allPi.length+2:1)}" style="font-size:9px;font-weight:700;color:#5d4037">SETTLEMENT</td>`;
+    activeGames.forEach(()=>tbl+=`<td class="ms blank nine-sep"></td>`);
+    tbl+='</tr>';
+
+    let grandTotalA=0; // positive = sideA wins
+    activeGames.forEach((g,gi)=>{
+      let resText='—', resCls='zero', resAmt=0;
+      if(g.winner==='A'){resAmt=g.value;resCls='pos';resText=`${m.labelA} +$${g.value}`;}
+      else if(g.winner==='B'){resAmt=-g.value;resCls='neg';resText=`${m.labelB} +$${g.value}`;}
+      else if(g.winner==='tie'){resText='Tied $0';resCls='zero';}
+      else if(g.score!==0){
+        const ld=g.score>0?m.labelA:m.labelB;
+        resText=`${ld} +${Math.abs(g.score)}`;resCls='zero';
+      } else {resText='AS';resCls='zero';}
+      grandTotalA+=resAmt;
+
+      const betLabel=g.isPress?`Press ${g.label}`:`${g.label}`;
+      const colSpan=allPi.length+1+(hasBack?allPi.length+2:1);
+      tbl+=`<tr>
+        <td class="stl" colspan="${colSpan}">${betLabel} · $${g.value}</td>`;
+      // Show result value in the corresponding game column, blank in others
+      activeGames.forEach((_,gj)=>{
+        if(gj===gi) tbl+=`<td class="stv ${resCls} nine-sep">${resText}</td>`;
+        else tbl+=`<td class="stl nine-sep"></td>`;
+      });
+      tbl+='</tr>';
+    });
+
+    // Grand total row
+    const gtCls=grandTotalA>0?'pos':grandTotalA<0?'neg':'zero';
+    const gtWinner=grandTotalA>0?m.labelA:grandTotalA<0?m.labelB:null;
+    const gtText=grandTotalA===0?'All Square':`${gtWinner} wins`;
+    const gtAmt=grandTotalA===0?'$0':`$${Math.abs(grandTotalA)}`;
+    const colSpan=allPi.length+1+(hasBack?allPi.length+2:1);
+    tbl+=`<tr style="border-top:2px solid var(--gold)">
+      <td class="gtl" colspan="${colSpan}" style="font-size:11px;font-weight:800">${gtText}</td>`;
+    activeGames.forEach((g,gi)=>{
+      if(gi===activeGames.length-1) tbl+=`<td class="gtv ${gtCls} nine-sep" style="font-size:13px">${gtAmt}</td>`;
+      else tbl+=`<td class="gtl nine-sep"></td>`;
+    });
+    if(activeGames.length===0) tbl+=`<td class="gtv ${gtCls} nine-sep">${gtAmt}</td>`;
+    tbl+='</tr>';
+
+    tbl+='</tbody></table>';
+    return tbl;
+  }
+
+  const tl=is2v2?'High-Low Nassau':'1v1 Nassau';
+  const cardId='card-'+Math.random().toString(36).slice(2,8);
+  return `<div class="msc-card" id="${cardId}">
+    <div class="msc-card-hdr">
+      <div>
+        <div class="msc-card-title">${m.labelA} vs ${m.labelB}</div>
+        <div class="msc-card-sub">${tl} · $${m.bet} Nassau</div>
+      </div>
+      <button class="export-btn" onclick="exportCard('${cardId}','${(m.labelA+' vs '+m.labelB).replace(/'/g,'')}')" ontouchstart="">
+        📸 Export
+      </button>
+    </div>
+    <div class="msc-wrap">${buildCard()}</div>
+  </div>`;
+}
+
 function renderBets(){
   const money=computeMoney();
-  let html='<div style="padding-top:12px">';
-  html+=`<div class="msum"><div class="msum-hdr">💵 Running Money</div>`;
-  G.players.forEach((p,i)=>{const v=money[i],c=v>0?'pos':v<0?'neg':'zero';html+=`<div class="mrow"><div class="mname">${p.name}</div><div class="mamt ${c}">${fmt(v)}</div></div>`;});
-  html+='</div>';
-  buildMatchups().forEach(m=>{
-    const games=computeMatchGames(m);
-    const tl=m.type==='2v2-combined'?'High-Low':m.type==='1v1'?'1v1':'Nassau';
-    html+=`<div class="npanel"><div class="ntitle">🏌️ ${tl} — ${m.labelA} vs ${m.labelB}</div>`;
-    games.forEach(g=>{
-      let sv,sc;
-      if(g.winner==='A'){sv=m.labelA+` wins $${g.value}`;sc='lead';}
-      else if(g.winner==='B'){sv=m.labelB+` wins $${g.value}`;sc='trail';}
-      else if(g.winner==='tie'){sv='Tied — $0';sc='as';}
-      else if(g.score===0){sv='All Square';sc='as';}
-      else{const ld=g.score>0?m.labelA:m.labelB;sv=`${ld} +${Math.abs(g.score)} (${g.holesLeft} left)`;sc='lead';}
-      const pt=g.isPress?'<span class="ptag">PRESS</span>':'';
-      html+=`<div class="nrow"><div class="nrl">${g.label} $${g.value}${pt}</div><div class="nrv ${sc}">${sv}</div></div>`;
-    });
-    html+='</div>';
+  let html='<div style="padding:12px 16px;padding-bottom:120px">';
+
+  // Money summary at top
+  html+=`<div class="msum" style="margin-bottom:16px"><div class="msum-hdr">💵 Running Money — All Games</div>`;
+  G.players.forEach((p,i)=>{
+    const v=money[i],c=v>0?'pos':v<0?'neg':'zero';
+    html+=`<div class="mrow"><div class="mname">${p.name}</div><div class="mamt ${c}">${fmt(v)}</div></div>`;
   });
+  html+='</div>';
+
+  const matchups=buildMatchups();
+  if(!matchups.length){
+    html+=`<div style="text-align:center;color:rgba(255,255,255,.5);padding:40px 0">No games configured</div>`;
+  } else {
+    matchups.forEach(m=>{ html+=renderMatchScorecard(m); });
+  }
   html+='</div>';
   document.getElementById('betsBody').innerHTML=html;
 }
@@ -726,16 +1260,12 @@ function renderTotals(){
   G.players.forEach((p,pi)=>{
     let fG=0,bG=0,fN=0,bN=0;
     html+=`<tr><td class="pnm">${p.name}<br><span style="font-size:9px;color:var(--inkl)">Gross (${p.playHdcp})</span></td>`;
-    for(let h=0;h<9;h++){const g=G.scores[pi][h],s=p.strokes[h];const d=s===2?'<span class="dot dot2"></span><span class="dot dot2"></span>':s===1?'<span class="dot"></span>':'';html+=`<td>${g!==null?g+''+d:'·'}</td>`;if(g!==null)fG+=g;}
+    for(let h=0;h<9;h++){const g=G.scores[pi][h];html+=`<td>${g!==null?g:'·'}</td>`;if(g!==null)fG+=g;}
     html+=`<td class="ns tot">${fG||'·'}</td>`;
-    for(let h=9;h<18;h++){const g=G.scores[pi][h],s=p.strokes[h];const d=s===2?'<span class="dot dot2"></span><span class="dot dot2"></span>':s===1?'<span class="dot"></span>':'';html+=`<td>${g!==null?g+''+d:'·'}</td>`;if(g!==null)bG+=g;}
+    for(let h=9;h<18;h++){const g=G.scores[pi][h];html+=`<td>${g!==null?g:'·'}</td>`;if(g!==null)bG+=g;}
     html+=`<td class="ns tot">${bG||'·'}</td><td class="tot">${fG&&bG?fG+bG:'·'}</td></tr>`;
 
-    html+=`<tr style="background:#fafafa"><td class="pnm"><span style="font-size:9px;color:var(--inkl)">Net</span></td>`;
-    for(let h=0;h<9;h++){const n=netS(pi,h),tp=n!==null?n-G.par[h]:null,c=tp===null?'':tp<0?'nu':tp>0?'no':'';html+=`<td class="${c}">${n!==null?n:'·'}</td>`;if(n!==null)fN+=n;}
-    html+=`<td class="ns tot">${fN||'·'}</td>`;
-    for(let h=9;h<18;h++){const n=netS(pi,h),tp=n!==null?n-G.par[h]:null,c=tp===null?'':tp<0?'nu':tp>0?'no':'';html+=`<td class="${c}">${n!==null?n:'·'}</td>`;if(n!==null)bN+=n;}
-    html+=`<td class="ns tot">${bN||'·'}</td><td class="tot">${fN&&bN?fN+bN:'·'}</td></tr>`;
+    
   });
 
   let fp=0,bp=0;
@@ -751,7 +1281,7 @@ function renderTotals(){
 /* ═══════════════════════════════════════════════
    NAVIGATION
 ═══════════════════════════════════════════════ */
-function goH(d){const n=G.hole+d;if(n<0||n>17)return;G.hole=n;renderCard();}
+function goH(d){const n=G.hole+d;if(n<0||n>17)return;G.hole=n;saveG();renderCard();}
 function jumpN(s){G.hole=s;renderCard();}
 function showS(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -762,7 +1292,7 @@ function showS(name){
   if(name==='totals')renderTotals();
   if(name==='score')renderCard();
 }
-function newRound(){
+function newRound(){localStorage.removeItem('nassau_G');
   if(confirm('New round? Scores will be reset.')){
     G.scores=[];
     document.getElementById('bnav').style.display='none';
@@ -773,9 +1303,73 @@ function newRound(){
 }
 
 /* ═══════════════════════════════════════════════
+   EXPORT AS PHOTO
+═══════════════════════════════════════════════ */
+function exportCard(cardId, title){
+  const card = document.getElementById(cardId);
+  if(!card){ alert('Card not found'); return; }
+  const wrap = card.querySelector('.msc-wrap');
+  const origOverflow = wrap.style.overflow;
+  wrap.style.overflow = 'visible';
+  const btn = card.querySelector('.export-btn');
+  btn.style.display = 'none';
+  html2canvas(card, {
+    backgroundColor: '#1a3a2a',
+    scale: 2,
+    useCORS: true,
+    logging: false,
+    width: card.scrollWidth,
+    windowWidth: card.scrollWidth + 40,
+  }).then(canvas => {
+    wrap.style.overflow = origOverflow;
+    btn.style.display = '';
+    showExportOverlay(canvas.toDataURL('image/png'), title);
+  }).catch(err => {
+    wrap.style.overflow = origOverflow;
+    btn.style.display = '';
+    alert('Export failed: ' + err.message);
+  });
+}
+
+function showExportOverlay(imgUrl, title){
+  const ex = document.getElementById('exportOverlay');
+  if(ex) ex.remove();
+  const overlay = document.createElement('div');
+  overlay.className = 'export-overlay';
+  overlay.id = 'exportOverlay';
+  overlay.innerHTML = `
+    <div style="color:var(--gold);font-size:16px;font-weight:700;margin-bottom:12px;font-family:Georgia,serif">${title}</div>
+    <img src="${imgUrl}" alt="Scorecard" style="max-width:100%;max-height:65vh;border-radius:8px;box-shadow:0 4px 24px rgba(0,0,0,.5)">
+    <div style="color:rgba(255,255,255,.6);font-size:12px;margin-top:10px;text-align:center">📱 Press and hold image → Save to Photos</div>
+    <div style="display:flex;gap:12px;margin-top:14px">
+      <a href="${imgUrl}" download="${title.replace(/[^a-z0-9]/gi,'_')}_nassau.png" style="text-decoration:none">
+        <button class="export-overlay-btn save">⬇ Download</button>
+      </a>
+      <button class="export-overlay-btn close" onclick="document.getElementById('exportOverlay').remove()">✕ Close</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+}
+
+/* ═══════════════════════════════════════════════
    BOOT
 ═══════════════════════════════════════════════ */
 renderAllPairOptions();initSetup();
+
+// ── Restore saved round on launch ──
+(function(){
+  if(loadG()){
+    document.getElementById('bnav').style.display='flex';
+    document.getElementById('badge').textContent='HOLE '+(G.hole+1);
+    document.getElementById('cntVal').textContent=G.n;
+    showS('score'); renderCard();
+    const t=document.createElement('div');
+    t.textContent='Round restored ✓';
+    t.style.cssText='position:fixed;top:72px;left:50%;transform:translateX(-50%);background:var(--gm);color:#fff;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;z-index:999;pointer-events:none';
+    document.body.appendChild(t);
+    setTimeout(()=>t.remove(),2500);
+  }
+})();
 </script>
 <script>
 if('serviceWorker' in navigator){
