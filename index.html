@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Nassau Golf">
 <meta name="theme-color" content="#1a3a2a">
-<link rel="manifest" href="nassau-manifest.json">
-<link rel="apple-touch-icon" href="nassau-icon.png">
+<link rel="manifest" href="data:application/json,{\"name\":\"Nassau Golf\",\"short_name\":\"Nassau\",\"start_url\":\"./\",\"display\":\"standalone\",\"background_color\":\"#1a3a2a\",\"theme_color\":\"#1a3a2a\"}">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%231a3a2a'/%3E%3Ctext x='256' y='340' font-size='280' text-anchor='middle' fill='%23c9a84c'%3E%E2%9B%B3%3C/text%3E%3C/svg%3E">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <title>Nassau Golf · Derrick GWC</title>
 <style>
@@ -1372,11 +1372,35 @@ renderAllPairOptions();initSetup();
 })();
 </script>
 <script>
+// Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('nassau-sw.js')
-      .then(r => console.log('SW registered'))
-      .catch(e => console.log('SW failed', e));
+  const swCode = `
+const CACHE='nassau-v1';
+self.addEventListener('install',e=>{
+  e.waitUntil(
+    caches.open(CACHE).then(c=>c.addAll(['./']))
+    .then(()=>self.skipWaiting())
+  );
+});
+self.addEventListener('activate',e=>{
+  e.waitUntil(clients.claim());
+});
+self.addEventListener('fetch',e=>{
+  e.respondWith(
+    caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{
+      const clone=res.clone();
+      caches.open(CACHE).then(c=>c.put(e.request,clone));
+      return res;
+    }))
+  );
+});
+`;
+  const blob=new Blob([swCode],{type:'application/javascript'});
+  const swUrl=URL.createObjectURL(blob);
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register(swUrl)
+      .then(()=>console.log('SW ready'))
+      .catch(e=>console.log('SW failed',e));
   });
 }
 </script>
