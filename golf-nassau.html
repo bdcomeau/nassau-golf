@@ -22,7 +22,7 @@
 body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;background:var(--gd);color:var(--ink);min-height:100vh;overscroll-behavior:none;-webkit-text-size-adjust:100%}
 
 /* ── HEADER ── */
-.hdr{background:var(--gd);padding:12px 16px 10px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(201,168,76,.3)}
+.hdr{background:var(--gd);padding:7px 14px 6px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(201,168,76,.3)}
 .hdr-title{font-size:20px;font-weight:700;color:var(--gold);font-family:Georgia,serif;letter-spacing:-.3px}
 .hdr-sub{font-size:10px;color:var(--gl);letter-spacing:1px;text-transform:uppercase}
 .badge{background:var(--gold);color:var(--gd);font-size:11px;font-weight:700;padding:3px 8px;border-radius:10px;white-space:nowrap}
@@ -76,31 +76,32 @@ input::placeholder{color:#bbb}
 /* ── SCORE SCREEN ── */
 .shdr{background:var(--gd);padding:10px 16px;border-bottom:1px solid rgba(201,168,76,.2)}
 .hnav{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.hnav-btn{width:38px;height:38px;background:rgba(255,255,255,.1);border:none;border-radius:50%;color:var(--gold);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+.hnav-btn{width:32px;height:32px;background:rgba(255,255,255,.1);border:none;border-radius:50%;color:var(--gold);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
 .hnav-btn:disabled{opacity:.3}
 .hinfo{text-align:center;flex:1}
-.hnum{font-size:22px;font-weight:800;color:var(--gold);font-family:Georgia,serif}
-.hmeta{font-size:12px;color:var(--gl)}
-.nine-tabs{display:flex;gap:6px;padding:8px 16px;background:var(--gd)}
+.hnum{font-size:18px;font-weight:800;color:var(--gold);font-family:Georgia,serif}
+.hmeta{font-size:11px;color:var(--gl)}
+.nine-tabs{display:flex;gap:6px;padding:5px 10px;background:var(--gd)}
 .ntab{flex:1;padding:6px;text-align:center;font-size:12px;font-weight:600;color:var(--gl);border-radius:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .ntab.active{background:var(--gold);color:var(--gd)}
-.sbody{padding:12px 16px;padding-bottom:120px}
+.sbody{padding:6px 10px;padding-bottom:80px}
 
 /* ── PLAYER SCORE CARD ── */
-.pcard{background:#fff;border-radius:14px;margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow)}
-.pcard-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--gd)}
-.pcard-name{font-size:16px;font-weight:700;color:#fff}
-.pcard-hdcp{font-size:12px;color:var(--gl)}
-.pcard-mon{font-size:14px;font-weight:700}
-.pcard-body{padding:10px 14px}
+.pcard{background:#fff;border-radius:10px;margin-bottom:6px;overflow:hidden;box-shadow:var(--shadow)}
+.pcard-hdr{display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:var(--gd)}
+.pcard-name{font-size:14px;font-weight:700;color:#fff}
+.pcard-hdcp{font-size:10px;color:var(--gl)}
+.pcard-mon{font-size:13px;font-weight:700}
+.pcard-body{padding:5px 10px 6px}
 
 /* ── SCROLL WHEEL SCORE ── */
-.score-row{display:flex;align-items:center;gap:12px}
+.score-row{display:flex;align-items:center;gap:8px}
 
-.scroll-wheel{display:flex;flex-direction:column;align-items:center;width:72px;flex-shrink:0;user-select:none;-webkit-user-select:none}
-.sw-btn{width:44px;height:32px;background:var(--gp);border:none;border-radius:8px;font-size:18px;font-weight:700;color:var(--gm);cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:background .1s}
+/* Horizontal score wheel: ◀ [score] ▶ */
+.scroll-wheel{display:flex;flex-direction:row;align-items:center;gap:4px;flex-shrink:0;user-select:none;-webkit-user-select:none}
+.sw-btn{width:36px;height:44px;background:var(--gp);border:none;border-radius:8px;font-size:20px;font-weight:700;color:var(--gm);cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:background .1s}
 .sw-btn:active{background:var(--gm);color:#fff}
-.sw-score{width:64px;height:56px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;position:relative;-webkit-tap-highlight-color:transparent}
+.sw-score{width:60px;height:44px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;position:relative;-webkit-tap-highlight-color:transparent}
 .sw-score.par-score{background:#f0f7f2;border:2.5px solid var(--gm)}
 .sw-score.birdie{background:#e8f5e9;border:2.5px solid #2e7d32}
 .sw-score.eagle{background:#c8e6c9;border:2.5px solid #1b5e20}
@@ -109,8 +110,8 @@ input::placeholder{color:#bbb}
 .sw-score.triple{background:#fce4ec;border:2.5px solid #880e4f}
 .sw-score.stroke-1{border-color:var(--red)!important}
 .sw-score.stroke-2{border-color:#8e0000!important}
-.sw-num{font-size:30px;font-weight:800;color:var(--ink);line-height:1}
-.sw-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:1px}
+.sw-num{font-size:24px;font-weight:800;color:var(--ink);line-height:1}
+.sw-label{font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:1px}
 .sw-label.par-lbl{color:var(--gm)}
 .sw-label.birdie-lbl{color:#2e7d32}
 .sw-label.eagle-lbl{color:#1b5e20}
@@ -122,15 +123,15 @@ input::placeholder{color:#bbb}
 .pip{display:inline-block;width:7px;height:7px;background:var(--red);border-radius:50%;position:absolute;top:3px;right:3px}
 .pip2{background:#8e0000;width:6px;height:6px;top:3px;right:10px}
 
-.sdet{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.sdi{background:#f5f2ec;border-radius:8px;padding:6px 8px}
-.sdl{font-size:10px;color:var(--inkl);text-transform:uppercase;letter-spacing:.5px}
-.sdv{font-size:16px;font-weight:700}
+.sdet{flex:1;display:flex;flex-direction:row;gap:4px;align-items:stretch}
+.sdi{background:#f5f2ec;border-radius:6px;padding:3px 6px;flex:1;text-align:center}
+.sdl{font-size:8px;color:var(--inkl);text-transform:uppercase;letter-spacing:.3px}
+.sdv{font-size:14px;font-weight:700}
 .sdv.under{color:var(--gm)}.sdv.over{color:var(--red)}
 
 /* ── NASSAU PANEL ── */
-.npanel{background:var(--gd);border-radius:14px;padding:14px;margin-bottom:10px}
-.ntitle{font-size:13px;font-weight:700;color:var(--gold);letter-spacing:.5px;margin-bottom:10px}
+.npanel{background:var(--gd);border-radius:10px;padding:8px 10px;margin-bottom:6px}
+.ntitle{font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.5px;margin-bottom:4px}
 .nrow{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.07)}
 .nrow:last-child{border-bottom:none}
 .nrl{font-size:12px;color:rgba(255,255,255,.8)}
@@ -690,9 +691,9 @@ function renderCard(){
         <div class="pcard-mon" style="${monCls}">${fmt(money[pi])}</div>
       </div>
       <div class="pcard-body">
-        <div class="score-row">
+        <div style="display:flex;align-items:center;gap:8px">
           <div class="scroll-wheel">
-            <button class="sw-btn" ontouchstart="adjustScore(${pi},${h},1)" onclick="adjustScore(${pi},${h},1)">▲</button>
+            <button class="sw-btn" ontouchstart="adjustScore(${pi},${h},-1)" onclick="adjustScore(${pi},${h},-1)">◀</button>
             <div class="sw-score ${sc.box} ${str===2?'stroke-2':str===1?'stroke-1':''}"
               ontouchstart="swipeStart(${pi},${h},event)"
               ontouchmove="swipeMove(event)"
@@ -701,12 +702,12 @@ function renderCard(){
               onmousemove="swipeMove(event)"
               onmouseup="swipeEnd()">
               ${p1}${p2}
-              <div class="sw-num" style="${gross===null?'font-size:22px;color:#bbb;font-weight:400':''}">
+              <div class="sw-num" style="${gross===null?'font-size:20px;color:#bbb;font-weight:400':''}">
                 ${gross!==null?gross:'—'}
               </div>
               <div class="sw-label ${sc.lblCls}">${sc.lbl}</div>
             </div>
-            <button class="sw-btn" ontouchstart="adjustScore(${pi},${h},-1)" onclick="adjustScore(${pi},${h},-1)">▼</button>
+            <button class="sw-btn" ontouchstart="adjustScore(${pi},${h},1)" onclick="adjustScore(${pi},${h},1)">▶</button>
           </div>
           <div class="sdet">
             <div class="sdi"><div class="sdl">Net</div><div class="sdv ${netCls}">${net!==null?net:'—'}</div></div>
