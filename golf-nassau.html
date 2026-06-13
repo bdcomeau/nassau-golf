@@ -686,7 +686,7 @@ function renderCard(){
       <div class="pcard-hdr">
         <div>
           <div class="pcard-name">${p.name}</div>
-          <div class="pcard-hdcp">Idx ${p.idx} · Playing ${p.playHdcp} · ${str} stroke${str!==1?'s':''} this hole</div>
+          <div class="pcard-hdcp" onclick="updateHandicap(${pi})" style="cursor:pointer" title="Tap to edit handicap">Idx ${p.idx} · Playing ${p.playHdcp} · ${str} stroke${str!==1?'s':''} this hole ✏️</div>
         </div>
         <div class="pcard-mon" style="${monCls}">${fmt(money[pi])}</div>
       </div>
@@ -1247,7 +1247,11 @@ function renderBets(){
 ═══════════════════════════════════════════════ */
 function renderTotals(){
   const money=computeMoney();
-  let html=`<div class="tottitle">Derrick GWC · Results</div>`;
+  let html=`<div id="totalsCard" style="background:#fff;border-radius:12px;overflow:hidden;padding:0 0 8px">`;
+  html+=`<div style="background:var(--gd);padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
+    <div style="font-size:15px;font-weight:700;color:var(--gold);font-family:Georgia,serif">Derrick GWC · Results</div>
+    <button class="export-btn" id="totExportBtn" onclick="exportTotals()" ontouchstart="">📸 Export</button>
+  </div>`;
   html+=`<div class="msum"><div class="msum-hdr">Final Money</div>`;
   G.players.forEach((p,i)=>{const v=money[i],c=v>0?'pos':v<0?'neg':'zero';html+=`<div class="mrow"><div class="mname">${p.name}</div><div class="mamt ${c}">${fmt(v)}</div></div>`;});
   html+='</div>';
@@ -1276,6 +1280,7 @@ function renderTotals(){
   for(let h=9;h<18;h++){html+=`<td>${G.par[h]}</td>`;bp+=G.par[h];}
   html+=`<td class="ns tot">${bp}</td><td class="tot">${fp+bp}</td></tr>`;
   html+='</tbody></table></div></div>';
+  html+='</div>'; // close totalsCard
   document.getElementById('totBody').innerHTML=html;
 }
 
@@ -1309,27 +1314,53 @@ function newRound(){localStorage.removeItem('nassau_G');
 function exportCard(cardId, title){
   const card = document.getElementById(cardId);
   if(!card){ alert('Card not found'); return; }
+
+  // Expand everything to full scrollable width before capture
   const wrap = card.querySelector('.msc-wrap');
-  const origOverflow = wrap.style.overflow;
-  wrap.style.overflow = 'visible';
+  const tbl  = wrap ? wrap.querySelector('table') : null;
+
+  const saved = {
+    cardW:   card.style.width,
+    wrapOvf: wrap ? wrap.style.overflow : '',
+    wrapW:   wrap ? wrap.style.width : '',
+    tblW:    tbl  ? tbl.style.width  : '',
+  };
+
+  const fullW = tbl ? tbl.scrollWidth : card.scrollWidth;
+
+  card.style.width  = fullW + 'px';
+  if(wrap){ wrap.style.overflow = 'visible'; wrap.style.width = fullW + 'px'; }
+  if(tbl) { tbl.style.width = 'auto'; }
+
   const btn = card.querySelector('.export-btn');
-  btn.style.display = 'none';
-  html2canvas(card, {
-    backgroundColor: '#1a3a2a',
-    scale: 2,
-    useCORS: true,
-    logging: false,
-    width: card.scrollWidth,
-    windowWidth: card.scrollWidth + 40,
-  }).then(canvas => {
-    wrap.style.overflow = origOverflow;
-    btn.style.display = '';
-    showExportOverlay(canvas.toDataURL('image/png'), title);
-  }).catch(err => {
-    wrap.style.overflow = origOverflow;
-    btn.style.display = '';
-    alert('Export failed: ' + err.message);
-  });
+  if(btn) btn.style.display = 'none';
+
+  // Small delay so layout reflows before capture
+  setTimeout(()=>{
+    html2canvas(card, {
+      backgroundColor: '#ffffff',
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      width: fullW,
+      windowWidth: fullW + 40,
+      scrollX: 0,
+      scrollY: 0,
+    }).then(canvas => {
+      // Restore
+      card.style.width  = saved.cardW;
+      if(wrap){ wrap.style.overflow = saved.wrapOvf; wrap.style.width = saved.wrapW; }
+      if(tbl) { tbl.style.width = saved.tblW; }
+      if(btn) btn.style.display = '';
+      showExportOverlay(canvas.toDataURL('image/png'), title);
+    }).catch(err => {
+      card.style.width  = saved.cardW;
+      if(wrap){ wrap.style.overflow = saved.wrapOvf; wrap.style.width = saved.wrapW; }
+      if(tbl) { tbl.style.width = saved.tblW; }
+      if(btn) btn.style.display = '';
+      alert('Export failed: ' + err.message);
+    });
+  }, 50);
 }
 
 function showExportOverlay(imgUrl, title){
@@ -1350,6 +1381,63 @@ function showExportOverlay(imgUrl, title){
     </div>`;
   document.body.appendChild(overlay);
   overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+}
+
+function exportTotals(){
+  const card = document.getElementById('totalsCard');
+  if(!card){ alert('Not ready'); return; }
+  const btn = document.getElementById('totExportBtn');
+  if(btn) btn.style.display='none';
+
+  const tbl = card.querySelector('table');
+  const savedW = card.style.width;
+  const fullW = tbl ? tbl.scrollWidth + 32 : card.scrollWidth;
+  card.style.width = fullW + 'px';
+
+  setTimeout(()=>{
+    html2canvas(card, {
+      backgroundColor:'#ffffff',
+      scale:2,
+      useCORS:true,
+      logging:false,
+      width:fullW,
+      windowWidth:fullW+40,
+      scrollX:0,scrollY:0,
+    }).then(canvas=>{
+      card.style.width=savedW;
+      if(btn) btn.style.display='';
+      showExportOverlay(canvas.toDataURL('image/png'),'Derrick GWC Results');
+    }).catch(err=>{
+      card.style.width=savedW;
+      if(btn) btn.style.display='';
+      alert('Export failed: '+err.message);
+    });
+  },50);
+}
+
+function updateHandicap(pi){
+  const p = G.players[pi];
+  const input = prompt(`Update handicap index for ${p.name}\nCurrent: ${p.idx}`, p.idx);
+  if(input === null) return; // cancelled
+  const newIdx = parseFloat(input);
+  if(isNaN(newIdx) || newIdx < 0 || newIdx > 54){
+    alert('Please enter a valid handicap index (0–54)');
+    return;
+  }
+  p.idx = newIdx;
+  // Recalculate all playing handicaps from new indexes
+  const minH = Math.min(...G.players.map(p=>p.idx));
+  G.players.forEach(p=>p.playHdcp = Math.round(p.idx - minH));
+  // Recalculate strokes per hole for every player
+  G.players.forEach(p=>{
+    p.strokes = G.si.map(si=>{
+      if(p.playHdcp >= si+18) return 2;
+      if(p.playHdcp >= si)    return 1;
+      return 0;
+    });
+  });
+  saveG();
+  renderCard();
 }
 
 /* ═══════════════════════════════════════════════
