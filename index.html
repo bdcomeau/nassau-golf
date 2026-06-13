@@ -1006,7 +1006,7 @@ function renderMatchScorecard(m){
       const p=G.players[pi];
       tbl+=`<td class="hdr-name">${p.name}<br><span style="font-size:8px;font-weight:400">Idx ${p.idx.toFixed(1)}</span></td>`;
     });
-    tbl+=`<td class="hdr-tot nine-sep">F/B/Tot</td>`;
+    tbl+=`<td class="hdr-tot nine-sep">HCP</td>`;
     activeGames.forEach(g=>{
       // Label: Frt / Bck / 18 for originals, press number for presses
       const pressGames = activeGames.filter(g=>g.isPress);
@@ -1023,7 +1023,7 @@ function renderMatchScorecard(m){
     const bPar=G.par.slice(9).reduce((a,b)=>a+b,0);
     tbl+=`<tr><td class="row-lbl par">Par</td>`;
     allPi.forEach(()=>tbl+=`<td class="sc" style="background:var(--gp);font-weight:700"></td>`);
-    tbl+=`<td class="tot out nine-sep" style="font-size:9px">${fPar}/${bPar}/${fPar+bPar}</td>`;
+    tbl+=`<td class="tot out nine-sep" style="font-size:9px">SI</td>`;
     activeGames.forEach(()=>tbl+=`<td class="ms blank nine-sep"></td>`);
     tbl+='</tr>';
 
@@ -1050,8 +1050,8 @@ function renderMatchScorecard(m){
         tbl+=`<td class="sc">${inner}</td>`;
       });
 
-      // F/B/Tot col — blank per hole
-      tbl+=`<td class="tot nine-sep" style="background:#f9f9f9"></td>`;
+      // HCP col — show stroke index for this hole
+      tbl+=`<td class="tot nine-sep" style="background:#f5f5f5;color:#666;font-size:10px">${G.si[h]}</td>`;
 
       // Match game columns — use pre-computed running scores
       activeGames.forEach((g,gi)=>{
