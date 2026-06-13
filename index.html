@@ -555,38 +555,63 @@ function computeMatchGames(matchup){
   const pressVal = base * 2;
   const games = [];
 
-  // Score a game from startH to endH, return score, holesPlayed, pressStartH (first hole ±2 crossed)
-  function scoreGame(startH, endH, label, value, isPress){
-    let score=0, holesPlayed=0, pressStartH=null;
+  // Score a range of holes, return final score and hole index where ±2 first crossed
+  function scoreRange(startH, endH){
+    let score=0, pressH=null;
     for(let h=startH; h<=endH; h++){
       const r = holeResult(matchup, h);
       if(r === null) break;
       score += r;
-      holesPlayed++;
-      // First time this game hits ±2 with holes still remaining → press starts next hole
-      if(pressStartH === null && Math.abs(score) >= 2 && h < endH){
-        pressStartH = h + 1; // 0-indexed start of press
-      }
+      if(pressH === null && Math.abs(score) >= 2 && h < endH) pressH = h;
     }
+    const holesPlayed = (() => {
+      let c=0;
+      for(let h=startH;h<=endH;h++){ if(holeResult(matchup,h)===null) break; c++; }
+      return c;
+    })();
     const holesLeft = (endH - startH + 1) - holesPlayed;
     const settled = holesLeft === 0 || Math.abs(score) > holesLeft;
-    const winner = settled ? (score > 0 ? 'A' : score < 0 ? 'B' : 'tie') : null;
-    games.push({ label, startH, endH, value, isPress, score, holesPlayed, settled, winner });
-    return pressStartH;
+    const winner = settled ? (score>0?'A':score<0?'B':'tie') : null;
+    return {score, pressH, holesPlayed, settled, winner};
   }
 
-  // ── Original 3 bets ──
-  scoreGame(0, 8,  'Front 9',  base, false);
-  scoreGame(9, 17, 'Back 9',   base, false);
+  function addGame(startH, endH, value, label, isPress){
+    const g = scoreRange(startH, endH);
+    games.push({label, startH, endH, value, isPress,
+                score:g.score, holesPlayed:g.holesPlayed,
+                settled:g.settled, winner:g.winner});
+    return g.pressH; // where this game first hit ±2
+  }
 
-  // ── Full 18 + single press chain ──
-  // Each press runs H(pressStart)–18 and can spawn the next press
-  let pressStart = scoreGame(0, 17, 'Full 18', base, false);
-  let pressNum = 1;
-  while(pressStart !== null){
-    const label = `Press H${pressStart + 1}–18`;
-    pressStart = scoreGame(pressStart, 17, label, pressVal, true);
-    pressNum++;
+  // ── 3 original bets ──
+  addGame(0,  8, base, 'Front 9',  false);
+  addGame(9, 17, base, 'Back 9',   false);
+  addGame(0, 17, base, 'Full 18',  false);
+
+  // ── Press chain — driven by the Full 18 score, then each subsequent press ──
+  // For front-nine press (triggered H1-H8): spawn two sub-games ($2 to H9, $2 to H18)
+  //   Chain continues from the H18 sub-game's first ±2
+  // For back-nine press (triggered H9-H17): spawn one $4 game to H18
+  //   Chain continues from that game's first ±2
+
+  const fullGame = scoreRange(0, 17);
+  let chainPressH = fullGame.pressH;
+  let pNum = 1;
+
+  while(chainPressH !== null){
+    const ps = chainPressH + 1; // 0-indexed start of press
+    if(ps > 17) break;
+
+    if(chainPressH < 8){
+      // Front-nine press: two sub-games, chain continues from H18 sub-game
+      const nextPressH9  = addGame(ps, 8,  base, `Press ${pNum}a H${ps+1}–9`,  true);
+      const nextPressH18 = addGame(ps, 17, base, `Press ${pNum}b H${ps+1}–18`, true);
+      chainPressH = nextPressH18; // chain from the H18 leg
+    } else {
+      // Back-nine press: one $4 game, chain continues from it
+      chainPressH = addGame(ps, 17, pressVal, `Press ${pNum} H${ps+1}–18`, true);
+    }
+    pNum++;
   }
 
   return games;
