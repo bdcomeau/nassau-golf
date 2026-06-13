@@ -35,7 +35,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 .slabel{font-size:11px;font-weight:700;color:var(--gl);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px;margin-top:20px}
 .card{background:#fff;border-radius:14px;padding:14px;box-shadow:var(--shadow);margin-bottom:12px}
 
-.p-row{display:grid;grid-template-columns:28px 1fr 80px;gap:8px;align-items:center;margin-bottom:10px}
+.p-row-old{display:grid;grid-template-columns:28px 1fr 80px;gap:8px;align-items:center;margin-bottom:10px}
 .p-row:last-child{margin-bottom:0}
 .p-num{width:28px;height:28px;background:var(--gd);color:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
 
@@ -44,6 +44,10 @@ input[type=number]{text-align:center}
 input:focus{outline:none;border-color:var(--gm);background:#fff}
 input::placeholder{color:#bbb}
 .hlbl{font-size:11px;color:var(--inkl);text-align:center;margin-top:2px}
+.p-row{display:grid;grid-template-columns:28px 1fr 72px 28px;gap:6px;align-items:start;margin-bottom:10px}
+.save-btn{width:28px;height:36px;background:var(--gp);border:1.5px solid var(--gm);border-radius:8px;color:var(--gm);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;flex-shrink:0}
+.save-btn:active{background:var(--gm);color:#fff}
+.contact-select{border:1.5px solid var(--border);border-radius:8px;padding:4px 6px;font-size:12px;width:100%;background:var(--cream);color:var(--ink);margin-top:3px;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:22px}
 
 .tog-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0ebe0}
 .tog-row:last-child{border-bottom:none}
@@ -280,6 +284,9 @@ input::placeholder{color:#bbb}
 
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
+  <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
+    Nassau Golf · Derrick GWC · v1.2
+  </div>
 </div>
 </div>
 
@@ -361,13 +368,23 @@ function initSetup(){
   renderPlayers();
 }
 function renderPlayers(){
+  const contacts = loadContacts();
+  const contactOpts = contacts.length
+    ? `<option value="">— saved players —</option>`+contacts.map(c=>`<option value="${c.name}">${c.name} (${c.idx})</option>`).join('')
+    : `<option value="">No saved players</option>`;
   let h='';
   for(let i=0;i<5;i++){
     const act=i<G.n,nm=G.players[i]?.name||'',hx=G.players[i]?.idx!==undefined?G.players[i].idx:'';
     h+=`<div class="p-row" style="${act?'':'opacity:.3;pointer-events:none'}">
       <div class="p-num" style="${act?'':'background:#ddd;color:#aaa'}">${i+1}</div>
-      <input type="text" id="pn${i}" placeholder="Player ${i+1}" value="${nm}" ${act?'':'disabled'}>
-      <div><input type="number" id="ph${i}" placeholder="0.0" step=".1" min="0" max="54" value="${hx}" style="width:72px" ${act?'':'disabled'}><div class="hlbl">Hdcp</div></div>
+      <div>
+        <input type="text" id="pn${i}" placeholder="Player ${i+1}" value="${nm}" ${act?'':'disabled'}>
+        <select class="contact-select" id="contact${i}" onchange="selectContact(${i})" ${act?'':'disabled'}>
+          ${contactOpts}
+        </select>
+      </div>
+      <div><input type="number" id="ph${i}" placeholder="0.0" step=".1" min="0" max="54" value="${hx}" style="width:64px" ${act?'':'disabled'}><div class="hlbl">Hdcp</div></div>
+      <button class="save-btn" id="savebtn${i}" onclick="saveContact(${i})" ${act?'':'disabled'} title="Save player">💾</button>
     </div>`;
   }
   document.getElementById('playerInputs').innerHTML=h;
@@ -1472,6 +1489,52 @@ function updateHandicap(pi){
   });
   saveG();
   renderCard();
+}
+
+/* ═══════════════════════════════════════════════
+   CONTACTS
+═══════════════════════════════════════════════ */
+function loadContacts(){
+  try{ return JSON.parse(localStorage.getItem('nassau_contacts')||'[]'); }
+  catch(e){ return []; }
+}
+function saveContacts(contacts){
+  try{ localStorage.setItem('nassau_contacts', JSON.stringify(contacts)); }catch(e){}
+}
+function saveContact(i){
+  const name = document.getElementById(`pn${i}`).value.trim();
+  const idx  = parseFloat(document.getElementById(`ph${i}`).value);
+  if(!name){ alert('Enter a name first'); return; }
+  if(isNaN(idx)){ alert('Enter a handicap first'); return; }
+  const contacts = loadContacts();
+  const existing = contacts.findIndex(c=>c.name.toLowerCase()===name.toLowerCase());
+  if(existing>=0){
+    if(confirm(`Update ${name}'s handicap to ${idx}?`)){
+      contacts[existing].idx=idx;
+    } else return;
+  } else {
+    contacts.push({name, idx});
+    contacts.sort((a,b)=>a.name.localeCompare(b.name));
+  }
+  saveContacts(contacts);
+  renderPlayers(); // refresh dropdowns
+  // flash confirmation
+  const btn=document.getElementById(`savebtn${i}`);
+  if(btn){ btn.textContent='✓'; setTimeout(()=>{btn.textContent='💾';},1000); }
+}
+function selectContact(i){
+  const sel = document.getElementById(`contact${i}`);
+  if(!sel||!sel.value) return;
+  const contacts = loadContacts();
+  const c = contacts.find(c=>c.name===sel.value);
+  if(!c) return;
+  document.getElementById(`pn${i}`).value = c.name;
+  document.getElementById(`ph${i}`).value = c.idx;
+}
+function deleteContact(name){
+  const contacts = loadContacts().filter(c=>c.name!==name);
+  saveContacts(contacts);
+  renderPlayers();
 }
 
 /* ═══════════════════════════════════════════════
