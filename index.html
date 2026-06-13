@@ -137,6 +137,16 @@ input::placeholder{color:#bbb}
 .nrv.lead{color:var(--gl)}.nrv.trail{color:#e74c3c}.nrv.as{color:var(--gold)}
 .ptag{font-size:9px;background:var(--gold);color:var(--gd);padding:1px 4px;border-radius:3px;font-weight:700;margin-left:4px;vertical-align:middle}
 
+/* ── GAME LIST ── */
+.game-item{background:var(--gp);border-radius:10px;padding:10px 12px;margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.game-item-label{font-size:13px;font-weight:600;color:var(--gd);flex:1;min-width:0}
+.game-item-sub{font-size:11px;color:var(--gm);margin-top:1px}
+.bet-picker{display:flex;gap:4px;flex-shrink:0}
+.bp-btn{width:36px;height:30px;border:1.5px solid var(--border);border-radius:7px;background:var(--cream);color:var(--ink);font-size:12px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center}
+.bp-btn.sel{background:var(--gd);color:var(--gold);border-color:var(--gd)}
+.game-del{width:28px;height:28px;background:#ffe0e0;border:none;border-radius:7px;color:var(--red);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+.add-hint{font-size:12px;color:#aaa;text-align:center;padding:8px 0}
+
 /* ── BETS ── */
 .msum{background:#fff;border-radius:14px;overflow:hidden;margin-bottom:12px;box-shadow:var(--shadow)}
 .msum-hdr{background:var(--gd);padding:10px 14px;font-size:13px;font-weight:700;color:var(--gold)}
@@ -191,33 +201,18 @@ input::placeholder{color:#bbb}
   <div class="slabel">Players & Handicap Index (RCGA)</div>
   <div class="card" id="playerInputs"></div>
 
-  <div class="slabel">Nassau Bet Amount</div>
-  <div class="card">
-    <div class="bet-row">
-      <div class="bet-lbl">$ per Nassau (Front / Back / 18)</div>
-      <div class="bet-inp"><span>$</span><input type="number" id="betAmt" value="2" min="1" step="1" style="width:70px"></div>
-    </div>
-    <div class="chip" id="betChip">$2 Nassau · Presses = $4 each</div>
+  <div class="slabel">2v2 Nassau Games (High-Low)</div>
+  <div class="card" id="teamGamesCard">
+    <div style="font-size:12px;color:#666;margin:0 0 8px">Tap a pairing to add it as a game, then set the bet amount.</div>
+    <div id="pairGrid"></div>
+    <div id="teamGamesList"></div>
   </div>
 
-  <div class="slabel">Nassau Games</div>
-  <div class="card">
-    <div class="tog-row">
-      <div><div class="tog-lbl">2v2 Team Nassau (High + Low ball)</div><div class="tog-sub">High ball and Low ball scored as separate bets</div></div>
-      <div class="tog on" id="tog2v2" onclick="togBet('2v2')"></div>
-    </div>
-    <div id="teamSetup">
-      <div style="font-size:12px;color:#666;margin:8px 0 4px">Team Pairings</div>
-      <div class="pair-grid" id="pairGrid"></div>
-    </div>
-    <div class="tog-row" style="margin-top:4px">
-      <div><div class="tog-lbl">1v1 Individual Nassau</div><div class="tog-sub">Net score matchups</div></div>
-      <div class="tog" id="tog1v1" onclick="togBet('1v1')"></div>
-    </div>
-    <div id="singlesSetup" style="display:none">
-      <div style="font-size:12px;color:#666;margin:8px 0 4px">Select Matchups</div>
-      <div id="singlesGrid"></div>
-    </div>
+  <div class="slabel">1v1 Nassau Games</div>
+  <div class="card" id="singlesCard">
+    <div style="font-size:12px;color:#666;margin:0 0 8px">Tap a matchup to add it, then set the bet amount.</div>
+    <div id="singlesGrid"></div>
+    <div id="singleGamesList"></div>
   </div>
 
   <div class="errmsg" id="setupErr"></div>
@@ -274,18 +269,17 @@ const DERRICK_SI  = [6,18,4,12,16,2,10,14,8, 9,1,15,7,17,3,11,13,5];
 ═══════════════════════════════════════════════ */
 const G = {
   n:4, players:[], par:[], si:[],
-  bet:2, use2v2:true, use1v1:false,
-  team:null, singles:[],
+  teamGames:[],   // [{a:[i,i], b:[i,i], bet:2}]
+  singleGames:[], // [{p1:i, p2:i, bet:2}]
   scores:[], hole:0,
 };
+const BET_OPTIONS=[1,2,5,10];
 
 /* ═══════════════════════════════════════════════
    SETUP UI
 ═══════════════════════════════════════════════ */
 function initSetup(){
   renderPlayers();
-  document.getElementById('betAmt').addEventListener('input',updateChip);
-  updateChip();
 }
 function renderPlayers(){
   let h='';
@@ -299,43 +293,109 @@ function renderPlayers(){
   }
   document.getElementById('playerInputs').innerHTML=h;
 }
-document.getElementById('btnMinus').onclick=()=>{if(G.n>2){G.n--;document.getElementById('cntVal').textContent=G.n;renderPlayers();renderPairs();renderSingles();}};
-document.getElementById('btnPlus').onclick=()=>{if(G.n<5){G.n++;document.getElementById('cntVal').textContent=G.n;renderPlayers();renderPairs();renderSingles();}};
-function togBet(tp){
-  if(tp==='2v2'){document.getElementById('tog2v2').classList.toggle('on');G.use2v2=document.getElementById('tog2v2').classList.contains('on');document.getElementById('teamSetup').style.display=G.use2v2?'block':'none';}
-  else{document.getElementById('tog1v1').classList.toggle('on');G.use1v1=document.getElementById('tog1v1').classList.contains('on');document.getElementById('singlesSetup').style.display=G.use1v1?'block':'none';if(G.use1v1)renderSingles();}
-}
-function updateChip(){const v=parseFloat(document.getElementById('betAmt').value)||2;document.getElementById('betChip').textContent=`$${v} Nassau · Presses = $${v*2} each`;}
+document.getElementById('btnMinus').onclick=()=>{if(G.n>2){G.n--;document.getElementById('cntVal').textContent=G.n;renderPlayers();renderAllPairOptions();}};
+document.getElementById('btnPlus').onclick=()=>{if(G.n<5){G.n++;document.getElementById('cntVal').textContent=G.n;renderPlayers();renderAllPairOptions();}};
 
-function renderPairs(){
-  const n=G.n;
-  if(n<4){document.getElementById('pairGrid').innerHTML='<div style="font-size:13px;color:var(--red)">Need 4+ players for 2v2.</div>';return;}
-  const names=Array.from({length:n},(_,i)=>document.getElementById(`pn${i}`)?.value||`P${i+1}`);
-  const seen=new Set(),u=[];
+// Generate all unique 2v2 pairings for current players
+function allPairCombos(){
+  const n=G.n, seen=new Set(), u=[];
   for(let a=0;a<n;a++)for(let b=a+1;b<n;b++){
     const rest=Array.from({length:n},(_,i)=>i).filter(i=>i!==a&&i!==b);
-    if(rest.length>=2){const c={a:[a,b],b:[rest[0],rest[1]]},k=[...c.a].sort().join('-')+'|'+[...c.b].sort().join('-'),k2=[...c.b].sort().join('-')+'|'+[...c.a].sort().join('-');if(!seen.has(k)&&!seen.has(k2)){seen.add(k);u.push(c);}}
+    if(rest.length>=2){
+      const c={a:[a,b],b:[rest[0],rest[1]]};
+      const k=[...c.a].sort().join('-')+'|'+[...c.b].sort().join('-');
+      const k2=[...c.b].sort().join('-')+'|'+[...c.a].sort().join('-');
+      if(!seen.has(k)&&!seen.has(k2)){seen.add(k);u.push(c);}
+    }
   }
-  window._pairs=u;if(!G.team&&u.length)G.team=u[0];
-  let h='';
-  u.forEach((c,i)=>{
-    const sel=G.team&&JSON.stringify(G.team)===JSON.stringify(c)?'sel':'';
-    h+=`<div class="pbtn ${sel}" onclick="selPair(${i})">Team A vs B<div class="pn">${names[c.a[0]]} & ${names[c.a[1]]}<br>vs<br>${names[c.b[0]]} & ${names[c.b[1]]}</div></div>`;
+  return u;
+}
+
+function names(){return Array.from({length:G.n},(_,i)=>document.getElementById(`pn${i}`)?.value.trim()||`P${i+1}`);}
+
+function renderAllPairOptions(){
+  renderTeamOptions();
+  renderSinglesOptions();
+  renderTeamGamesList();
+  renderSingleGamesList();
+}
+
+function renderTeamOptions(){
+  const n=G.n;
+  if(n<4){document.getElementById('pairGrid').innerHTML='<div style="font-size:13px;color:var(--red);padding:4px 0">Need 4+ players for 2v2.</div>';return;}
+  const nm=names(), combos=allPairCombos();
+  window._pairCombos=combos;
+  let h='<div class="pair-grid">';
+  combos.forEach((c,i)=>{
+    const already=G.teamGames.some(g=>JSON.stringify(g.a)===JSON.stringify(c.a)&&JSON.stringify(g.b)===JSON.stringify(c.b));
+    h+=`<div class="pbtn${already?' sel':''}" onclick="addTeamGame(${i})">`+
+       `${nm[c.a[0]]} & ${nm[c.a[1]]}<div class="pn">vs<br>${nm[c.b[0]]} & ${nm[c.b[1]]}</div></div>`;
   });
+  h+='</div>';
+  if(!combos.length) h='<div class="add-hint">Need 4 players</div>';
   document.getElementById('pairGrid').innerHTML=h;
 }
-function selPair(i){G.team=window._pairs[i];document.querySelectorAll('#pairGrid .pbtn').forEach((b,j)=>b.classList.toggle('sel',i===j));}
 
-function renderSingles(){
-  const n=G.n,names=Array.from({length:n},(_,i)=>document.getElementById(`pn${i}`)?.value||`P${i+1}`);
+function renderTeamGamesList(){
+  const nm=names();
   let h='';
-  for(let a=0;a<n;a++)for(let b=a+1;b<n;b++){
-    const sel=G.singles.some(s=>s.p1===a&&s.p2===b)?'sel':'';
-    h+=`<div class="pbtn ${sel}" style="margin-bottom:6px" onclick="togSingle(${a},${b},this)">${names[a]} vs ${names[b]}</div>`;
+  G.teamGames.forEach((g,i)=>{
+    h+=`<div class="game-item">
+      <div class="game-item-label">${nm[g.a[0]]} & ${nm[g.a[1]]} vs ${nm[g.b[0]]} & ${nm[g.b[1]]}
+        <div class="game-item-sub">High-Low Nassau</div></div>
+      <div class="bet-picker">${BET_OPTIONS.map(v=>`<button class="bp-btn${g.bet===v?' sel':''}" onclick="setTeamBet(${i},${v})">$${v}</button>`).join('')}</div>
+      <button class="game-del" onclick="removeTeamGame(${i})">×</button>
+    </div>`;
+  });
+  if(!h) h='<div class="add-hint">No games added yet — tap a pairing above</div>';
+  document.getElementById('teamGamesList').innerHTML=h;
+}
+
+function addTeamGame(ci){
+  const c=window._pairCombos[ci];
+  if(!c)return;
+  const already=G.teamGames.findIndex(g=>JSON.stringify(g.a)===JSON.stringify(c.a)&&JSON.stringify(g.b)===JSON.stringify(c.b));
+  if(already>=0){G.teamGames.splice(already,1);}
+  else{G.teamGames.push({a:c.a,b:c.b,bet:2});}
+  renderTeamOptions();renderTeamGamesList();
+}
+function setTeamBet(i,v){G.teamGames[i].bet=v;renderTeamGamesList();}
+function removeTeamGame(i){G.teamGames.splice(i,1);renderTeamOptions();renderTeamGamesList();}
+
+function renderSinglesOptions(){
+  const nm=names();
+  let h='<div class="pair-grid">';
+  for(let a=0;a<G.n;a++)for(let b=a+1;b<G.n;b++){
+    const already=G.singleGames.some(s=>s.p1===a&&s.p2===b);
+    h+=`<div class="pbtn${already?' sel':''}" onclick="addSingleGame(${a},${b})">${nm[a]}<div class="pn">vs<br>${nm[b]}</div></div>`;
   }
+  h+='</div>';
   document.getElementById('singlesGrid').innerHTML=h;
 }
-function togSingle(a,b,el){const i=G.singles.findIndex(s=>s.p1===a&&s.p2===b);if(i>=0){G.singles.splice(i,1);el.classList.remove('sel');}else{G.singles.push({p1:a,p2:b});el.classList.add('sel');}}
+
+function renderSingleGamesList(){
+  const nm=names();
+  let h='';
+  G.singleGames.forEach((s,i)=>{
+    h+=`<div class="game-item">
+      <div class="game-item-label">${nm[s.p1]} vs ${nm[s.p2]}
+        <div class="game-item-sub">1v1 Nassau</div></div>
+      <div class="bet-picker">${BET_OPTIONS.map(v=>`<button class="bp-btn${s.bet===v?' sel':''}" onclick="setSingleBet(${i},${v})">$${v}</button>`).join('')}</div>
+      <button class="game-del" onclick="removeSingleGame(${i})">×</button>
+    </div>`;
+  });
+  if(!h) h='<div class="add-hint">No games added yet — tap a matchup above</div>';
+  document.getElementById('singleGamesList').innerHTML=h;
+}
+
+function addSingleGame(a,b){
+  const already=G.singleGames.findIndex(s=>s.p1===a&&s.p2===b);
+  if(already>=0){G.singleGames.splice(already,1);}
+  else{G.singleGames.push({p1:a,p2:b,bet:2});}
+  renderSinglesOptions();renderSingleGamesList();
+}
+function setSingleBet(i,v){G.singleGames[i].bet=v;renderSingleGamesList();}
+function removeSingleGame(i){G.singleGames.splice(i,1);renderSinglesOptions();renderSingleGamesList();}
 
 /* ═══════════════════════════════════════════════
    START ROUND
@@ -353,9 +413,8 @@ function startRound(){
   G.players.forEach(p=>p.playHdcp=Math.round(p.idx-minH));
 
   G.par=[...DERRICK_PAR]; G.si=[...DERRICK_SI];
-  G.bet=parseFloat(document.getElementById('betAmt').value)||2;
-  if(G.use2v2&&G.n<4){err.textContent='Need 4 players for 2v2.';return;}
-  if(G.use2v2&&!G.team){err.textContent='Select a team pairing.';return;}
+  if(G.teamGames.length===0&&G.singleGames.length===0){err.textContent='Add at least one Nassau game.';return;}
+  if(G.teamGames.length>0&&G.n<4){err.textContent='Need 4 players for 2v2 games.';return;}
 
   G.players.forEach(p=>{
     p.strokes=G.si.map(si=>{
@@ -412,7 +471,7 @@ function holeResult(matchup,h){
 }
 
 function computeMatchGames(matchup){
-  const base=G.bet, pressVal=base*2;
+  const base=matchup.bet||G.bet||2, pressVal=base*2;
   const front={label:'Front 9',  startH:0, endH:8,  value:base, isPress:false, score:0, holesPlayed:0};
   const back= {label:'Back 9',   startH:9, endH:17, value:base, isPress:false, score:0, holesPlayed:0};
   const full= {label:'Full 18',  startH:0, endH:17, value:base, isPress:false, score:0, holesPlayed:0};
@@ -463,13 +522,14 @@ function computeMatchGames(matchup){
 
 function buildMatchups(){
   const m=[];
-  if(G.use2v2&&G.team){
-    const{a,b}=G.team;
-    const nA=G.players[a[0]].name+' & '+G.players[a[1]].name;
-    const nB=G.players[b[0]].name+' & '+G.players[b[1]].name;
-    m.push({type:'2v2-combined',sideA:a,sideB:b,labelA:nA,labelB:nB});
-  }
-  G.singles.forEach(s=>m.push({type:'1v1',sideA:[s.p1],sideB:[s.p2],labelA:G.players[s.p1].name,labelB:G.players[s.p2].name}));
+  G.teamGames.forEach(g=>{
+    const nA=G.players[g.a[0]].name+' & '+G.players[g.a[1]].name;
+    const nB=G.players[g.b[0]].name+' & '+G.players[g.b[1]].name;
+    m.push({type:'2v2-combined',sideA:g.a,sideB:g.b,labelA:nA,labelB:nB,bet:g.bet});
+  });
+  G.singleGames.forEach(s=>{
+    m.push({type:'1v1',sideA:[s.p1],sideB:[s.p2],labelA:G.players[s.p1].name,labelB:G.players[s.p2].name,bet:s.bet});
+  });
   return m;
 }
 
@@ -715,7 +775,7 @@ function newRound(){
 /* ═══════════════════════════════════════════════
    BOOT
 ═══════════════════════════════════════════════ */
-renderPairs();renderSingles();initSetup();
+renderAllPairOptions();initSetup();
 </script>
 <script>
 if('serviceWorker' in navigator){
