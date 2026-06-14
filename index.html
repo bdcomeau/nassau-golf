@@ -306,7 +306,7 @@ input::placeholder{color:#bbb}
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v2.4
+    Nassau Golf · Derrick GWC · v2.5
   </div>
 </div>
 </div>
@@ -378,6 +378,9 @@ function loadG(){
     // Only restore if a round is in progress (players set up)
     if(!saved.players||!saved.players.length) return false;
     Object.assign(G, saved);
+    // Backfill fields that may not exist in rounds saved by older app versions
+    if(!G.internationals || typeof G.internationals !== 'object') G.internationals = {};
+    if(!G.roundDate) G.roundDate = new Date().toISOString();
     return true;
   }catch(e){ return false; }
 }
@@ -851,7 +854,7 @@ function buildMatchups(){
 function computeMoney(){
   const money=G.players.map(()=>0);
   buildMatchups().forEach(m=>{
-    const intlActive = G.internationals[m.matchId];
+    const intlActive = (G.internationals||{})[m.matchId];
 
     if(intlActive){
       // International overrides ALL normal settlement for this match.
@@ -1414,7 +1417,7 @@ function renderMatchScorecard(m){
 
     // If The International is active for this match, the TOTAL row reflects
     // the International result instead of the normal per-game settlement.
-    const intlActive = G.internationals[m.matchId];
+    const intlActive = (G.internationals||{})[m.matchId];
     let gtWinner, gtAmtDisplay, gtCls;
     if(intlActive){
       const intl = computeInternational(m);
@@ -1540,7 +1543,7 @@ function renderMatchScorecard(m){
 // Renders the "The International" button / status panel for a match
 function buildInternationalPanel(m){
   const intl = computeInternational(m);
-  const active = G.internationals[m.matchId];
+  const active = (G.internationals||{})[m.matchId];
 
   if(!active){
     if(!intl) return ''; // H17 not complete, or perfectly tied (no losing team)
@@ -1600,11 +1603,13 @@ function buildInternationalPanel(m){
 }
 
 function activateInternational(matchId){
+  if(!G.internationals) G.internationals = {};
   G.internationals[matchId] = true;
   saveG();
   renderBets();
 }
 function deactivateInternational(matchId){
+  if(!G.internationals) G.internationals = {};
   delete G.internationals[matchId];
   saveG();
   renderBets();
@@ -2171,7 +2176,7 @@ renderAllPairOptions();initSetup();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v2.4';
+const CACHE='nassau-v2.5';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
