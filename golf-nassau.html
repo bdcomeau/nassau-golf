@@ -333,7 +333,7 @@ input::placeholder{color:#bbb}
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v2.20
+    Nassau Golf · Derrick GWC · v2.21
   </div>
 </div>
 </div>
@@ -1564,6 +1564,7 @@ function showS(name){
 }
 function newRound(){
   // Inline confirmation instead of confirm() (unreliable in iOS PWA standalone mode)
+  // Two-step confirmation since this button gets bumped easily mid-round.
   const existing=document.getElementById('newRoundConfirm');
   if(existing){ existing.remove(); return; }
 
@@ -1576,11 +1577,26 @@ function newRound(){
       <div style="font-size:13px;color:#666;margin-bottom:16px">This will clear all scores, players, and matches from the current round.</div>
       <div style="display:flex;gap:10px">
         <button class="export-overlay-btn close" style="flex:1" onclick="document.getElementById('newRoundConfirm').remove()">Cancel</button>
-        <button class="export-overlay-btn save" style="flex:1;background:var(--red);color:#fff" onclick="confirmNewRound()">New Round</button>
+        <button class="export-overlay-btn save" style="flex:1;background:var(--red);color:#fff" onclick="newRoundStep2()">New Round</button>
       </div>
     </div>`;
   document.body.appendChild(overlay);
   overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+}
+
+// Second confirmation — replaces the first dialog's content with a final warning
+function newRoundStep2(){
+  const overlay=document.getElementById('newRoundConfirm');
+  if(!overlay) return;
+  overlay.innerHTML=`
+    <div style="background:#fff;border-radius:14px;padding:20px;max-width:320px;text-align:center">
+      <div style="font-size:16px;font-weight:700;color:var(--red);margin-bottom:10px">⚠️ Are You Sure?</div>
+      <div style="font-size:13px;color:#666;margin-bottom:16px"><b>This cannot be undone.</b> All scores, players, and matches for the current round will be permanently erased.</div>
+      <div style="display:flex;gap:10px">
+        <button class="export-overlay-btn close" style="flex:1" onclick="document.getElementById('newRoundConfirm').remove()">Cancel</button>
+        <button class="export-overlay-btn save" style="flex:1;background:var(--red);color:#fff" onclick="confirmNewRound()">Yes, Erase &amp; Start New</button>
+      </div>
+    </div>`;
 }
 
 function confirmNewRound(){
@@ -2384,7 +2400,7 @@ renderAllPairOptions();initSetup();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v2.20';
+const CACHE='nassau-v2.21';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
