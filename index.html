@@ -306,7 +306,7 @@ input::placeholder{color:#bbb}
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v2.6
+    Nassau Golf · Derrick GWC · v2.7
   </div>
 </div>
 </div>
@@ -1448,7 +1448,7 @@ function renderMatchScorecard(m){
     // Determine which game columns are "press-pool eligible" for The International
     // (i.e. not yet settled into the guarantee after 17 holes). Used to show an "I" marker.
     let eligibleLabels = new Set();
-    if(!intlActive){
+    {
       const intl17 = computeInternational(m);
       if(intl17){
         intl17.games17.forEach(g=>{
@@ -1599,6 +1599,7 @@ function buildInternationalPanel(m){
     return `<div class="intl-panel intl-active">
       <div class="intl-txt">🌍 <b>The International is ON.</b><br>
         ${inteeLabel} guaranteed <b>$${intl.guarantee}</b> · $${intl.largePress} riding on hole 18 vs ${intlerLabel}.</div>
+      <button class="intl-undo" onclick="deactivateInternational('${m.matchId}')">Undo</button>
     </div>`;
   }
 
@@ -2203,7 +2204,7 @@ renderAllPairOptions();initSetup();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v2.6';
+const CACHE='nassau-v2.7';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
