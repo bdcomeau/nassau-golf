@@ -195,6 +195,13 @@ input::placeholder{color:#bbb}
 .intl-active{background:#e8f5e9;border-top:2px solid var(--gm)}
 .intl-active .intl-txt{color:#1b5e20}
 .intl-undo{margin-top:8px;background:none;border:1px solid #aaa;color:#666;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.save-round-btn{background:var(--gold);color:var(--gd);border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:800;width:100%;margin-bottom:10px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.save-round-done{background:#e8f5e9;color:#1b5e20;border:1.5px solid var(--gm);border-radius:10px;padding:10px;font-size:13px;font-weight:700;width:100%;margin-bottom:10px;text-align:center}
+.hist-row{display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.hist-main{flex:1}
+.hist-date{font-size:14px;font-weight:700;color:var(--ink)}
+.hist-players{font-size:11px;color:var(--inkl);margin-top:2px}
+.hist-del{background:none;border:none;font-size:16px;cursor:pointer;padding:4px 8px;-webkit-tap-highlight-color:transparent}
 .intl-owes{margin-top:8px;padding:10px;background:#fff;border-radius:8px;border:2px solid var(--gm);text-align:center;font-size:14px;color:#1b5e20}
 /* Scrollable table */
 .msc-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
@@ -313,7 +320,7 @@ input::placeholder{color:#bbb}
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v2.17
+    Nassau Golf · Derrick GWC · v2.18
   </div>
 </div>
 </div>
@@ -343,11 +350,26 @@ input::placeholder{color:#bbb}
   <div class="sbody" id="betsBody"></div>
 </div>
 
+<!-- ══════════ HISTORY ══════════ -->
+<div class="screen" id="screen-history">
+  <div class="sbody" id="historyBody"></div>
+</div>
+
+<!-- ══════════ HISTORY DETAIL (read-only round view) ══════════ -->
+<div class="screen" id="screen-history-detail">
+  <div class="shdr" style="display:flex;align-items:center;gap:10px;padding:10px 14px">
+    <button class="hnav-btn" onclick="closeHistoryDetail()">‹</button>
+    <div class="hnum" id="historyDetailTitle" style="font-size:16px">Round</div>
+  </div>
+  <div class="sbody" id="historyDetailBody"></div>
+</div>
+
 <!-- ══════════ BOTTOM NAV ══════════ -->
 <div class="bnav" id="bnav" style="display:none">
-  <div class="ni active" id="ni-score"  onclick="showS('score')"><div class="ni-icon">⛳</div><div class="ni-lbl">Scorecard</div></div>
-  <div class="ni"        id="ni-bets"   onclick="showS('bets')"><div class="ni-icon">💰</div><div class="ni-lbl">Nassau</div></div>
-  <div class="ni"        id="ni-new"    onclick="newRound()"><div class="ni-icon">🔄</div><div class="ni-lbl">New Round</div></div>
+  <div class="ni active" id="ni-score"   onclick="showS('score')"><div class="ni-icon">⛳</div><div class="ni-lbl">Scorecard</div></div>
+  <div class="ni"        id="ni-bets"    onclick="showS('bets')"><div class="ni-icon">💰</div><div class="ni-lbl">Nassau</div></div>
+  <div class="ni"        id="ni-history" onclick="showS('history')"><div class="ni-icon">📜</div><div class="ni-lbl">History</div></div>
+  <div class="ni"        id="ni-new"     onclick="newRound()"><div class="ni-icon">🔄</div><div class="ni-lbl">New Round</div></div>
 </div>
 
 <script>
@@ -945,6 +967,13 @@ function renderCard(){
   const money=computeMoney();
 
   let html='';
+
+  // Save Round button — shown once all 18 holes are scored and not yet saved
+  if(isRoundComplete() && !isCurrentRoundSaved()){
+    html += `<button class="save-round-btn" onclick="manualSaveRound()">💾 Save Round</button>`;
+  } else if(isCurrentRoundSaved()){
+    html += `<div class="save-round-done">✓ Round saved to History</div>`;
+  }
 
   G.players.forEach((p,pi)=>{
     const gross=G.scores[pi][h];
@@ -1621,6 +1650,13 @@ function renderBets(){
   const money=computeMoney();
   let html='<div style="padding:12px 16px;padding-bottom:120px">';
 
+  // Save Round button — shown once all 18 holes are scored and not yet saved
+  if(isRoundComplete() && !isCurrentRoundSaved()){
+    html += `<button class="save-round-btn" onclick="manualSaveRound()">💾 Save Round</button>`;
+  } else if(isCurrentRoundSaved()){
+    html += `<div class="save-round-done">✓ Round saved to History</div>`;
+  }
+
   // Money summary at top
   html+=`<div class="msum" style="margin-bottom:16px"><div class="msum-hdr">💵 Running Money — All Games</div>`;
   G.players.forEach((p,i)=>{
@@ -1752,6 +1788,7 @@ function showS(name){
   document.getElementById(`ni-${name}`)?.classList.add('active');
   if(name==='bets')renderBets();
   if(name==='score')renderCard();
+  if(name==='history')renderHistory();
 }
 function newRound(){
   // Inline confirmation instead of confirm() (unreliable in iOS PWA standalone mode)
@@ -1775,6 +1812,9 @@ function newRound(){
 }
 
 function confirmNewRound(){
+  // Auto-save the completed round to history if not already saved
+  saveRoundToHistory();
+
   localStorage.removeItem('nassau_G');
 
   // Fully reset G to a clean slate
@@ -1928,6 +1968,237 @@ function updateHandicap(pi){
 function roundDateStr(){
   const d = G.roundDate ? new Date(G.roundDate) : new Date();
   return d.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric', year:'numeric'});
+}
+
+/* ═══════════════════════════════════════════════
+   ROUND HISTORY
+═══════════════════════════════════════════════ */
+function loadHistory(){
+  try{ return JSON.parse(localStorage.getItem('nassau_history')||'[]'); }
+  catch(e){ return []; }
+}
+function saveHistoryList(list){
+  try{ localStorage.setItem('nassau_history', JSON.stringify(list)); }catch(e){}
+}
+
+// Returns true if all 18 holes have a score for every player
+function isRoundComplete(){
+  if(!G.players.length || !G.scores.length) return false;
+  return G.players.every((_,pi)=>G.scores[pi] && G.scores[pi].every(s=>s!==null));
+}
+
+// Has the current round (by roundDate) already been saved to history?
+function isCurrentRoundSaved(){
+  if(!G.roundDate) return false;
+  const hist=loadHistory();
+  return hist.some(r=>r.roundDate===G.roundDate);
+}
+
+// Build a snapshot of the current round for storage
+function buildRoundSnapshot(){
+  const matchups=buildMatchups();
+  const money=computeMoney();
+
+  // Capture per-match results, including International if active
+  const matches = matchups.map(m=>{
+    const games=computeMatchGames(m);
+    const intlActive=(G.internationals||{})[m.matchId];
+    let intlData=null;
+    if(intlActive){
+      const intl=computeInternational(m);
+      if(intl){
+        const result=settleInternational(m,intl);
+        intlData={
+          guarantee:intl.guarantee,
+          largePress:intl.largePress,
+          internationaleeSide:intl.internationaleeSide,
+          result: result || null, // null if H18 wasn't scored (shouldn't happen if round complete)
+        };
+      }
+    }
+    return {
+      type:m.type, sideA:m.sideA, sideB:m.sideB, labelA:m.labelA, labelB:m.labelB,
+      bet:m.bet, matchId:m.matchId, games, intlActive:!!intlActive, intlData,
+    };
+  });
+
+  return {
+    roundDate: G.roundDate || new Date().toISOString(),
+    savedAt: new Date().toISOString(),
+    n: G.n,
+    players: G.players.map(p=>({name:p.name, idx:p.idx})),
+    par: [...G.par],
+    si: [...G.si],
+    scores: G.scores.map(s=>[...s]),
+    teamGames: JSON.parse(JSON.stringify(G.teamGames)),
+    singleGames: JSON.parse(JSON.stringify(G.singleGames)),
+    internationals: JSON.parse(JSON.stringify(G.internationals||{})),
+    money,
+    matches,
+  };
+}
+
+// Save the current round to history (if not already saved). Returns true if saved.
+function saveRoundToHistory(){
+  if(!isRoundComplete()) return false;
+  if(isCurrentRoundSaved()) return false;
+  const hist=loadHistory();
+  hist.unshift(buildRoundSnapshot()); // most recent first
+  saveHistoryList(hist);
+  return true;
+}
+
+// Manual "Save Round" button — saves (if not already) and shows a toast
+function manualSaveRound(){
+  if(!isRoundComplete()){
+    showToast('Finish all 18 holes before saving.');
+    return;
+  }
+  if(isCurrentRoundSaved()){
+    showToast('Round already saved ✓');
+    return;
+  }
+  saveRoundToHistory();
+  showToast('Round saved ✓');
+  // Refresh save buttons (hide them now that it's saved)
+  if(document.getElementById('screen-score').classList.contains('active')) renderCard();
+  if(document.getElementById('screen-bets').classList.contains('active')) renderBets();
+}
+
+function showToast(msg){
+  const t=document.createElement('div');
+  t.textContent=msg;
+  t.style.cssText='position:fixed;top:72px;left:50%;transform:translateX(-50%);background:var(--gm);color:#fff;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;z-index:999;pointer-events:none';
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2000);
+}
+
+// ── History list screen ──
+function renderHistory(){
+  const hist=loadHistory();
+  let html='<div style="padding:12px 16px;padding-bottom:120px">';
+  html+='<div class="tottitle" style="color:var(--gold)">Round History</div>';
+
+  if(!hist.length){
+    html+='<div style="text-align:center;color:rgba(255,255,255,.5);padding:40px 0">No saved rounds yet.<br>Complete a round and tap "Save Round" to archive it here.</div>';
+  } else {
+    hist.forEach((r,i)=>{
+      const d=new Date(r.roundDate);
+      const dateStr=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+      const names=r.players.map(p=>p.name).join(', ');
+      html+=`<div class="hist-row" onclick="openHistoryDetail(${i})">
+        <div class="hist-main">
+          <div class="hist-date">${dateStr}</div>
+          <div class="hist-players">${names}</div>
+        </div>
+        <button class="hist-del" onclick="event.stopPropagation();confirmDeleteHistory(${i})">🗑️</button>
+      </div>`;
+    });
+  }
+  html+='</div>';
+  document.getElementById('historyBody').innerHTML=html;
+}
+
+function confirmDeleteHistory(i){
+  removeHistoryDialogs();
+  const hist=loadHistory();
+  const r=hist[i];
+  const d=new Date(r.roundDate);
+  const dateStr=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+
+  const overlay=document.createElement('div');
+  overlay.className='export-overlay';
+  overlay.id='histDeleteConfirm';
+  overlay.innerHTML=`
+    <div style="background:#fff;border-radius:14px;padding:20px;max-width:320px;text-align:center">
+      <div style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:10px">Delete Round?</div>
+      <div style="font-size:13px;color:#666;margin-bottom:16px">Delete the saved round from ${dateStr}? This cannot be undone.</div>
+      <div style="display:flex;gap:10px">
+        <button class="export-overlay-btn close" style="flex:1" onclick="removeHistoryDialogs()">Cancel</button>
+        <button class="export-overlay-btn save" style="flex:1;background:var(--red);color:#fff" onclick="doDeleteHistory(${i})">Delete</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+}
+function removeHistoryDialogs(){
+  const o=document.getElementById('histDeleteConfirm');
+  if(o) o.remove();
+}
+function doDeleteHistory(i){
+  const hist=loadHistory();
+  hist.splice(i,1);
+  saveHistoryList(hist);
+  removeHistoryDialogs();
+  renderHistory();
+}
+
+// ── History detail (read-only round view) ──
+let _historySnapshot=null;
+let _liveGBackup=null;
+
+function openHistoryDetail(i){
+  const hist=loadHistory();
+  const r=hist[i];
+  if(!r) return;
+  _historySnapshot=r;
+
+  const d=new Date(r.roundDate);
+  const dateStr=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+  document.getElementById('historyDetailTitle').textContent=dateStr;
+
+  // Temporarily swap G to the snapshot so existing render functions work unmodified
+  _liveGBackup=JSON.parse(JSON.stringify(G));
+  Object.assign(G,{
+    n:r.n, players:r.players.map(p=>({...p,playHdcp:0,strokes:Array(18).fill(0)})),
+    par:r.par, si:r.si, scores:r.scores,
+    teamGames:r.teamGames, singleGames:r.singleGames,
+    internationals:r.internationals, roundDate:r.roundDate, hole:17,
+  });
+
+  let html='';
+
+  // Final money summary
+  html+='<div class="msum" style="margin:10px 0"><div class="msum-hdr">💵 Final Money</div>';
+  G.players.forEach((p,idx)=>{
+    const v=r.money[idx]; const c=v>0?'pos':v<0?'neg':'zero';
+    html+=`<div class="mrow"><div class="mname">${p.name}</div><div class="mamt ${c}">${fmt(v)}</div></div>`;
+  });
+  html+='</div>';
+
+  // Vertical scorecard
+  html+=renderVerticalScorecard();
+
+  // Nassau match cards (read-only)
+  const matchups=buildMatchups();
+  matchups.forEach(m=>{ html+=renderMatchScorecard(m); });
+
+  document.getElementById('historyDetailBody').innerHTML=html;
+
+  // Restore live G immediately — the rendered HTML strings are already built
+  Object.assign(G,_liveGBackup);
+  _liveGBackup=null;
+
+  // Avoid duplicate-ID collisions with the live scorecard's #totalsCard
+  const dupCard=document.querySelector('#historyDetailBody #totalsCard');
+  if(dupCard) dupCard.id='historyTotalsCard';
+
+  // Disable all interactive controls in the read-only view (score wheels, export, International, edit handicap)
+  const body=document.getElementById('historyDetailBody');
+  body.querySelectorAll('button, .sw-score, .pcard-hdcp, [onclick]').forEach(el=>{
+    el.style.pointerEvents='none';
+    el.style.opacity = el.classList.contains('export-btn')?'0.3':el.style.opacity;
+  });
+  // Hide export buttons and International action buttons entirely in history view
+  body.querySelectorAll('.export-btn, .intl-btn, .intl-undo').forEach(el=>el.style.display='none');
+
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-history-detail').classList.add('active');
+}
+
+function closeHistoryDetail(){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-history').classList.add('active');
 }
 
 /* ═══════════════════════════════════════════════
@@ -2337,7 +2608,7 @@ renderAllPairOptions();initSetup();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v2.17';
+const CACHE='nassau-v2.18';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
