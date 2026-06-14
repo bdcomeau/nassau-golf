@@ -313,7 +313,7 @@ input::placeholder{color:#bbb}
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v2.9
+    Nassau Golf · Derrick GWC · v2.10
   </div>
 </div>
 </div>
@@ -343,16 +343,10 @@ input::placeholder{color:#bbb}
   <div class="sbody" id="betsBody"></div>
 </div>
 
-<!-- ══════════ TOTALS ══════════ -->
-<div class="screen" id="screen-totals">
-  <div class="totbody" id="totBody"></div>
-</div>
-
 <!-- ══════════ BOTTOM NAV ══════════ -->
 <div class="bnav" id="bnav" style="display:none">
   <div class="ni active" id="ni-score"  onclick="showS('score')"><div class="ni-icon">⛳</div><div class="ni-lbl">Scorecard</div></div>
   <div class="ni"        id="ni-bets"   onclick="showS('bets')"><div class="ni-icon">💰</div><div class="ni-lbl">Nassau</div></div>
-  <div class="ni"        id="ni-totals" onclick="showS('totals')"><div class="ni-icon">📊</div><div class="ni-lbl">Totals</div></div>
   <div class="ni"        id="ni-new"    onclick="newRound()"><div class="ni-icon">🔄</div><div class="ni-lbl">New Round</div></div>
 </div>
 
@@ -1009,6 +1003,9 @@ function renderCard(){
     </div>`;
   });
 
+  // ── Vertical scorecard table (moved from Totals tab) ──
+  html += renderVerticalScorecard();
+
   document.getElementById('sbody').innerHTML=html;
 
   // Attach mouse events for desktop swipe
@@ -1652,16 +1649,12 @@ function renderBets(){
 /* ═══════════════════════════════════════════════
    TOTALS SCREEN
 ═══════════════════════════════════════════════ */
-function renderTotals(){
-  const money=computeMoney();
-  let html=`<div id="totalsCard" style="background:#fff;border-radius:12px;overflow:hidden;padding:0 0 8px">`;
+function renderVerticalScorecard(){
+  let html=`<div id="totalsCard" style="background:#fff;border-radius:12px;overflow:hidden;padding:0 0 8px;margin-top:10px">`;
   html+=`<div style="background:var(--gd);padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
-    <div><div style="font-size:15px;font-weight:700;color:var(--gold);font-family:Georgia,serif">Derrick GWC · Results</div><div style="font-size:11px;color:var(--gl)">${roundDateStr()}</div></div>
+    <div><div style="font-size:15px;font-weight:700;color:var(--gold);font-family:Georgia,serif">Derrick GWC · Scorecard</div><div style="font-size:11px;color:var(--gl)">${roundDateStr()}</div></div>
     <button class="export-btn" id="totExportBtn" onclick="exportTotals()" ontouchstart="">📸 Export</button>
   </div>`;
-  html+=`<div class="msum"><div class="msum-hdr">Final Money</div>`;
-  G.players.forEach((p,i)=>{const v=money[i],c=v>0?'pos':v<0?'neg':'zero';html+=`<div class="mrow"><div class="mname">${p.name}</div><div class="mamt ${c}">${fmt(v)}</div></div>`;});
-  html+='</div>';
 
   html+=`<div class="msum"><div class="msum-hdr">Scorecard</div><div class="scwrap"><table class="sct"><thead><tr>
     <th class="pnm">Hole</th><th>Par</th><th>HCP</th>`;
@@ -1712,7 +1705,7 @@ function renderTotals(){
 
   html+='</tbody></table></div></div>';
   html+='</div>'; // close totalsCard
-  document.getElementById('totBody').innerHTML=html;
+  return html;
 }
 
 /* ═══════════════════════════════════════════════
@@ -1726,7 +1719,6 @@ function showS(name){
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
   document.getElementById(`ni-${name}`)?.classList.add('active');
   if(name==='bets')renderBets();
-  if(name==='totals')renderTotals();
   if(name==='score')renderCard();
 }
 function newRound(){localStorage.removeItem('nassau_G');
@@ -2273,7 +2265,7 @@ renderAllPairOptions();initSetup();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v2.9';
+const CACHE='nassau-v2.10';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
