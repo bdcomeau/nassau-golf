@@ -313,7 +313,7 @@ input::placeholder{color:#bbb}
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v2.12
+    Nassau Golf · Derrick GWC · v2.13
   </div>
 </div>
 </div>
@@ -1660,13 +1660,22 @@ function renderVerticalScorecard(){
     <th class="pnm">Hole</th><th>Par</th><th>HCP</th>`;
   G.players.forEach(p=>{
     const parts=p.name.trim().split(/\s+/);
-    if(parts.length>1){
-      html+=`<th>${parts[0]}<br><span style="font-size:8px;font-weight:400;opacity:.8">${parts.slice(1).join(' ')}</span></th>`;
-    } else {
-      html+=`<th>${p.name}</th>`;
-    }
+    const nameDisp = parts.length>1
+      ? `${parts[0]}<br><span style="font-size:8px;font-weight:400;opacity:.8">${parts.slice(1).join(' ')}</span>`
+      : p.name;
+    html+=`<th>${nameDisp}<br><span style="font-size:8px;font-weight:400;opacity:.8">Idx ${p.idx.toFixed(1)}</span></th>`;
   });
   html+='</tr></thead><tbody>';
+
+  // Strokes per hole based on each player's FULL handicap index (rounded), applied to SI
+  const fullStrokes = G.players.map(p=>{
+    const hi = Math.round(p.idx);
+    return G.si.map(si=>{
+      if(hi>=si+18) return 2;
+      if(hi>=si) return 1;
+      return 0;
+    });
+  });
 
   // Holes 1-9
   const fTot=G.players.map(()=>0), fAny=G.players.map(()=>false);
@@ -1675,7 +1684,11 @@ function renderVerticalScorecard(){
     G.players.forEach((p,pi)=>{
       const g=G.scores[pi][h];
       if(g!==null){fTot[pi]+=g;fAny[pi]=true;}
-      html+=`<td>${g!==null?g:'·'}</td>`;
+      const s=fullStrokes[pi][h];
+      const inner=g!==null
+        ?(s>=2?`<span class="circ-val c2">${g}</span>`:s>=1?`<span class="circ-val">${g}</span>`:`${g}`)
+        :(s>=2?`<span class="circ-val c2" style="color:#ccc"></span>`:s>=1?`<span class="circ-val" style="color:#ccc"></span>`:'·');
+      html+=`<td>${inner}</td>`;
     });
     html+='</tr>';
   }
@@ -1692,7 +1705,11 @@ function renderVerticalScorecard(){
     G.players.forEach((p,pi)=>{
       const g=G.scores[pi][h];
       if(g!==null){bTot[pi]+=g;bAny[pi]=true;}
-      html+=`<td>${g!==null?g:'·'}</td>`;
+      const s=fullStrokes[pi][h];
+      const inner=g!==null
+        ?(s>=2?`<span class="circ-val c2">${g}</span>`:s>=1?`<span class="circ-val">${g}</span>`:`${g}`)
+        :(s>=2?`<span class="circ-val c2" style="color:#ccc"></span>`:s>=1?`<span class="circ-val" style="color:#ccc"></span>`:'·');
+      html+=`<td>${inner}</td>`;
     });
     html+='</tr>';
   }
@@ -1707,6 +1724,21 @@ function renderVerticalScorecard(){
   G.players.forEach((p,pi)=>{
     const tot=(fAny[pi]?fTot[pi]:0)+(bAny[pi]?bTot[pi]:0);
     html+=`<td>${(fAny[pi]&&bAny[pi])?tot:'·'}</td>`;
+  });
+  html+='</tr>';
+
+  // HCP row — each player's full handicap index
+  html+=`<tr style="background:#fff8e1;font-weight:700"><td class="pnm">HCP</td><td class="ns"></td><td class="ns"></td>`;
+  G.players.forEach(p=>html+=`<td>${p.idx.toFixed(1)}</td>`);
+  html+='</tr>';
+
+  // NET row — gross total minus full handicap index (rounded)
+  html+=`<tr style="background:#e8f5e9;font-weight:800;color:var(--gm)"><td class="pnm">NET</td><td class="ns"></td><td class="ns"></td>`;
+  G.players.forEach((p,pi)=>{
+    const tot=(fAny[pi]?fTot[pi]:0)+(bAny[pi]?bTot[pi]:0);
+    const complete=fAny[pi]&&bAny[pi];
+    const net=complete?(tot-Math.round(p.idx)):null;
+    html+=`<td>${net!==null?net:'·'}</td>`;
   });
   html+='</tr>';
 
@@ -2312,7 +2344,7 @@ renderAllPairOptions();initSetup();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v2.12';
+const CACHE='nassau-v2.13';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
