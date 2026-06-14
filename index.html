@@ -47,6 +47,13 @@ input::placeholder{color:#bbb}
 .p-row{display:grid;grid-template-columns:28px 1fr 72px 28px;gap:6px;align-items:start;margin-bottom:10px}
 .save-btn{width:28px;height:36px;background:var(--gp);border:1.5px solid var(--gm);border-radius:8px;color:var(--gm);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;flex-shrink:0}
 .save-btn:active{background:var(--gm);color:#fff}
+.save-dialog{grid-column:1/-1;margin-top:6px;padding:10px;background:#fff8e1;border:1.5px solid var(--gold);border-radius:8px}
+.save-dialog-warn{background:#fff5f5;border-color:var(--red)}
+.save-dialog-txt{font-size:12px;color:var(--ink);margin-bottom:8px;line-height:1.4}
+.save-dialog-btns{display:flex;gap:8px}
+.save-dialog-btn{flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:700;border:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.save-dialog-btn.yes{background:var(--gm);color:#fff}
+.save-dialog-btn.no{background:#eee;color:var(--ink)}
 .contact-select{border:1.5px solid var(--border);border-radius:8px;padding:4px 6px;font-size:12px;width:100%;background:var(--cream);color:var(--ink);margin-top:3px;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:22px}
 
 .tog-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0ebe0}
@@ -306,7 +313,7 @@ input::placeholder{color:#bbb}
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v2.7
+    Nassau Golf · Derrick GWC · v2.8
   </div>
 </div>
 </div>
@@ -2150,20 +2157,105 @@ function saveContact(i){
   if(!name){ alert('Enter a name first'); return; }
   if(isNaN(idx)){ alert('Enter a handicap first'); return; }
   const contacts = loadContacts();
-  const existing = contacts.findIndex(c=>c.name.toLowerCase()===name.toLowerCase());
-  if(existing>=0){
-    if(confirm(`Update ${name}'s handicap to ${idx}?`)){
-      contacts[existing].idx=idx;
-    } else return;
-  } else {
-    contacts.push({name, idx});
-    contacts.sort((a,b)=>a.name.localeCompare(b.name));
+  const exactMatch = contacts.findIndex(c=>c.name.toLowerCase()===name.toLowerCase());
+
+  if(exactMatch>=0){
+    // Exact name match — inline confirm to update handicap (confirm() unreliable in iOS PWA)
+    showSaveConfirm(i, name, idx, exactMatch, contacts);
+    return;
   }
+
+  // Check for POTENTIAL duplicates (one name contains the other, e.g. "Bruce" vs "Bruce Comeau")
+  const potentialDupe = contacts.find(c=>{
+    const a=c.name.toLowerCase(), b=name.toLowerCase();
+    return a!==b && (a.includes(b) || b.includes(a));
+  });
+  if(potentialDupe){
+    showDuplicateWarning(i, name, idx, potentialDupe, contacts);
+    return;
+  }
+
+  contacts.push({name, idx});
+  contacts.sort((a,b)=>a.name.localeCompare(b.name));
+  finishSaveContact(i, contacts);
+}
+
+function finishSaveContact(i, contacts){
   saveContacts(contacts);
-  renderPlayers(); // refresh dropdowns
-  // flash confirmation
+  // Preserve the current name/idx values, only refresh the dropdown options
+  refreshContactDropdown(i);
   const btn=document.getElementById(`savebtn${i}`);
   if(btn){ btn.textContent='✓'; setTimeout(()=>{btn.textContent='💾';},1000); }
+}
+
+// Refresh just the saved-players dropdown for row i, without wiping the name/idx inputs
+function refreshContactDropdown(i){
+  const contacts = loadContacts();
+  const contactOpts = contacts.length
+    ? `<option value="">— saved players —</option>`+contacts.map(c=>`<option value="${c.name}">${c.name} (${c.idx})</option>`).join('')
+    : `<option value="">No saved players</option>`;
+  const sel = document.getElementById(`contact${i}`);
+  if(sel){ sel.innerHTML = contactOpts; sel.value=''; }
+  // Also refresh other rows' dropdowns so the new contact appears everywhere
+  for(let j=0;j<5;j++){
+    if(j===i) continue;
+    const selJ = document.getElementById(`contact${j}`);
+    if(selJ){
+      const cur=selJ.value;
+      selJ.innerHTML = contactOpts;
+      selJ.value=cur;
+    }
+  }
+}
+
+// Inline confirmation for updating an existing contact's handicap
+function showSaveConfirm(i, name, idx, existingIdx, contacts){
+  removeSaveDialogs(i);
+  const row=document.getElementById(`pn${i}`).closest('.p-row');
+  const box=document.createElement('div');
+  box.id=`saveConfirm${i}`;
+  box.className='save-dialog';
+  box.innerHTML=`
+    <div class="save-dialog-txt">Update <b>${name}</b>'s saved handicap to <b>${idx}</b>?</div>
+    <div class="save-dialog-btns">
+      <button class="save-dialog-btn yes" onclick="confirmUpdateContact(${i},${existingIdx},${idx})">Update</button>
+      <button class="save-dialog-btn no" onclick="removeSaveDialogs(${i})">Cancel</button>
+    </div>`;
+  row.appendChild(box);
+}
+function confirmUpdateContact(i, existingIdx, idx){
+  const contacts=loadContacts();
+  contacts[existingIdx].idx=idx;
+  removeSaveDialogs(i);
+  finishSaveContact(i, contacts);
+}
+
+// Inline warning for potential duplicate (e.g. "Bruce" vs "Bruce Comeau")
+function showDuplicateWarning(i, name, idx, potentialDupe, contacts){
+  removeSaveDialogs(i);
+  const row=document.getElementById(`pn${i}`).closest('.p-row');
+  const box=document.createElement('div');
+  box.id=`saveConfirm${i}`;
+  box.className='save-dialog save-dialog-warn';
+  box.innerHTML=`
+    <div class="save-dialog-txt">⚠️ Potential duplicate: you saved a player named <b>${potentialDupe.name}</b> (${potentialDupe.idx}).
+      Save <b>${name}</b> (${idx}) as a separate player anyway?</div>
+    <div class="save-dialog-btns">
+      <button class="save-dialog-btn yes" onclick="confirmSaveDuplicate(${i},'${name.replace(/'/g,"\\'")}',${idx})">Save Anyway</button>
+      <button class="save-dialog-btn no" onclick="removeSaveDialogs(${i})">Cancel</button>
+    </div>`;
+  row.appendChild(box);
+}
+function confirmSaveDuplicate(i, name, idx){
+  const contacts=loadContacts();
+  contacts.push({name, idx});
+  contacts.sort((a,b)=>a.name.localeCompare(b.name));
+  removeSaveDialogs(i);
+  finishSaveContact(i, contacts);
+}
+function removeSaveDialogs(i){
+  const box=document.getElementById(`saveConfirm${i}`);
+  if(box) box.remove();
 }
 function selectContact(i){
   const sel = document.getElementById(`contact${i}`);
@@ -2204,7 +2296,7 @@ renderAllPairOptions();initSetup();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v2.7';
+const CACHE='nassau-v2.8';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
