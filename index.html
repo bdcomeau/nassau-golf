@@ -313,7 +313,7 @@ input::placeholder{color:#bbb}
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v2.10
+    Nassau Golf · Derrick GWC · v2.11
   </div>
 </div>
 </div>
@@ -1658,7 +1658,14 @@ function renderVerticalScorecard(){
 
   html+=`<div class="msum"><div class="msum-hdr">Scorecard</div><div class="scwrap"><table class="sct"><thead><tr>
     <th class="pnm">Hole</th><th>Par</th><th>HCP</th>`;
-  G.players.forEach(p=>html+=`<th>${p.name}</th>`);
+  G.players.forEach(p=>{
+    const parts=p.name.trim().split(/\s+/);
+    if(parts.length>1){
+      html+=`<th>${parts[0]}<br><span style="font-size:8px;font-weight:400;opacity:.8">${parts.slice(1).join(' ')}</span></th>`;
+    } else {
+      html+=`<th>${p.name}</th>`;
+    }
+  });
   html+='</tr></thead><tbody>';
 
   // Holes 1-9
@@ -2265,7 +2272,7 @@ renderAllPairOptions();initSetup();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v2.10';
+const CACHE='nassau-v2.11';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
