@@ -300,6 +300,19 @@ input::placeholder{color:#bbb}
     </div>
   </div>
 
+  <div class="slabel">Starting Hole</div>
+  <div class="card">
+    <div style="font-size:12px;color:#666;margin-bottom:8px">For shotgun starts — Nassau "front 9" / "back 9" and The International are based on the order holes are played, not the printed hole numbers.</div>
+    <select id="startHoleSel" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;background:var(--cream);color:var(--ink);font-size:15px">
+      <option value="1">Hole 1</option><option value="2">Hole 2</option><option value="3">Hole 3</option>
+      <option value="4">Hole 4</option><option value="5">Hole 5</option><option value="6">Hole 6</option>
+      <option value="7">Hole 7</option><option value="8">Hole 8</option><option value="9">Hole 9</option>
+      <option value="10">Hole 10</option><option value="11">Hole 11</option><option value="12">Hole 12</option>
+      <option value="13">Hole 13</option><option value="14">Hole 14</option><option value="15">Hole 15</option>
+      <option value="16">Hole 16</option><option value="17">Hole 17</option><option value="18">Hole 18</option>
+    </select>
+  </div>
+
   <div class="slabel">Players & Handicap Index (RCGA)</div>
   <div class="card" id="playerInputs"></div>
 
@@ -320,7 +333,7 @@ input::placeholder{color:#bbb}
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v2.18
+    Nassau Golf · Derrick GWC · v2.19
   </div>
 </div>
 </div>
@@ -387,7 +400,23 @@ const G = {
   teamGames:[],   // [{a:[i,i], b:[i,i], bet:2}]
   singleGames:[], // [{p1:i, p2:i, bet:2}]
   scores:[], hole:0, roundDate:null, internationals:{},
+  startHole:1, // 1-18: actual hole number the group tees off on (shotgun starts)
 };
+
+// Translate a "play order" index (0-17, i.e. 1st-18th hole played) to the
+// actual hole array index (0-17) based on G.startHole.
+// e.g. startHole=4 -> playIdx 0 maps to actual hole 4 (array index 3)
+function actualHoleIdx(playIdx){
+  return ((G.startHole - 1 + playIdx) % 18 + 18) % 18;
+}
+// Reverse: actual hole array index (0-17) -> play order index (0-17)
+function playOrderIdx(actualIdx){
+  return ((actualIdx - (G.startHole - 1)) % 18 + 18) % 18;
+}
+// Display label for a play-order index, e.g. "Hole 12" 
+function actualHoleLabel(playIdx){
+  return actualHoleIdx(playIdx) + 1;
+}
 
 /* ── PERSISTENCE ── */
 function saveG(){
@@ -404,6 +433,7 @@ function loadG(){
     // Backfill fields that may not exist in rounds saved by older app versions
     if(!G.internationals || typeof G.internationals !== 'object') G.internationals = {};
     if(!G.roundDate) G.roundDate = new Date().toISOString();
+    if(!G.startHole || G.startHole<1 || G.startHole>18) G.startHole = 1;
     return true;
   }catch(e){ return false; }
 }
@@ -550,6 +580,7 @@ function removeSingleGame(i){G.singleGames.splice(i,1);renderSinglesOptions();re
 ═══════════════════════════════════════════════ */
 function startRound(){
   const err=document.getElementById('setupErr');err.textContent='';
+  G.startHole = parseInt(document.getElementById('startHoleSel').value, 10) || 1;
   G.players=[];
   for(let i=0;i<G.n;i++){
     const name=document.getElementById(`pn${i}`).value.trim()||`Player ${i+1}`;
@@ -566,12 +597,12 @@ function startRound(){
   G.players.forEach(p=>{ p.playHdcp=0; p.strokes=Array(18).fill(0); });
   // Default scores to par for each hole
   G.scores=G.players.map(()=>Array(18).fill(null));
-  G.hole=0;
+  G.hole=G.startHole-1; // start on the actual hole the group tees off on
   G.roundDate=new Date().toISOString();
   G.internationals={}; // reset any leftover International state from a previous round
   saveG();
   document.getElementById('bnav').style.display='flex';
-  document.getElementById('badge').textContent='HOLE 1';
+  document.getElementById('badge').textContent='HOLE '+G.startHole;
   showS('score');renderCard();
 }
 
@@ -637,7 +668,10 @@ function scoreClass(gross,par,strokes){
 /* ═══════════════════════════════════════════════
    NASSAU ENGINE  (verified: $74 for lose-every-hole)
 ═══════════════════════════════════════════════ */
-function holeResult(matchup,h){
+function holeResult(matchup,playIdx){
+  // Translate play-order index (0-17, i.e. 1st-18th hole played) to the actual
+  // hole array index, accounting for shotgun starts (G.startHole).
+  const h = actualHoleIdx(playIdx);
   const allPlayers=[...matchup.sideA,...matchup.sideB];
   if(allPlayers.some(i=>G.scores[i][h]===null))return null;
 
@@ -955,14 +989,18 @@ function swipeEnd(){_touch={pi:null,h:null,y0:null};}
    SCORECARD RENDER
 ═══════════════════════════════════════════════ */
 function renderCard(){
-  const h=G.hole;
+  const h=G.hole; // actual hole array index (0-17)
+  const playIdx=playOrderIdx(h); // 0-17: which hole-played-number this is (0 = 1st hole played)
   document.getElementById('hnum').textContent=`Hole ${h+1}`;
-  document.getElementById('hmeta').textContent=`Par ${G.par[h]} · SI ${G.si[h]}`;
+  document.getElementById('hmeta').textContent = G.startHole>1
+    ? `Par ${G.par[h]} · SI ${G.si[h]} · ${ordinal(playIdx+1)} hole played`
+    : `Par ${G.par[h]} · SI ${G.si[h]}`;
   document.getElementById('badge').textContent=`HOLE ${h+1}`;
-  document.getElementById('btnPrev').disabled=h===0;
-  document.getElementById('btnNext').disabled=h===17;
-  document.getElementById('tabF').classList.toggle('active',h<9);
-  document.getElementById('tabB').classList.toggle('active',h>=9);
+  // Navigation steps through ACTUAL holes in PLAY ORDER (wraps for shotgun starts)
+  document.getElementById('btnPrev').disabled=playIdx===0;
+  document.getElementById('btnNext').disabled=playIdx===17;
+  document.getElementById('tabF').classList.toggle('active',playIdx<9);
+  document.getElementById('tabB').classList.toggle('active',playIdx>=9);
 
   const money=computeMoney();
 
@@ -1045,215 +1083,12 @@ function renderMatchScorecard(m){
   const is2v2=m.type==='2v2-combined';
 
   // Compute match running scores hole by hole
-  // games = computeMatchGames gives us the press structure
+  // games = computeMatchGames gives us the press structure (in PLAY ORDER, 0-17)
   const games=computeMatchGames(m);
 
-  // Build per-hole running score for each game (for the match score columns)
-  // We'll show: one column per game (original 3 + each press), showing cumulative score after each hole
-  // Value shown: blank until game starts, then running score, 'P' when press triggered, 'E' for even
-
-  // For each game, compute hole-by-hole cumulative score
-  function gameRunning(g){
-    const scores=[];
-    let cum=0;
-    for(let h=0;h<18;h++){
-      if(h<g.startH||g.holesPlayed===0){scores.push(null);continue;}
-      const r=holeResult(m,h);
-      if(r===null||h>=g.startH+g.holesPlayed){scores.push(null);continue;}
-      if(h>=g.startH) cum+=r;
-      scores.push(cum);
-    }
-    return scores;
-  }
-
-  // Determine which press started on which hole (for 'P' annotation in running score)
-  const pressStartHoles=new Set();
-  games.filter(g=>g.isPress).forEach(g=>pressStartHoles.add(g.startH));
-
-  // Show all 18 holes if any back nine score exists, else just front 9
   // Always show all 18 holes, regardless of how many have been played
   const hasBack=true;
-  const totalCols=18;
-
-  // Column definitions: hole cols + OUT + [back hole cols + IN] + TOT + [match game cols]
-  // Show all games (including future presses already triggered)
   const activeGames=games;
-
-  // ── HEADER ROW ──
-  // Row 1: hole numbers / PAR / player names / match col headers
-  let nameRow=`<tr>
-    <td class="row-lbl par">Par</td>`;
-  for(let h=0;h<Math.min(totalCols,9);h++)
-    nameRow+=`<td class="hdr-hole">${h+1}</td>`;
-  nameRow+=`<td class="hdr-tot nine-sep">OUT</td>`;
-  if(hasBack){
-    for(let h=9;h<18;h++) nameRow+=`<td class="hdr-hole">${h+1}</td>`;
-    nameRow+=`<td class="hdr-tot nine-sep">IN</td><td class="hdr-tot">TOT</td>`;
-  }
-  // Match game column headers
-  activeGames.forEach((g,gi)=>{
-    const lbl=g.isPress?`P${gi}`:(g.endH<=8?'F':g.startH>=9?'B':'18');
-    nameRow+=`<td class="hdr-match nine-sep">${lbl}<br><span style="font-size:8px">$${g.value}</span></td>`;
-  });
-  nameRow+='</tr>';
-
-  // ── PAR ROW ──
-  let parRow=`<tr><td class="row-lbl par">Par</td>`;
-  let fPar=0,bPar=0;
-  for(let h=0;h<Math.min(totalCols,9);h++){parRow+=`<td class="sc" style="background:var(--gp);font-weight:700">${G.par[h]}</td>`;fPar+=G.par[h];}
-  parRow+=`<td class="tot out nine-sep">${fPar}</td>`;
-  if(hasBack){
-    for(let h=9;h<18;h++){parRow+=`<td class="sc" style="background:var(--gp);font-weight:700">${G.par[h]}</td>`;bPar+=G.par[h];}
-    parRow+=`<td class="tot nine-sep">${bPar}</td><td class="tot">${fPar+bPar}</td>`;
-  }
-  activeGames.forEach(()=>parRow+=`<td class="ms blank nine-sep"></td>`);
-  parRow+='</tr>';
-
-  // ── PLAYER ROWS (gross + net per player) ──
-  function playerGrossRow(pi,bgCls){
-    const p=G.players[pi];
-    let fG=0,bG=0,fA=false,bA=false;
-    let row=`<tr>
-      <td class="row-lbl" style="background:${bgCls}">
-        ${p.name}<br>
-        <span style="font-size:7px;color:#777;font-weight:400">Hdcp ${p.idx.toFixed(1)}</span>
-      </td>`;
-    for(let h=0;h<Math.min(totalCols,9);h++){
-      const g=G.scores[pi][h], s=p.strokes[h];
-      if(g!==null){fG+=g;fA=true;}
-      const inner=g!==null
-        ?(s>=2?`<span class="circ-val c2">${g}</span>`
-          :s>=1?`<span class="circ-val">${g}</span>`
-          :`${g}`)
-        :'<span style="color:#ddd">—</span>';
-      row+=`<td class="sc">${inner}</td>`;
-    }
-    row+=`<td class="tot out nine-sep">${fA?fG:'—'}</td>`;
-    if(hasBack){
-      for(let h=9;h<18;h++){
-        const g=G.scores[pi][h], s=p.strokes[h];
-        if(g!==null){bG+=g;bA=true;}
-        const inner=g!==null
-          ?(s>=2?`<span class="circ-val c2">${g}</span>`
-            :s>=1?`<span class="circ-val">${g}</span>`
-            :`${g}`)
-          :'<span style="color:#ddd">—</span>';
-        row+=`<td class="sc">${inner}</td>`;
-      }
-      row+=`<td class="tot nine-sep">${bA?bG:'—'}</td><td class="tot">${fA&&bA?fG+bG:'—'}</td>`;
-    }
-    // Match columns — blank for player rows
-    activeGames.forEach(()=>row+=`<td class="ms blank nine-sep"></td>`);
-    row+='</tr>';
-    return row;
-  }
-
-  function playerNetRow(pi){
-    const p=G.players[pi];
-    let fN=0,bN=0,fA=false,bA=false;
-    let row=`<tr>
-      <td class="row-lbl" style="background:#f0f7f2;color:var(--gm);font-style:italic">
-        Net<br>
-        <span style="font-size:7px;font-weight:400">(${p.playHdcp})</span>
-      </td>`;
-    for(let h=0;h<Math.min(totalCols,9);h++){
-      const n=netS(pi,h);
-      if(n!==null){fN+=n;fA=true;}
-      const tp=n!==null?n-G.par[h]:null;
-      const cls=tp===null?'net':tp>0?'net ov':'net';
-      row+=`<td class="${cls}">${n!==null?n:'—'}</td>`;
-    }
-    row+=`<td class="tot nine-sep" style="background:#d4edda;color:var(--gm)">${fA?fN:'—'}</td>`;
-    if(hasBack){
-      for(let h=9;h<18;h++){
-        const n=netS(pi,h);
-        if(n!==null){bN+=n;bA=true;}
-        const tp=n!==null?n-G.par[h]:null;
-        const cls=tp===null?'net':tp>0?'net ov':'net';
-        row+=`<td class="${cls}">${n!==null?n:'—'}</td>`;
-      }
-      row+=`<td class="tot nine-sep" style="background:#d4edda;color:var(--gm)">${bA?bN:'—'}</td>`;
-      row+=`<td class="tot" style="background:#d4edda;color:var(--gm)">${fA&&bA?fN+bN:'—'}</td>`;
-    }
-    activeGames.forEach(()=>row+=`<td class="ms blank nine-sep"></td>`);
-    row+='</tr>';
-    return row;
-  }
-
-  // ── MATCH SCORE ROWS ──
-  // One combined row per hole showing the running score for each active game
-  // Actually: show all player rows first, then a single "MATCH" row per hole
-  // But the Derrick card shows it inline — running score after EACH hole in the match columns
-  // So: for each hole h, the match columns show the cumulative score of each game up to hole h
-  // We render this as rows — one row per hole showing the match column values
-  // But that's 18 rows which is too many. Instead: one row showing the CURRENT running score
-  // per game at each hole. This IS the hole-by-hole match column.
-
-  // Build match score rows — one row per hole, showing score for each active game
-  function matchRows(){
-    let rows='';
-    // Running totals for each game
-    const cumScores=activeGames.map(()=>0);
-    const pressTriggered=new Set(); // track which holes triggered presses
-
-    // Pre-compute: which holes triggered presses and which game press threshold
-    let runScore=0,lastPressPos=0,lastPressNeg=0;
-    for(let h=0;h<18;h++){
-      const r=holeResult(m,h);
-      if(r===null) break;
-      runScore+=r;
-      const ps=h+1;
-      if(ps<=17){
-        while(runScore>=lastPressPos+2){lastPressPos+=2;pressTriggered.add(h);}
-        while(runScore<=lastPressNeg-2){lastPressNeg-=2;pressTriggered.add(h);}
-      }
-    }
-
-    for(let h=0;h<Math.min(totalCols,18);h++){
-      const r=holeResult(m,h);
-      const isNineSep=(h===9);
-      let row=`<tr>
-        <td class="row-lbl match" style="font-size:8px">H${h+1}</td>`;
-
-      // Score columns — blank for match rows
-      for(let c=0;c<Math.min(totalCols,9);c++) row+=`<td class="ms blank${c===0?'':''}">${c===h?'◀':''}</td>`;
-      row+=`<td class="ms blank nine-sep"></td>`;
-      if(hasBack){
-        for(let c=9;c<18;c++) row+=`<td class="ms blank"></td>`;
-        row+=`<td class="ms blank nine-sep"></td><td class="ms blank"></td>`;
-      }
-
-      // Match columns
-      activeGames.forEach((g,gi)=>{
-        let cellVal='', cellCls='ms blank';
-        if(h>=g.startH && r!==null && h<g.startH+g.holesPlayed){
-          cumScores[gi]+=r;
-          const cv=cumScores[gi];
-          const isPress=pressTriggered.has(h);
-          if(cv===0){cellVal='E';cellCls='ms even';}
-          else if(cv>0){cellVal=`+${cv}`;cellCls='ms pos';}
-          else{cellVal=`${cv}`;cellCls='ms neg';}
-          // Show P if a new press was triggered after this hole
-          if(isPress && !g.isPress) cellVal+=' P';
-        }
-        row+=`<td class="${cellCls} nine-sep">${cellVal}</td>`;
-      });
-      row+='</tr>';
-      rows+=row;
-    }
-    return rows;
-  }
-
-  // ── SIMPLIFIED APPROACH: single match-score row per hole ──
-  // Actually the Derrick card shows ONE column per match with the running score per hole.
-  // Player score columns fill the left, match score columns fill the right.
-  // Let me rebuild as: player name header row, then hole rows where each row = one hole,
-  // player scores in player columns, running match score in match columns.
-
-  // FINAL LAYOUT matching the Derrick card:
-  // Rows = holes (H1..H18)
-  // Columns: PAR | P1 gross | P2 gross | P3 gross | P4 gross | OUT | [back...] | Game1 | Game2 | ...
-  // Below hole rows: OUT totals, IN totals, TOT, then net scores, then settlement
 
   function buildCard(){
     let tbl=`<table class="msc">`;
@@ -1265,32 +1100,19 @@ function renderMatchScorecard(m){
     const matchPh=allPi.map(pi=>allPh[allIdxs.indexOf(pi)]);
 
     // ── Pre-compute per-hole running score for each game ──
-    // For each game, build an array of cumulative scores indexed by hole (0-17)
-    // null = hole not in this game's range or not yet scored
+    // Indexed by PLAY ORDER (0-17, i.e. 1st-18th hole played) — matches computeMatchGames'
+    // game.startH/endH which are also in play-order space.
     const gameRunScores = activeGames.map(g=>{
       const arr = Array(18).fill(null);
       let cum = 0;
-      for(let h=g.startH; h<=g.endH; h++){
-        const r = holeResult(m, h);
+      for(let playIdx=g.startH; playIdx<=g.endH; playIdx++){
+        const r = holeResult(m, playIdx);
         if(r===null) break; // not scored yet
         cum += r;
-        arr[h] = cum;
+        arr[playIdx] = cum;
       }
       return arr;
     });
-
-    // Pre-compute which holes trigger a press (for 'P' marker)
-    let runS=0,lPPos=0,lPNeg=0;
-    const pressTriggerHoles=new Set();
-    for(let h=0;h<18;h++){
-      const r=holeResult(m,h);
-      if(r===null) break;
-      runS+=r;
-      if(h+1<=17){
-        while(runS>=lPPos+2){lPPos+=2;pressTriggerHoles.add(h);}
-        while(runS<=lPNeg-2){lPNeg-=2;pressTriggerHoles.add(h);}
-      }
-    }
 
     // ── Header row ──
     tbl+=`<thead><tr><td class="row-lbl par" style="text-align:center">Hole</td>`;
@@ -1311,28 +1133,29 @@ function renderMatchScorecard(m){
     tbl+='</tr></thead><tbody>';
 
     // ── Par row ──
-    const fPar=G.par.slice(0,9).reduce((a,b)=>a+b,0);
-    const bPar=G.par.slice(9).reduce((a,b)=>a+b,0);
     tbl+=`<tr><td class="row-lbl par">Par</td>`;
     allPi.forEach(()=>tbl+=`<td class="sc" style="background:var(--gp);font-weight:700"></td>`);
     tbl+=`<td class="tot out nine-sep" style="font-size:9px">SI</td>`;
     activeGames.forEach(()=>tbl+=`<td class="ms blank nine-sep"></td>`);
     tbl+='</tr>';
 
-    // ── Hole rows 1–18 ──
+    // ── Hole rows: 1st-18th holes PLAYED (handles shotgun starts) ──
     const gross=allPi.map(()=>0), scored=allPi.map(()=>false);
     const bGross=allPi.map(()=>0), bScored=allPi.map(()=>false);
+    let fPar=0, bPar=0;
 
-    for(let h=0; h<(hasBack?18:9); h++){
+    for(let playIdx=0; playIdx<(hasBack?18:9); playIdx++){
+      const h=actualHoleIdx(playIdx); // actual hole array index for par/SI/scores
       const parVal = G.par[h];
+      if(playIdx<9) fPar+=parVal; else bPar+=parVal;
       tbl+=`<tr><td class="row-lbl" style="font-weight:700;text-align:center;font-size:11px">${h+1}<br><span style="font-size:8px;font-weight:400;color:#999">${parVal}</span></td>`;
 
       // Player score cells
       allPi.forEach((pi,ii)=>{
         const g=G.scores[pi][h];
-        const s=matchStrokes(matchPh[ii])[h]; // match-specific strokes
+        const s=matchStrokes(matchPh[ii])[h]; // match-specific strokes (indexed by actual hole)
         if(g!==null){
-          if(h<9){gross[ii]+=g;scored[ii]=true;}
+          if(playIdx<9){gross[ii]+=g;scored[ii]=true;}
           else{bGross[ii]+=g;bScored[ii]=true;}
         }
         const inner=g!==null
@@ -1349,31 +1172,26 @@ function renderMatchScorecard(m){
       // HCP col — show stroke index for this hole
       tbl+=`<td class="tot nine-sep" style="background:#f5f5f5;color:#666;font-size:10px">${G.si[h]}</td>`;
 
-      // Match game columns — use pre-computed running scores
+      // Match game columns — use pre-computed running scores (keyed by PLAY ORDER index)
       activeGames.forEach((g,gi)=>{
-        const cv = gameRunScores[gi][h];
+        const cv = gameRunScores[gi][playIdx];
         let cellVal='', cellCls='ms blank';
         if(cv !== null){
           if(cv===0){cellVal='E';cellCls='ms even';}
           else if(cv>0){cellVal=`+${cv}`;cellCls='ms pos';}
           else{cellVal=String(cv);cellCls='ms neg';}
-          // Mark holes where a new press was triggered (only on original games)
-          // Mark 'P' on the hole before a press starts (the hole that triggered it)
-      // For the Full 18 game: mark P when a new press starts
-      // For press games: mark P when the next press starts
-      // pressStartH stored in game object
-      // We detect this by checking if the NEXT game's startH === h+1
-      const nextGame = activeGames[gi+1];
-      if(nextGame && nextGame.startH === h+1 && h >= g.startH && h <= g.endH){
-        cellVal += ' P';
-      }
+          // Mark 'P' on the play-order hole that triggers the next press
+          const nextGame = activeGames[gi+1];
+          if(nextGame && nextGame.startH === playIdx+1 && playIdx >= g.startH && playIdx <= g.endH){
+            cellVal += ' P';
+          }
         }
         tbl+=`<td class="${cellCls} nine-sep">${cellVal}</td>`;
       });
       tbl+='</tr>';
 
-      // OUT summary row after hole 9
-      if(h===8){
+      // OUT summary row after the 9th hole played
+      if(playIdx===8){
         tbl+=`<tr style="border-top:2px solid var(--gm);border-bottom:2px solid var(--gm)">
           <td class="row-lbl out">OUT</td>`;
         allPi.forEach((pi,ii)=>tbl+=`<td class="tot out">${scored[ii]?gross[ii]:'—'}</td>`);
@@ -1681,7 +1499,7 @@ function renderBets(){
 function renderVerticalScorecard(){
   let html=`<div id="totalsCard" style="background:#fff;border-radius:12px;overflow:hidden;padding:0 0 8px;margin-top:10px">`;
   html+=`<div style="background:var(--gd);padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
-    <div><div style="font-size:15px;font-weight:700;color:var(--gold);font-family:Georgia,serif">Derrick GWC · Scorecard</div><div style="font-size:11px;color:var(--gl)">${roundDateStr()}</div></div>
+    <div><div style="font-size:15px;font-weight:700;color:var(--gold);font-family:Georgia,serif">Derrick GWC · Scorecard</div><div style="font-size:11px;color:var(--gl)">${roundDateStr()}${G.startHole>1?(' · Shotgun start: Hole '+G.startHole):''}</div></div>
     <button class="export-btn" id="totExportBtn" onclick="exportTotals()" ontouchstart="">📸 Export</button>
   </div>`;
 
@@ -1706,9 +1524,12 @@ function renderVerticalScorecard(){
     });
   });
 
-  // Holes 1-9
+  // 1st-9th holes played (Nassau "Front 9")
   const fTot=G.players.map(()=>0), fAny=G.players.map(()=>false);
-  for(let h=0;h<9;h++){
+  let fPar=0;
+  for(let playIdx=0;playIdx<9;playIdx++){
+    const h=actualHoleIdx(playIdx);
+    fPar+=G.par[h];
     html+=`<tr><td class="pnm">${h+1}</td><td class="ns">${G.par[h]}</td><td class="ns">${G.si[h]}</td>`;
     G.players.forEach((p,pi)=>{
       const g=G.scores[pi][h];
@@ -1722,14 +1543,16 @@ function renderVerticalScorecard(){
     html+='</tr>';
   }
   // OUT row
-  const fPar=G.par.slice(0,9).reduce((a,b)=>a+b,0);
   html+=`<tr style="background:#eceff1;font-weight:700"><td class="pnm">OUT</td><td class="ns">${fPar}</td><td class="ns"></td>`;
   G.players.forEach((p,pi)=>html+=`<td>${fAny[pi]?fTot[pi]:'·'}</td>`);
   html+='</tr>';
 
-  // Holes 10-18
+  // 10th-18th holes played (Nassau "Back 9")
   const bTot=G.players.map(()=>0), bAny=G.players.map(()=>false);
-  for(let h=9;h<18;h++){
+  let bPar=0;
+  for(let playIdx=9;playIdx<18;playIdx++){
+    const h=actualHoleIdx(playIdx);
+    bPar+=G.par[h];
     html+=`<tr><td class="pnm">${h+1}</td><td class="ns">${G.par[h]}</td><td class="ns">${G.si[h]}</td>`;
     G.players.forEach((p,pi)=>{
       const g=G.scores[pi][h];
@@ -1743,7 +1566,6 @@ function renderVerticalScorecard(){
     html+='</tr>';
   }
   // IN row
-  const bPar=G.par.slice(9).reduce((a,b)=>a+b,0);
   html+=`<tr style="background:#eceff1;font-weight:700"><td class="pnm">IN</td><td class="ns">${bPar}</td><td class="ns"></td>`;
   G.players.forEach((p,pi)=>html+=`<td>${bAny[pi]?bTot[pi]:'·'}</td>`);
   html+='</tr>';
@@ -1779,8 +1601,25 @@ function renderVerticalScorecard(){
 /* ═══════════════════════════════════════════════
    NAVIGATION
 ═══════════════════════════════════════════════ */
-function goH(d){const n=G.hole+d;if(n<0||n>17)return;G.hole=n;saveG();renderCard();}
-function jumpN(s){G.hole=s;renderCard();}
+// Ordinal suffix: 1st, 2nd, 3rd, 4th...
+function ordinal(n){
+  const s=['th','st','nd','rd'], v=n%100;
+  return n+(s[(v-20)%10]||s[v]||s[0]);
+}
+
+// Navigation steps through ACTUAL holes in PLAY ORDER (handles shotgun starts/wrapping)
+function goH(d){
+  const curPlay=playOrderIdx(G.hole);
+  const n=curPlay+d;
+  if(n<0||n>17)return;
+  G.hole=actualHoleIdx(n);
+  saveG();renderCard();
+}
+// jumpN(s) where s=0 -> 1st hole played (Front 9 tab), s=9 -> 10th hole played (Back 9 tab)
+function jumpN(playIdx){
+  G.hole=actualHoleIdx(playIdx);
+  saveG();renderCard();
+}
 function showS(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(`screen-${name}`).classList.add('active');
@@ -1827,6 +1666,7 @@ function confirmNewRound(){
   G.hole=0;
   G.roundDate=null;
   G.internationals={};
+  G.startHole=1;
 
   const overlay=document.getElementById('newRoundConfirm');
   if(overlay) overlay.remove();
@@ -1838,6 +1678,7 @@ function confirmNewRound(){
 
   // Reset setup UI: player count, name/handicap fields, and game selections
   document.getElementById('cntVal').textContent=G.n;
+  document.getElementById('startHoleSel').value='1';
   renderPlayers();
   renderAllPairOptions();
   renderSingles();
@@ -2025,6 +1866,7 @@ function buildRoundSnapshot(){
   return {
     roundDate: G.roundDate || new Date().toISOString(),
     savedAt: new Date().toISOString(),
+    startHole: G.startHole || 1,
     n: G.n,
     players: G.players.map(p=>({name:p.name, idx:p.idx})),
     par: [...G.par],
@@ -2153,7 +1995,8 @@ function openHistoryDetail(i){
     n:r.n, players:r.players.map(p=>({...p,playHdcp:0,strokes:Array(18).fill(0)})),
     par:r.par, si:r.si, scores:r.scores,
     teamGames:r.teamGames, singleGames:r.singleGames,
-    internationals:r.internationals, roundDate:r.roundDate, hole:17,
+    internationals:r.internationals, roundDate:r.roundDate,
+    startHole:r.startHole||1, hole:(r.startHole||1)-1,
   });
 
   let html='';
@@ -2608,7 +2451,7 @@ renderAllPairOptions();initSetup();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v2.18';
+const CACHE='nassau-v2.19';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
