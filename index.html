@@ -313,7 +313,7 @@ input::placeholder{color:#bbb}
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v2.16
+    Nassau Golf · Derrick GWC · v2.17
   </div>
 </div>
 </div>
@@ -944,27 +944,15 @@ function renderCard(){
 
   const money=computeMoney();
 
-  // Pre-compute per-player match-specific strokes for display
-  const _matchups=buildMatchups();
-  const displayStrokes=G.players.map((_,pi)=>{
-    const mu=_matchups.find(m=>[...m.sideA,...m.sideB].includes(pi));
-    if(!mu) return Array(18).fill(0);
-    const allInMatch=[...mu.sideA,...mu.sideB];
-    const phs=matchPlayHdcps(allInMatch);
-    return matchStrokes(phs[allInMatch.indexOf(pi)]);
-  });
-
   let html='';
 
   G.players.forEach((p,pi)=>{
-    const gross=G.scores[pi][h], str=displayStrokes[pi][h];
-    const net=gross!==null?gross-str:null;
-    const par=G.par[h], tp=net!==null?net-par:null;
+    const gross=G.scores[pi][h];
+    const par=G.par[h], tp=gross!==null?gross-par:null;
     const tpStr=tp===null?'—':tp===0?'E':tp>0?`+${tp}`:`${tp}`;
-    const netCls=tp===null?'':tp<0?'under':tp>0?'over':'';
-    const sc=gross!==null?scoreClass(gross,par,str):{box:'',lbl:'',lblCls:'other-lbl'};
-    const p1=str>=1?'<span class="pip"></span>':'';
-    const p2=str>=2?'<span class="pip pip2"></span>':'';
+    const tpCls=tp===null?'':tp<0?'under':tp>0?'over':'';
+    // Score box style based on gross vs par only (no strokes — match-specific info lives on Nassau cards)
+    const sc=gross!==null?scoreClass(gross,par,0):{box:'',lbl:'',lblCls:'other-lbl'};
 
     let fG=0,bG=0,fAny=false,bAny=false;
     for(let i=0;i<9;i++){if(G.scores[pi][i]!==null){fG+=G.scores[pi][i];fAny=true;}}
@@ -976,7 +964,7 @@ function renderCard(){
       <div class="pcard-hdr">
         <div>
           <div class="pcard-name">${p.name}</div>
-          <div class="pcard-hdcp" onclick="updateHandicap(${pi})" style="cursor:pointer" title="Tap to edit handicap">Idx ${p.idx} · Playing ${displayStrokes[pi].reduce((a,b)=>a+b,0)} · ${str} stroke${str!==1?'s':''} this hole ✏️</div>
+          <div class="pcard-hdcp" onclick="updateHandicap(${pi})" style="cursor:pointer" title="Tap to edit handicap">Idx ${p.idx} ✏️</div>
         </div>
         <div class="pcard-mon" style="${monCls}">${fmt(money[pi])}</div>
       </div>
@@ -984,14 +972,13 @@ function renderCard(){
         <div style="display:flex;align-items:center;gap:8px">
           <div class="scroll-wheel">
             <button class="sw-btn" ontouchstart="adjustScore(${pi},${h},-1)" onclick="adjustScore(${pi},${h},-1)">◀</button>
-            <div class="sw-score ${sc.box} ${str===2?'stroke-2':str===1?'stroke-1':''}"
+            <div class="sw-score ${sc.box}"
               ontouchstart="swipeStart(${pi},${h},event)"
               ontouchmove="swipeMove(event)"
               ontouchend="swipeEnd()"
               onmousedown="swipeStart(${pi},${h},event)"
               onmousemove="swipeMove(event)"
               onmouseup="swipeEnd()">
-              ${p1}${p2}
               <div class="sw-num" style="${gross===null?'font-size:20px;color:#bbb;font-weight:400':''}">
                 ${gross!==null?gross:'—'}
               </div>
@@ -1000,8 +987,7 @@ function renderCard(){
             <button class="sw-btn" ontouchstart="adjustScore(${pi},${h},1)" onclick="adjustScore(${pi},${h},1)">▶</button>
           </div>
           <div class="sdet">
-            <div class="sdi"><div class="sdl">Net</div><div class="sdv ${netCls}">${net!==null?net:'—'}</div></div>
-            <div class="sdi"><div class="sdl">To Par</div><div class="sdv ${netCls}">${tpStr}</div></div>
+            <div class="sdi"><div class="sdl">To Par</div><div class="sdv ${tpCls}">${tpStr}</div></div>
             <div class="sdi"><div class="sdl">Front</div><div class="sdv">${fAny?fG:'—'}</div></div>
             <div class="sdi"><div class="sdl">Back</div><div class="sdv">${bAny?bG:'—'}</div></div>
           </div>
@@ -2351,7 +2337,7 @@ renderAllPairOptions();initSetup();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v2.16';
+const CACHE='nassau-v2.17';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
