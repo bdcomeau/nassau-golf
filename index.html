@@ -313,7 +313,7 @@ input::placeholder{color:#bbb}
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v2.15
+    Nassau Golf · Derrick GWC · v2.16
   </div>
 </div>
 </div>
@@ -578,7 +578,10 @@ function netS(pi,h){const g=G.scores[pi][h];return g===null?null:g-G.players[pi]
 function matchNetS(pi, h, playHdcp){
   const g=G.scores[pi][h];
   if(g===null) return null;
-  const stk=G.si[h]<=playHdcp?1:0;
+  const si=G.si[h];
+  let stk=0;
+  if(playHdcp>=si+18) stk=2;
+  else if(playHdcp>=si) stk=1;
   return g-stk;
 }
 
@@ -2348,7 +2351,7 @@ renderAllPairOptions();initSetup();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v2.15';
+const CACHE='nassau-v2.16';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
