@@ -313,7 +313,7 @@ input::placeholder{color:#bbb}
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v2.14
+    Nassau Golf · Derrick GWC · v2.15
   </div>
 </div>
 </div>
@@ -423,11 +423,15 @@ function allPairCombos(){
   const n=G.n, seen=new Set(), u=[];
   for(let a=0;a<n;a++)for(let b=a+1;b<n;b++){
     const rest=Array.from({length:n},(_,i)=>i).filter(i=>i!==a&&i!==b);
-    if(rest.length>=2){
-      const c={a:[a,b],b:[rest[0],rest[1]]};
-      const k=[...c.a].sort().join('-')+'|'+[...c.b].sort().join('-');
-      const k2=[...c.b].sort().join('-')+'|'+[...c.a].sort().join('-');
-      if(!seen.has(k)&&!seen.has(k2)){seen.add(k);u.push(c);}
+    if(rest.length<2) continue;
+    // Generate every 2-combination from the remaining players (handles n=4 -> 1 combo, n=5 -> 3 combos)
+    for(let x=0;x<rest.length;x++){
+      for(let y=x+1;y<rest.length;y++){
+        const c={a:[a,b],b:[rest[x],rest[y]]};
+        const k=[...c.a].sort().join('-')+'|'+[...c.b].sort().join('-');
+        const k2=[...c.b].sort().join('-')+'|'+[...c.a].sort().join('-');
+        if(!seen.has(k)&&!seen.has(k2)){seen.add(k);u.push(c);}
+      }
     }
   }
   return u;
@@ -2344,7 +2348,7 @@ renderAllPairOptions();initSetup();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v2.14';
+const CACHE='nassau-v2.15';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
