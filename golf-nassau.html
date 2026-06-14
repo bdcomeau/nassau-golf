@@ -185,6 +185,10 @@ input::placeholder{color:#bbb}
 .export-overlay-btn{padding:12px 20px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;border:none;-webkit-tap-highlight-color:transparent}
 .export-overlay-btn.save{background:var(--gold);color:var(--gd)}
 .export-overlay-btn.close{background:rgba(255,255,255,.15);color:#fff}
+.swipe-track{position:relative;height:50px;background:#fde8e8;border:1.5px solid var(--red);border-radius:25px;overflow:hidden;margin-top:4px;user-select:none}
+.swipe-fill{position:absolute;top:0;left:0;height:100%;width:50px;background:#fbc2c2;transition:width .05s linear;border-radius:25px}
+.swipe-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--red);pointer-events:none}
+.swipe-handle{position:absolute;top:4px;left:4px;width:42px;height:42px;background:var(--red);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;cursor:grab;touch-action:none;box-shadow:0 2px 6px rgba(0,0,0,.2)}
 .export-hint{color:rgba(255,255,255,.7);font-size:12px;margin-top:10px;text-align:center}
 .msc-card-title{font-size:14px;font-weight:700;color:var(--gold)}
 .msc-card-sub{font-size:11px;color:var(--gl)}
@@ -333,7 +337,7 @@ input::placeholder{color:#bbb}
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v3.0
+    Nassau Golf · Derrick GWC · v3.1
   </div>
 </div>
 </div>
@@ -1066,7 +1070,7 @@ function renderCard(){
   // ── Vertical scorecard table (moved from Totals tab) ──
   html += renderVerticalScorecard();
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v3.0</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v3.1</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -1424,7 +1428,7 @@ function renderBets(){
   } else {
     matchups.forEach(m=>{ html+=renderMatchScorecard(m); });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v3.0</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v3.1</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -1594,11 +1598,67 @@ function newRoundStep2(){
     <div style="background:#fff;border-radius:14px;padding:20px;max-width:320px;text-align:center">
       <div style="font-size:16px;font-weight:700;color:var(--red);margin-bottom:10px">⚠️ Are You Sure?</div>
       <div style="font-size:13px;color:#666;margin-bottom:16px"><b>This cannot be undone.</b> All scores, players, and matches for the current round will be permanently erased.</div>
-      <div style="display:flex;gap:10px">
-        <button class="export-overlay-btn close" style="flex:1" onclick="document.getElementById('newRoundConfirm').remove()">Cancel</button>
-        <button class="export-overlay-btn save" style="flex:1;background:var(--red);color:#fff" onclick="confirmNewRound()">Yes, Erase &amp; Start New</button>
+      <div class="swipe-track" id="swipeTrack">
+        <div class="swipe-fill" id="swipeFill"></div>
+        <div class="swipe-label" id="swipeLabel">Swipe to erase &amp; start new round →</div>
+        <div class="swipe-handle" id="swipeHandle">➜</div>
       </div>
+      <button class="export-overlay-btn close" style="width:100%;margin-top:10px" onclick="document.getElementById('newRoundConfirm').remove()">Cancel</button>
     </div>`;
+  initSwipeConfirm();
+}
+
+// Swipe-to-confirm slider for the final New Round step
+function initSwipeConfirm(){
+  const track=document.getElementById('swipeTrack');
+  const handle=document.getElementById('swipeHandle');
+  const fill=document.getElementById('swipeFill');
+  const label=document.getElementById('swipeLabel');
+  if(!track||!handle) return;
+
+  let dragging=false, startX=0, maxX=0;
+
+  function trackWidth(){ return track.offsetWidth - handle.offsetWidth - 8; } // 8px = handle inset
+
+  function setHandleX(x){
+    x=Math.max(0,Math.min(x,maxX));
+    handle.style.transform=`translateX(${x}px)`;
+    fill.style.width=(x+handle.offsetWidth+8)+'px';
+    label.style.opacity = 1-(x/maxX)*0.8;
+    return x;
+  }
+
+  function onStart(clientX){
+    dragging=true;
+    maxX=trackWidth();
+    startX=clientX - (handle.getBoundingClientRect().left - track.getBoundingClientRect().left);
+  }
+  function onMove(clientX){
+    if(!dragging) return;
+    const trackRect=track.getBoundingClientRect();
+    const x=clientX - trackRect.left - startX;
+    const pos=setHandleX(x);
+    if(pos>=maxX-2){
+      dragging=false;
+      handle.style.transform=`translateX(${maxX}px)`;
+      fill.style.width='100%';
+      label.textContent='Erasing...';
+      setTimeout(()=>confirmNewRound(),150);
+    }
+  }
+  function onEnd(){
+    if(!dragging) return;
+    dragging=false;
+    // Snap back if not completed
+    setHandleX(0);
+  }
+
+  handle.addEventListener('touchstart',e=>{onStart(e.touches[0].clientX);e.preventDefault();},{passive:false});
+  handle.addEventListener('touchmove',e=>{onMove(e.touches[0].clientX);e.preventDefault();},{passive:false});
+  handle.addEventListener('touchend',onEnd);
+  handle.addEventListener('mousedown',e=>{onStart(e.clientX);e.preventDefault();});
+  document.addEventListener('mousemove',e=>{if(dragging)onMove(e.clientX);});
+  document.addEventListener('mouseup',onEnd);
 }
 
 function confirmNewRound(){
@@ -1888,7 +1948,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v3.0</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v3.1</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -1967,7 +2027,7 @@ function openHistoryDetail(i){
   const matchups=buildMatchups();
   matchups.forEach(m=>{ html+=renderMatchScorecard(m); });
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v3.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v3.1</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -2404,7 +2464,7 @@ renderAllPairOptions();initSetup();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v3.0';
+const CACHE='nassau-v3.1';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
