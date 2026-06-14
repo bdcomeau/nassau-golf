@@ -313,7 +313,7 @@ input::placeholder{color:#bbb}
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v2.11
+    Nassau Golf · Derrick GWC · v2.12
   </div>
 </div>
 </div>
@@ -1728,14 +1728,54 @@ function showS(name){
   if(name==='bets')renderBets();
   if(name==='score')renderCard();
 }
-function newRound(){localStorage.removeItem('nassau_G');
-  if(confirm('New round? Scores will be reset.')){
-    G.scores=[];
-    document.getElementById('bnav').style.display='none';
-    document.getElementById('badge').textContent='SETUP';
-    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-    document.getElementById('screen-setup').classList.add('active');
-  }
+function newRound(){
+  // Inline confirmation instead of confirm() (unreliable in iOS PWA standalone mode)
+  const existing=document.getElementById('newRoundConfirm');
+  if(existing){ existing.remove(); return; }
+
+  const overlay=document.createElement('div');
+  overlay.className='export-overlay';
+  overlay.id='newRoundConfirm';
+  overlay.innerHTML=`
+    <div style="background:#fff;border-radius:14px;padding:20px;max-width:320px;text-align:center">
+      <div style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:10px">New Round?</div>
+      <div style="font-size:13px;color:#666;margin-bottom:16px">This will clear all scores, players, and matches from the current round.</div>
+      <div style="display:flex;gap:10px">
+        <button class="export-overlay-btn close" style="flex:1" onclick="document.getElementById('newRoundConfirm').remove()">Cancel</button>
+        <button class="export-overlay-btn save" style="flex:1;background:var(--red);color:#fff" onclick="confirmNewRound()">New Round</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+}
+
+function confirmNewRound(){
+  localStorage.removeItem('nassau_G');
+
+  // Fully reset G to a clean slate
+  G.n=4;
+  G.players=[];
+  G.par=[]; G.si=[];
+  G.teamGames=[];
+  G.singleGames=[];
+  G.scores=[];
+  G.hole=0;
+  G.roundDate=null;
+  G.internationals={};
+
+  const overlay=document.getElementById('newRoundConfirm');
+  if(overlay) overlay.remove();
+
+  document.getElementById('bnav').style.display='none';
+  document.getElementById('badge').textContent='SETUP';
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-setup').classList.add('active');
+
+  // Reset setup UI: player count, name/handicap fields, and game selections
+  document.getElementById('cntVal').textContent=G.n;
+  renderPlayers();
+  renderAllPairOptions();
+  renderSingles();
 }
 
 /* ═══════════════════════════════════════════════
@@ -2272,7 +2312,7 @@ renderAllPairOptions();initSetup();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v2.11';
+const CACHE='nassau-v2.12';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
