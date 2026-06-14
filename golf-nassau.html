@@ -86,6 +86,19 @@ input::placeholder{color:#bbb}
 .hnum{font-size:18px;font-weight:800;color:var(--gold);font-family:Georgia,serif}
 .hmeta{font-size:11px;color:var(--gl)}
 .nine-tabs{display:flex;gap:6px;padding:5px 10px;background:var(--gd)}
+.manage-matches-btn{background:var(--gold);color:var(--gd);border:none;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;width:100%;margin-top:6px}
+.mm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1100;display:flex;align-items:flex-end;justify-content:center}
+.mm-sheet{background:var(--cream);border-radius:16px 16px 0 0;width:100%;max-height:85vh;overflow-y:auto;padding:14px 14px 24px}
+.mm-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.mm-title{font-size:16px;font-weight:700;color:var(--ink);font-family:Georgia,serif}
+.mm-close{background:var(--gd);color:var(--gold);border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.mm-player-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f0ebe0}
+.mm-player-row:last-child{border-bottom:none}
+.mm-player-name{flex:1;font-weight:600;font-size:14px}
+.mm-player-idx{font-size:12px;color:var(--inkl);width:64px}
+.mm-player-idx input{width:56px;text-align:center}
+.add-player-btn{background:var(--gp);color:var(--gm);border:1.5px dashed var(--gm);border-radius:8px;padding:8px;font-size:13px;font-weight:700;width:100%;margin-top:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.mm-player-del{background:none;border:none;color:var(--red);font-size:18px;cursor:pointer;width:28px;-webkit-tap-highlight-color:transparent}
 .ntab{flex:1;padding:6px;text-align:center;font-size:12px;font-weight:600;color:var(--gl);border-radius:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .ntab.active{background:var(--gold);color:var(--gd)}
 .sbody{padding:6px 10px;padding-bottom:80px}
@@ -285,7 +298,7 @@ input::placeholder{color:#bbb}
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v1.3
+    Nassau Golf · Derrick GWC · v1.12
   </div>
 </div>
 </div>
@@ -301,6 +314,7 @@ input::placeholder{color:#bbb}
       </div>
       <button class="hnav-btn" id="btnNext" onclick="goH(1)">›</button>
     </div>
+    <button class="manage-matches-btn" onclick="openMatchManager()">⚙️ Matches</button>
   </div>
   <div class="nine-tabs">
     <div class="ntab active" id="tabF" onclick="jumpN(0)">Front 9</div>
@@ -341,7 +355,7 @@ const G = {
   n:4, players:[], par:[], si:[],
   teamGames:[],   // [{a:[i,i], b:[i,i], bet:2}]
   singleGames:[], // [{p1:i, p2:i, bet:2}]
-  scores:[], hole:0,
+  scores:[], hole:0, roundDate:null,
 };
 
 /* ── PERSISTENCE ── */
@@ -515,6 +529,7 @@ function startRound(){
   // Default scores to par for each hole
   G.scores=G.players.map(()=>Array(18).fill(null));
   G.hole=0;
+  G.roundDate=new Date().toISOString();
   saveG();
   document.getElementById('bnav').style.display='flex';
   document.getElementById('badge').textContent='HOLE 1';
@@ -885,8 +900,9 @@ function renderMatchScorecard(m){
   games.filter(g=>g.isPress).forEach(g=>pressStartHoles.add(g.startH));
 
   // Show all 18 holes if any back nine score exists, else just front 9
-  const hasBack=allPi.some(i=>G.scores[i].slice(9).some(s=>s!==null));
-  const totalCols=hasBack?18:9;
+  // Always show all 18 holes, regardless of how many have been played
+  const hasBack=true;
+  const totalCols=18;
 
   // Column definitions: hole cols + OUT + [back hole cols + IN] + TOT + [match game cols]
   // Show all games (including future presses already triggered)
@@ -1152,7 +1168,10 @@ function renderMatchScorecard(m){
           ?(s>=2?`<span class="circ-val c2">${g}</span>`
             :s>=1?`<span class="circ-val">${g}</span>`
             :`${g}`)
-          :'';
+          // Not yet played — show empty circle outline if this hole has a stroke
+          :(s>=2?`<span class="circ-val c2" style="color:#ccc"></span>`
+            :s>=1?`<span class="circ-val" style="color:#ccc"></span>`
+            :'');
         tbl+=`<td class="sc">${inner}</td>`;
       });
 
@@ -1320,7 +1339,7 @@ function renderMatchScorecard(m){
     <div class="msc-card-hdr">
       <div>
         <div class="msc-card-title">${m.labelA} vs ${m.labelB}</div>
-        <div class="msc-card-sub">${tl} · $${m.bet} Nassau</div>
+        <div class="msc-card-sub">${tl} · $${m.bet} Nassau · ${roundDateStr()}</div>
       </div>
       <button class="export-btn" onclick="exportCard('${cardId}','${(m.labelA+' vs '+m.labelB).replace(/'/g,'')}')" ontouchstart="">
         📸 Export
@@ -1359,36 +1378,60 @@ function renderTotals(){
   const money=computeMoney();
   let html=`<div id="totalsCard" style="background:#fff;border-radius:12px;overflow:hidden;padding:0 0 8px">`;
   html+=`<div style="background:var(--gd);padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
-    <div style="font-size:15px;font-weight:700;color:var(--gold);font-family:Georgia,serif">Derrick GWC · Results</div>
+    <div><div style="font-size:15px;font-weight:700;color:var(--gold);font-family:Georgia,serif">Derrick GWC · Results</div><div style="font-size:11px;color:var(--gl)">${roundDateStr()}</div></div>
     <button class="export-btn" id="totExportBtn" onclick="exportTotals()" ontouchstart="">📸 Export</button>
   </div>`;
   html+=`<div class="msum"><div class="msum-hdr">Final Money</div>`;
   G.players.forEach((p,i)=>{const v=money[i],c=v>0?'pos':v<0?'neg':'zero';html+=`<div class="mrow"><div class="mname">${p.name}</div><div class="mamt ${c}">${fmt(v)}</div></div>`;});
   html+='</div>';
 
-  html+=`<div class="msum"><div class="msum-hdr">Scorecard</div><div class="scwrap"><table class="sct"><thead><tr><th class="pnm">Player</th>`;
-  for(let h=0;h<9;h++)html+=`<th>${h+1}</th>`;
-  html+=`<th class="ns tot">F</th>`;
-  for(let h=9;h<18;h++)html+=`<th>${h+1}</th>`;
-  html+=`<th class="ns tot">B</th><th class="tot">T</th></tr></thead><tbody>`;
+  html+=`<div class="msum"><div class="msum-hdr">Scorecard</div><div class="scwrap"><table class="sct"><thead><tr>
+    <th class="pnm">Hole</th><th>Par</th><th>HCP</th>`;
+  G.players.forEach(p=>html+=`<th>${p.name}</th>`);
+  html+='</tr></thead><tbody>';
 
+  // Holes 1-9
+  const fTot=G.players.map(()=>0), fAny=G.players.map(()=>false);
+  for(let h=0;h<9;h++){
+    html+=`<tr><td class="pnm">${h+1}</td><td class="ns">${G.par[h]}</td><td class="ns">${G.si[h]}</td>`;
+    G.players.forEach((p,pi)=>{
+      const g=G.scores[pi][h];
+      if(g!==null){fTot[pi]+=g;fAny[pi]=true;}
+      html+=`<td>${g!==null?g:'·'}</td>`;
+    });
+    html+='</tr>';
+  }
+  // OUT row
+  const fPar=G.par.slice(0,9).reduce((a,b)=>a+b,0);
+  html+=`<tr style="background:#eceff1;font-weight:700"><td class="pnm">OUT</td><td class="ns">${fPar}</td><td class="ns"></td>`;
+  G.players.forEach((p,pi)=>html+=`<td>${fAny[pi]?fTot[pi]:'·'}</td>`);
+  html+='</tr>';
+
+  // Holes 10-18
+  const bTot=G.players.map(()=>0), bAny=G.players.map(()=>false);
+  for(let h=9;h<18;h++){
+    html+=`<tr><td class="pnm">${h+1}</td><td class="ns">${G.par[h]}</td><td class="ns">${G.si[h]}</td>`;
+    G.players.forEach((p,pi)=>{
+      const g=G.scores[pi][h];
+      if(g!==null){bTot[pi]+=g;bAny[pi]=true;}
+      html+=`<td>${g!==null?g:'·'}</td>`;
+    });
+    html+='</tr>';
+  }
+  // IN row
+  const bPar=G.par.slice(9).reduce((a,b)=>a+b,0);
+  html+=`<tr style="background:#eceff1;font-weight:700"><td class="pnm">IN</td><td class="ns">${bPar}</td><td class="ns"></td>`;
+  G.players.forEach((p,pi)=>html+=`<td>${bAny[pi]?bTot[pi]:'·'}</td>`);
+  html+='</tr>';
+
+  // TOT row
+  html+=`<tr style="background:var(--gp);font-weight:800"><td class="pnm">TOT</td><td class="ns">${fPar+bPar}</td><td class="ns"></td>`;
   G.players.forEach((p,pi)=>{
-    let fG=0,bG=0,fN=0,bN=0;
-    html+=`<tr><td class="pnm">${p.name}<br><span style="font-size:9px;color:var(--inkl)">Gross (${p.playHdcp})</span></td>`;
-    for(let h=0;h<9;h++){const g=G.scores[pi][h];html+=`<td>${g!==null?g:'·'}</td>`;if(g!==null)fG+=g;}
-    html+=`<td class="ns tot">${fG||'·'}</td>`;
-    for(let h=9;h<18;h++){const g=G.scores[pi][h];html+=`<td>${g!==null?g:'·'}</td>`;if(g!==null)bG+=g;}
-    html+=`<td class="ns tot">${bG||'·'}</td><td class="tot">${fG&&bG?fG+bG:'·'}</td></tr>`;
-
-    
+    const tot=(fAny[pi]?fTot[pi]:0)+(bAny[pi]?bTot[pi]:0);
+    html+=`<td>${(fAny[pi]&&bAny[pi])?tot:'·'}</td>`;
   });
+  html+='</tr>';
 
-  let fp=0,bp=0;
-  html+=`<tr style="background:var(--gp);font-weight:700"><td class="pnm">Par</td>`;
-  for(let h=0;h<9;h++){html+=`<td>${G.par[h]}</td>`;fp+=G.par[h];}
-  html+=`<td class="ns tot">${fp}</td>`;
-  for(let h=9;h<18;h++){html+=`<td>${G.par[h]}</td>`;bp+=G.par[h];}
-  html+=`<td class="ns tot">${bp}</td><td class="tot">${fp+bp}</td></tr>`;
   html+='</tbody></table></div></div>';
   html+='</div>'; // close totalsCard
   document.getElementById('totBody').innerHTML=html;
@@ -1540,6 +1583,263 @@ function updateHandicap(pi){
   renderCard();
 }
 
+function roundDateStr(){
+  const d = G.roundDate ? new Date(G.roundDate) : new Date();
+  return d.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric', year:'numeric'});
+}
+
+/* ═══════════════════════════════════════════════
+   MID-ROUND MATCH MANAGER
+═══════════════════════════════════════════════ */
+function renderMMPlayers(){
+  let h='';
+  G.players.forEach((p,i)=>{
+    h+=`<div class="mm-player-row">
+      <div class="mm-player-name">${p.name}</div>
+      <div class="mm-player-idx">Idx <input type="number" step=".1" min="0" max="54" value="${p.idx}" onchange="mmUpdatePlayerIdx(${i},this.value)"></div>
+      ${G.n>2 ? `<button class="mm-player-del" onclick="mmRemovePlayer(${i})" title="Remove player">×</button>` : ''}
+    </div>`;
+  });
+  document.getElementById('mmPlayersList').innerHTML=h;
+}
+
+function mmUpdatePlayerIdx(i,val){
+  const idx=parseFloat(val);
+  if(isNaN(idx)||idx<0||idx>54){ renderMMPlayers(); return; }
+  G.players[i].idx=idx;
+  saveG();
+  renderCard();
+}
+
+function mmAddPlayer(){
+  // Show inline add-player form instead of prompt() (prompt is unreliable in iOS PWA standalone mode)
+  const card=document.getElementById('mmPlayersCard');
+  const existingForm=document.getElementById('mmAddForm');
+  if(existingForm){ existingForm.remove(); return; }
+
+  const contacts = loadContacts();
+  const contactOpts = contacts.length
+    ? `<option value="">— saved players —</option>`+contacts.map(c=>`<option value="${c.name}|${c.idx}">${c.name} (${c.idx})</option>`).join('')
+    : `<option value="">No saved players</option>`;
+
+  const form=document.createElement('div');
+  form.id='mmAddForm';
+  form.style.cssText='margin-top:8px;padding:10px;background:var(--cream);border-radius:8px;border:1.5px solid var(--border)';
+  form.innerHTML=`
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      <input type="text" id="mmNewName" placeholder="Player name" style="flex:1">
+      <input type="number" id="mmNewIdx" placeholder="Hdcp" step=".1" min="0" max="54" style="width:64px">
+    </div>
+    <select class="contact-select" id="mmContactSelect" onchange="mmSelectContact()" style="margin-top:0;margin-bottom:6px">
+      ${contactOpts}
+    </select>
+    <button class="btn-go" style="margin-top:0;padding:10px" onclick="mmConfirmAddPlayer()">Add Player</button>
+  `;
+  // Insert form before the Add Player button
+  const btn=card.querySelector('.add-player-btn');
+  card.insertBefore(form, btn);
+  document.getElementById('mmNewName').focus();
+}
+
+function mmSelectContact(){
+  const sel=document.getElementById('mmContactSelect');
+  if(!sel.value) return;
+  const [name,idx]=sel.value.split('|');
+  document.getElementById('mmNewName').value=name;
+  document.getElementById('mmNewIdx').value=idx;
+}
+
+function mmConfirmAddPlayer(){
+  const nameEl=document.getElementById('mmNewName');
+  const idxEl=document.getElementById('mmNewIdx');
+  const name=nameEl.value.trim();
+  const idx=parseFloat(idxEl.value);
+
+  if(!name){ nameEl.style.borderColor='var(--red)'; nameEl.focus(); return; }
+  if(isNaN(idx)||idx<0||idx>54){ idxEl.style.borderColor='var(--red)'; idxEl.focus(); return; }
+
+  G.players.push({name, idx, playHdcp:0, strokes:Array(18).fill(0)});
+  // New player's scores: null for all holes (including holes already played)
+  G.scores.push(Array(18).fill(null));
+  G.n = G.players.length;
+
+  saveG();
+  renderMMPlayers();
+  renderMMPairOptions();
+  renderMMSingles();
+}
+
+function mmRemovePlayer(i){
+  // Inline confirmation instead of confirm() (unreliable in iOS PWA standalone mode)
+  const card=document.getElementById('mmPlayersCard');
+  const existing=document.getElementById('mmDelConfirm');
+  if(existing) existing.remove();
+
+  const p=G.players[i];
+  const inGames = G.teamGames.some(g=>g.a.includes(i)||g.b.includes(i))
+                || G.singleGames.some(s=>s.p1===i||s.p2===i);
+  const msg = inGames
+    ? `${p.name} is in active match(es). Removing will also remove those matches.`
+    : `Remove ${p.name} from the round?`;
+
+  const box=document.createElement('div');
+  box.id='mmDelConfirm';
+  box.style.cssText='margin-top:8px;padding:10px;background:#fff5f5;border:1.5px solid var(--red);border-radius:8px';
+  box.innerHTML=`
+    <div style="font-size:13px;color:var(--ink);margin-bottom:8px">${msg}</div>
+    <div style="display:flex;gap:8px">
+      <button class="mm-close" style="background:var(--red);color:#fff;flex:1" onclick="mmConfirmRemovePlayer(${i})">Remove</button>
+      <button class="mm-close" style="background:#eee;color:var(--ink);flex:1" onclick="document.getElementById('mmDelConfirm').remove()">Cancel</button>
+    </div>`;
+  card.appendChild(box);
+}
+
+function mmConfirmRemovePlayer(i){
+  // Remove matches involving this player
+  G.teamGames = G.teamGames.filter(g=>!g.a.includes(i)&&!g.b.includes(i));
+  G.singleGames = G.singleGames.filter(s=>s.p1!==i&&s.p2!==i);
+
+  // Remove player and their scores
+  G.players.splice(i,1);
+  G.scores.splice(i,1);
+  G.n = G.players.length;
+
+  // Re-index remaining matches (indexes shift down by 1 for players after i)
+  function reindex(idx){ return idx>i ? idx-1 : idx; }
+  G.teamGames.forEach(g=>{ g.a=g.a.map(reindex); g.b=g.b.map(reindex); });
+  G.singleGames.forEach(s=>{ s.p1=reindex(s.p1); s.p2=reindex(s.p2); });
+
+  const del=document.getElementById('mmDelConfirm');
+  if(del) del.remove();
+
+  saveG();
+  renderMMPlayers();
+  renderMMPairOptions();
+  renderMMSingles();
+}
+
+function openMatchManager(){
+  const existing=document.getElementById('mmOverlay');
+  if(existing) existing.remove();
+
+  const overlay=document.createElement('div');
+  overlay.className='mm-overlay';
+  overlay.id='mmOverlay';
+  overlay.innerHTML=`
+    <div class="mm-sheet">
+      <div class="mm-hdr">
+        <div class="mm-title">Manage Matches</div>
+        <button class="mm-close" onclick="closeMatchManager()">Done</button>
+      </div>
+      <div class="slabel">Players (${G.n})</div>
+      <div class="card" id="mmPlayersCard">
+        <div id="mmPlayersList"></div>
+        ${G.n<5 ? `<button class="add-player-btn" onclick="mmAddPlayer()">+ Add Player</button>` : `<div style="font-size:11px;color:var(--inkl);text-align:center">Max 5 players</div>`}
+      </div>
+      <div class="slabel">2v2 Nassau Games (High-Low)</div>
+      <div class="card" id="mmTeamGamesCard">
+        <div style="font-size:12px;color:#666;margin:0 0 8px">Tap a pairing to add or remove it.</div>
+        <div id="mmPairGrid"></div>
+        <div id="mmTeamGamesList"></div>
+      </div>
+      <div class="slabel">1v1 Nassau Games</div>
+      <div class="card" id="mmSinglesCard">
+        <div style="font-size:12px;color:#666;margin:0 0 8px">Tap a matchup to add or remove it.</div>
+        <div id="mmSinglesGrid"></div>
+        <div id="mmSingleGamesList"></div>
+      </div>
+      <div style="font-size:11px;color:var(--inkl);margin-top:10px;text-align:center">
+        Adding a match starts it from the current hole. Removing a match keeps scores but drops it from Nassau/Totals.
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click',e=>{ if(e.target===overlay) closeMatchManager(); });
+
+  renderMMPlayers();
+  renderMMPairOptions();
+  renderMMSingles();
+}
+
+function closeMatchManager(){
+  const overlay=document.getElementById('mmOverlay');
+  if(overlay) overlay.remove();
+  saveG();
+  renderCard();
+}
+
+// Re-use the same pairing/singles logic but render into the mm- prefixed containers
+function renderMMPairOptions(){
+  const pairs=allPairCombos();
+  let h='';
+  pairs.forEach((c,i)=>{
+    const already=G.teamGames.some(g=>JSON.stringify(g.a)===JSON.stringify(c.a)&&JSON.stringify(g.b)===JSON.stringify(c.b));
+    h+=`<div class="pbtn${already?' sel':''}" onclick="mmAddTeamGame(${i})">`+
+       `${G.players[c.a[0]].name} & ${G.players[c.a[1]].name}<div class="pn">vs<br>${G.players[c.b[0]].name} & ${G.players[c.b[1]].name}</div></div>`;
+  });
+  document.getElementById('mmPairGrid').innerHTML=`<div class="pair-grid">${h}</div>`;
+  renderMMTeamGamesList();
+}
+
+function mmAddTeamGame(ci){
+  const c=allPairCombos()[ci];
+  const already=G.teamGames.findIndex(g=>JSON.stringify(g.a)===JSON.stringify(c.a)&&JSON.stringify(g.b)===JSON.stringify(c.b));
+  if(already>=0){ G.teamGames.splice(already,1); }
+  else{ G.teamGames.push({a:c.a,b:c.b,bet:2}); }
+  saveG();
+  renderMMPairOptions();
+}
+
+function renderMMTeamGamesList(){
+  let h='';
+  G.teamGames.forEach((g,i)=>{
+    const nm=p=>G.players[p].name;
+    h+=`<div class="game-item">
+      <div class="game-item-label">${nm(g.a[0])} & ${nm(g.a[1])} vs ${nm(g.b[0])} & ${nm(g.b[1])}
+        <div class="game-item-sub">High-Low Nassau</div></div>
+      <div class="bet-picker">${BET_OPTIONS.map(v=>`<button class="bp-btn${g.bet===v?' sel':''}" onclick="mmSetTeamBet(${i},${v})">$${v}</button>`).join('')}</div>
+      <button class="game-del" onclick="mmRemoveTeamGame(${i})">×</button>
+    </div>`;
+  });
+  document.getElementById('mmTeamGamesList').innerHTML=h;
+}
+function mmSetTeamBet(i,v){G.teamGames[i].bet=Number(v);saveG();renderMMTeamGamesList();}
+function mmRemoveTeamGame(i){G.teamGames.splice(i,1);saveG();renderMMPairOptions();}
+
+function renderMMSingles(){
+  let h='';
+  for(let a=0;a<G.n;a++){
+    for(let b=a+1;b<G.n;b++){
+      const already=G.singleGames.some(s=>s.p1===a&&s.p2===b);
+      h+=`<div class="pbtn${already?' sel':''}" onclick="mmAddSingleGame(${a},${b})">${G.players[a].name}<div class="pn">vs<br>${G.players[b].name}</div></div>`;
+    }
+  }
+  document.getElementById('mmSinglesGrid').innerHTML=`<div class="pair-grid">${h}</div>`;
+  renderMMSingleGamesList();
+}
+
+function mmAddSingleGame(a,b){
+  const already=G.singleGames.findIndex(s=>s.p1===a&&s.p2===b);
+  if(already>=0){ G.singleGames.splice(already,1); }
+  else{ G.singleGames.push({p1:a,p2:b,bet:2}); }
+  saveG();
+  renderMMSingles();
+}
+
+function renderMMSingleGamesList(){
+  let h='';
+  G.singleGames.forEach((s,i)=>{
+    h+=`<div class="game-item">
+      <div class="game-item-label">${G.players[s.p1].name} vs ${G.players[s.p2].name}
+        <div class="game-item-sub">1v1 Nassau</div></div>
+      <div class="bet-picker">${BET_OPTIONS.map(v=>`<button class="bp-btn${s.bet===v?' sel':''}" onclick="mmSetSingleBet(${i},${v})">$${v}</button>`).join('')}</div>
+      <button class="game-del" onclick="mmRemoveSingleGame(${i})">×</button>
+    </div>`;
+  });
+  document.getElementById('mmSingleGamesList').innerHTML=h;
+}
+function mmSetSingleBet(i,v){G.singleGames[i].bet=Number(v);saveG();renderMMSingleGamesList();}
+function mmRemoveSingleGame(i){G.singleGames.splice(i,1);saveG();renderMMSingles();}
+
 /* ═══════════════════════════════════════════════
    CONTACTS
 ═══════════════════════════════════════════════ */
@@ -1610,7 +1910,7 @@ renderAllPairOptions();initSetup();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v1.3';
+const CACHE='nassau-v1.12';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
