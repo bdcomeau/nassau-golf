@@ -32,6 +32,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 
 /* ── SETUP ── */
 .setup{padding:16px;padding-bottom:100px}
+.view-history-btn{background:var(--gp);color:var(--gm);border:1.5px solid var(--gm);border-radius:10px;padding:12px;font-size:13px;font-weight:700;width:100%;margin-bottom:14px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .slabel{font-size:11px;font-weight:700;color:var(--gl);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px;margin-top:20px}
 .card{background:#fff;border-radius:14px;padding:14px;box-shadow:var(--shadow);margin-bottom:12px}
 
@@ -295,6 +296,8 @@ input::placeholder{color:#bbb}
 <div class="screen active" id="screen-setup">
 <div class="setup">
 
+  <button class="view-history-btn" onclick="showS('history')">📜 View Round History</button>
+
   <div class="slabel">Number of Players</div>
   <div class="card">
     <div class="cnt-row">
@@ -337,7 +340,7 @@ input::placeholder{color:#bbb}
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v3.1
+    Nassau Golf · Derrick GWC · v3.2
   </div>
 </div>
 </div>
@@ -369,6 +372,10 @@ input::placeholder{color:#bbb}
 
 <!-- ══════════ HISTORY ══════════ -->
 <div class="screen" id="screen-history">
+  <div class="shdr" id="historyBackHdr" style="display:none;align-items:center;gap:10px;padding:10px 14px">
+    <button class="hnav-btn" onclick="showS('setup')">‹</button>
+    <div class="hnum" style="font-size:16px">Round History</div>
+  </div>
   <div class="sbody" id="historyBody"></div>
 </div>
 
@@ -1070,7 +1077,7 @@ function renderCard(){
   // ── Vertical scorecard table (moved from Totals tab) ──
   html += renderVerticalScorecard();
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v3.1</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v3.2</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -1428,7 +1435,7 @@ function renderBets(){
   } else {
     matchups.forEach(m=>{ html+=renderMatchScorecard(m); });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v3.1</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v3.2</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -1566,7 +1573,12 @@ function showS(name){
   document.getElementById(`ni-${name}`)?.classList.add('active');
   if(name==='bets')renderBets();
   if(name==='score')renderCard();
-  if(name==='history')renderHistory();
+  if(name==='history'){
+    renderHistory();
+    // Show "back to setup" header only if there's no round in progress (bnav hidden)
+    const bnavVisible = document.getElementById('bnav').style.display!=='none';
+    document.getElementById('historyBackHdr').style.display = bnavVisible ? 'none' : 'flex';
+  }
 }
 function newRound(){
   // Inline confirmation instead of confirm() (unreliable in iOS PWA standalone mode)
@@ -1948,7 +1960,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v3.1</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v3.2</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -2027,7 +2039,7 @@ function openHistoryDetail(i){
   const matchups=buildMatchups();
   matchups.forEach(m=>{ html+=renderMatchScorecard(m); });
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v3.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v3.2</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -2464,7 +2476,7 @@ renderAllPairOptions();initSetup();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v3.1';
+const CACHE='nassau-v3.2';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
