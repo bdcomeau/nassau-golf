@@ -359,7 +359,7 @@ input::placeholder{color:#bbb}
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v4.8
+    Nassau Golf · Derrick GWC · v4.9
   </div>
 </div>
 </div>
@@ -1259,7 +1259,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v4.8</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v4.9</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -1404,7 +1404,7 @@ function renderCard(){
   // ── Vertical scorecard table (moved from Totals tab) ──
   html += renderVerticalScorecard();
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v4.8</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v4.9</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -1801,7 +1801,7 @@ function renderBets(){
   } else {
     matchups.forEach(m=>{ html+=renderMatchScorecard(m); });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v4.8</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v4.9</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -2423,7 +2423,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach(game=>{ html+=render6PointCard(game); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v4.8</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v4.9</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -2449,7 +2449,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v4.8</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v4.9</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -2514,10 +2514,11 @@ function openHistoryDetail(i){
 
   let html='';
 
-  // Final money summary
-  html+='<div class="msum" style="margin:10px 0"><div class="msum-hdr">💵 Final Money</div>';
+  // Final money summary — Nassau + 6-Point combined
+  const combinedMoney = computeCombinedMoney();
+  html+='<div class="msum" style="margin:10px 0"><div class="msum-hdr">🏁 Final Totals (Nassau + 6-Point)</div>';
   G.players.forEach((p,idx)=>{
-    const v=r.money[idx]; const c=v>0?'pos':v<0?'neg':'zero';
+    const v=combinedMoney[idx]; const c=v>0?'pos':v<0?'neg':'zero';
     html+=`<div class="mrow"><div class="mname">${p.name}</div><div class="mamt ${c}">${fmt(v)}</div></div>`;
   });
   html+='</div>';
@@ -2532,7 +2533,7 @@ function openHistoryDetail(i){
   // 6-Point game cards (read-only) — computeSixPoint reads from the swapped-in G snapshot
   G.sixPointGames.forEach(game=>{ html += render6PointCard(game); });
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v4.8</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v4.9</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -2972,7 +2973,7 @@ renderAllPairOptions();initSetup();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v4.8';
+const CACHE='nassau-v4.9';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
