@@ -148,11 +148,13 @@ input::placeholder{color:#bbb}
 .pip{display:inline-block;width:7px;height:7px;background:var(--red);border-radius:50%;position:absolute;top:3px;right:3px}
 .pip2{background:#8e0000;width:6px;height:6px;top:3px;right:10px}
 
-.sdet{flex:1;display:flex;flex-direction:row;gap:4px;align-items:stretch}
-.sdi{background:#f5f2ec;border-radius:6px;padding:3px 6px;flex:1;text-align:center}
-.sdl{font-size:8px;color:var(--inkl);text-transform:uppercase;letter-spacing:.3px}
-.sdv{font-size:14px;font-weight:700}
-.sdv.under{color:var(--gm)}.sdv.over{color:var(--red)}
+.quick-entry{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:4px}
+.qe-btn{background:#f5f2ec;border:1.5px solid transparent;border-radius:6px;padding:4px;text-align:center;font-size:16px;font-weight:800;color:var(--ink);cursor:pointer;-webkit-tap-highlight-color:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.qe-lbl{font-size:8px;font-weight:600;color:var(--inkl);text-transform:uppercase;letter-spacing:.3px}
+.qe-btn.qe-active.qe-bird{background:#e8f5e9;border-color:#2e7d32;color:#2e7d32}
+.qe-btn.qe-active.qe-par{background:#f0f7f2;border-color:var(--gm);color:var(--gm)}
+.qe-btn.qe-active.qe-bog{background:#fff5f5;border-color:var(--red);color:var(--red)}
+.qe-btn.qe-active.qe-dbl{background:#ffebee;border-color:#b71c1c;color:#b71c1c}
 
 /* ── NASSAU PANEL ── */
 .npanel{background:var(--gd);border-radius:10px;padding:8px 10px;margin-bottom:6px}
@@ -200,6 +202,7 @@ input::placeholder{color:#bbb}
 .intl-active{background:#e8f5e9;border-top:2px solid var(--gm)}
 .intl-active .intl-txt{color:#1b5e20}
 .intl-undo{margin-top:8px;background:none;border:1px solid #aaa;color:#666;border-radius:8px;padding:6px 12px;font-size:11px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.intl-available-banner{background:linear-gradient(135deg,#1a5276,#2980b9);color:#fff;border-radius:10px;padding:12px;font-size:13px;font-weight:700;width:100%;margin-bottom:10px;text-align:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .save-round-btn{background:var(--gold);color:var(--gd);border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:800;width:100%;margin-bottom:10px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .save-round-done{background:#e8f5e9;color:#1b5e20;border:1.5px solid var(--gm);border-radius:10px;padding:10px;font-size:13px;font-weight:700;width:100%;margin-bottom:10px;text-align:center}
 .hist-row{display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -347,7 +350,7 @@ input::placeholder{color:#bbb}
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v3.8
+    Nassau Golf · Derrick GWC · v4.1
   </div>
 </div>
 </div>
@@ -682,6 +685,8 @@ function startRound(){
   document.getElementById('ni-sixpoint').style.display = G.sixPointGames.length ? 'flex' : 'none';
   document.getElementById('badge').textContent='HOLE '+G.startHole;
   showS('score');renderCard();
+  window.scrollTo(0,0);
+  document.getElementById('sbody').scrollTop=0;
 }
 
 /* ═══════════════════════════════════════════════
@@ -1136,6 +1141,14 @@ function adjustScore(pi, h, delta){
   renderCard();
 }
 
+// Quick-entry: set a score directly (e.g. tap "4" for par, "5" for bogey, "6" for double)
+function setScore(pi, h, value){
+  if(value<1||value>15)return;
+  G.scores[pi][h]=value;
+  saveG();
+  renderCard();
+}
+
 // Touch swipe support on scroll wheel
 let _touch={pi:null,h:null,y0:null};
 function swipeStart(pi,h,e){
@@ -1157,6 +1170,16 @@ function swipeEnd(){_touch={pi:null,h:null,y0:null};}
 /* ═══════════════════════════════════════════════
    SCORECARD RENDER
 ═══════════════════════════════════════════════ */
+// Returns true if at least one Nassau match (not yet using International) has a
+// non-zero Large Press available after 17 holes — i.e. The International can be called.
+function internationalAvailableForAnyMatch(){
+  return buildMatchups().some(m=>{
+    if((G.internationals||{})[m.matchId]) return false; // already active for this match
+    const intl=computeInternational(m);
+    return intl && intl.largePress>0;
+  });
+}
+
 function renderCard(){
   const h=G.hole; // actual hole array index (0-17)
   const playIdx=playOrderIdx(h); // 0-17: which hole-played-number this is (0 = 1st hole played)
@@ -1164,7 +1187,10 @@ function renderCard(){
   document.getElementById('hmeta').textContent = G.startHole>1
     ? `Par ${G.par[h]} · HCP ${G.si[h]} · ${ordinal(playIdx+1)} hole played`
     : `Par ${G.par[h]} · HCP ${G.si[h]}`;
-  document.getElementById('badge').textContent=`HOLE ${h+1}`;
+  // Badge shows hole number for non-shotgun rounds, or "Nth hole of match" for shotgun starts
+  document.getElementById('badge').textContent = G.startHole>1
+    ? `${ordinal(playIdx+1)} HOLE OF MATCH`
+    : `HOLE ${h+1}`;
   // Navigation steps through ACTUAL holes in PLAY ORDER (wraps for shotgun starts)
   document.getElementById('btnPrev').disabled=playIdx===0;
   document.getElementById('btnNext').disabled=playIdx===17;
@@ -1175,6 +1201,11 @@ function renderCard(){
 
   let html='';
 
+  // Banner: The International is now available on the Nassau tab (shown once 17 holes are in)
+  if(playIdx===17 && internationalAvailableForAnyMatch()){
+    html += `<div class="intl-available-banner" onclick="showS('bets')">🌍 The International is now available — tap to view on the Nassau tab</div>`;
+  }
+
   // Save Round button — shown once all 18 holes are scored and not yet saved
   if(isRoundComplete() && !isCurrentRoundSaved()){
     html += `<button class="save-round-btn" onclick="manualSaveRound()">💾 Save Round</button>`;
@@ -1184,21 +1215,15 @@ function renderCard(){
 
   G.players.forEach((p,pi)=>{
     const gross=G.scores[pi][h];
-    const par=G.par[h], tp=gross!==null?gross-par:null;
-    const tpStr=tp===null?'—':tp===0?'E':tp>0?`+${tp}`:`${tp}`;
-    const tpCls=tp===null?'':tp<0?'under':tp>0?'over':'';
+    const par=G.par[h];
     // Score box style based on gross vs par only (no strokes — match-specific info lives on Nassau cards)
     const sc=gross!==null?scoreClass(gross,par,0):{box:'',lbl:'',lblCls:'other-lbl'};
-
-    let fG=0,bG=0,fAny=false,bAny=false;
-    for(let i=0;i<9;i++){if(G.scores[pi][i]!==null){fG+=G.scores[pi][i];fAny=true;}}
-    for(let i=9;i<18;i++){if(G.scores[pi][i]!==null){bG+=G.scores[pi][i];bAny=true;}}
 
     const monCls=money[pi]>0?'color:var(--gl)':money[pi]<0?'color:#e74c3c':'color:var(--gold)';
 
     html+=`<div class="pcard">
       <div class="pcard-hdr">
-        <div>
+        <div style="display:flex;align-items:baseline;gap:6px">
           <div class="pcard-name">${p.name}</div>
           <div class="pcard-hdcp" onclick="updateHandicap(${pi})" style="cursor:pointer" title="Tap to edit handicap">Idx ${p.idx} ✏️</div>
         </div>
@@ -1222,10 +1247,11 @@ function renderCard(){
             </div>
             <button class="sw-btn" ontouchstart="adjustScore(${pi},${h},1)" onclick="adjustScore(${pi},${h},1)">▶</button>
           </div>
-          <div class="sdet">
-            <div class="sdi"><div class="sdl">To Par</div><div class="sdv ${tpCls}">${tpStr}</div></div>
-            <div class="sdi"><div class="sdl">Front</div><div class="sdv">${fAny?fG:'—'}</div></div>
-            <div class="sdi"><div class="sdl">Back</div><div class="sdv">${bAny?bG:'—'}</div></div>
+          <div class="quick-entry">
+            <button class="qe-btn${gross===par-1?' qe-active qe-bird':''}" onclick="setScore(${pi},${h},${par-1})">${par-1}<span class="qe-lbl">Birdie</span></button>
+            <button class="qe-btn${gross===par?' qe-active qe-par':''}" onclick="setScore(${pi},${h},${par})">${par}<span class="qe-lbl">Par</span></button>
+            <button class="qe-btn${gross===par+1?' qe-active qe-bog':''}" onclick="setScore(${pi},${h},${par+1})">${par+1}<span class="qe-lbl">Bogey</span></button>
+            <button class="qe-btn${gross===par+2?' qe-active qe-dbl':''}" onclick="setScore(${pi},${h},${par+2})">${par+2}<span class="qe-lbl">Double</span></button>
           </div>
         </div>
       </div>
@@ -1235,7 +1261,7 @@ function renderCard(){
   // ── Vertical scorecard table (moved from Totals tab) ──
   html += renderVerticalScorecard();
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v3.8</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v4.1</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -1621,7 +1647,7 @@ function renderBets(){
   } else {
     matchups.forEach(m=>{ html+=renderMatchScorecard(m); });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v3.8</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v4.1</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -1753,6 +1779,7 @@ function jumpN(playIdx){
   saveG();renderCard();
 }
 function showS(name){
+  window.scrollTo(0,0);
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(`screen-${name}`).classList.add('active');
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
@@ -2229,7 +2256,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach(game=>{ html+=render6PointCard(game); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v3.8</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v4.1</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -2255,7 +2282,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v3.8</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v4.1</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -2338,7 +2365,7 @@ function openHistoryDetail(i){
   // 6-Point game cards (read-only) — computeSixPoint reads from the swapped-in G snapshot
   G.sixPointGames.forEach(game=>{ html += render6PointCard(game); });
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v3.8</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v4.1</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -2776,7 +2803,7 @@ renderAllPairOptions();initSetup();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v3.8';
+const CACHE='nassau-v4.1';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
