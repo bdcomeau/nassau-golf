@@ -347,7 +347,7 @@ input::placeholder{color:#bbb}
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v3.7
+    Nassau Golf · Derrick GWC · v3.8
   </div>
 </div>
 </div>
@@ -1235,7 +1235,7 @@ function renderCard(){
   // ── Vertical scorecard table (moved from Totals tab) ──
   html += renderVerticalScorecard();
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v3.7</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v3.8</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -1543,21 +1543,42 @@ function buildInternationalPanel(m){
 
   // H18 settled
   const net = result.largePressNetToInternationalee;
-  let resultTxt, owesLine;
+  let resultTxt;
   if(net > 0){
     resultTxt = `${inteeLabel} won hole 18 — takes the $${intl.largePress} Large Press`;
-    owesLine = `<b>${intlerLabel}</b> owes <b>${inteeLabel}</b> <span style="font-size:16px">$${net}</span> from the Large Press`;
   } else if(net < 0){
     resultTxt = `${intlerLabel} won hole 18 — takes the $${intl.largePress} Large Press`;
-    owesLine = `<b>${inteeLabel}</b> owes <b>${intlerLabel}</b> <span style="font-size:16px">$${Math.abs(net)}</span> from the Large Press`;
   } else {
     resultTxt = `Hole 18 halved — the $${intl.largePress} Large Press is a push`;
-    owesLine = `No money changes hands on the Large Press ($0)`;
   }
 
+  // Overall total for this match = normal settlement of non-bucketed games + the large press
+  const bucketed = intl.bucketedLabels;
+  let totalA = 0;
+  computeMatchGames(m).forEach(g=>{
+    if(g.isFrontPress){
+      const pay9 = g.leg9.settled ? (g.leg9.score>0?(m.bet||2):g.leg9.score<0?-(m.bet||2):0) : 0;
+      const pay18bucketed = bucketed.has(g.label+'#leg18');
+      const pay18 = (!pay18bucketed && g.leg18.settled) ? (g.leg18.score>0?(m.bet||2):g.leg18.score<0?-(m.bet||2):0) : 0;
+      totalA += pay9 + pay18;
+    } else if(bucketed.has(g.label)){
+      // value moved into the large press
+    } else if(g.settled && g.winner!=='tie'){
+      totalA += g.winner==='A' ? g.value : -g.value;
+    }
+  });
+  const netA = intl.internationaleeSide==='A' ? net : -net;
+  totalA += netA;
+
+  const overallWinner = totalA>0?m.labelA:totalA<0?m.labelB:null;
+  const overallAmt = Math.abs(totalA);
+  const resultLine = overallWinner
+    ? `<b>${overallWinner}</b> wins <span style="font-size:16px">$${overallAmt}</span>`
+    : `All square — $0`;
+
   return `<div class="intl-panel intl-active">
-    <div class="intl-txt">🌍 <b>The International — Final</b><br>${resultTxt}<br><span style="font-size:11px;opacity:.8">All other games settle normally and are included in the totals above.</span></div>
-    <div class="intl-owes">${owesLine}</div>
+    <div class="intl-txt">🌍 <b>The International — Final</b><br>${resultTxt}</div>
+    <div class="intl-owes">${resultLine}</div>
     <button class="intl-undo" onclick="deactivateInternational('${m.matchId}')">Undo</button>
   </div>`;
 }
@@ -1600,7 +1621,7 @@ function renderBets(){
   } else {
     matchups.forEach(m=>{ html+=renderMatchScorecard(m); });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v3.7</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v3.8</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -2208,7 +2229,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach(game=>{ html+=render6PointCard(game); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v3.7</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v3.8</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -2234,7 +2255,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v3.7</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v3.8</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -2317,7 +2338,7 @@ function openHistoryDetail(i){
   // 6-Point game cards (read-only) — computeSixPoint reads from the swapped-in G snapshot
   G.sixPointGames.forEach(game=>{ html += render6PointCard(game); });
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v3.7</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v3.8</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -2755,7 +2776,7 @@ renderAllPairOptions();initSetup();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v3.7';
+const CACHE='nassau-v3.8';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
