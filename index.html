@@ -337,10 +337,17 @@ input::placeholder{color:#bbb}
     <div id="singleGamesList"></div>
   </div>
 
+  <div class="slabel">6-Point Game</div>
+  <div class="card" id="sixPointCard">
+    <div style="font-size:12px;color:#666;margin:0 0 8px">Pick any 3 players for a separate 6-Point game (full handicap, net, no presses — 6 points up for grabs every hole).</div>
+    <div id="sixPointGrid"></div>
+    <div id="sixPointGamesList"></div>
+  </div>
+
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v3.2
+    Nassau Golf · Derrick GWC · v3.3
   </div>
 </div>
 </div>
@@ -370,6 +377,11 @@ input::placeholder{color:#bbb}
   <div class="sbody" id="betsBody"></div>
 </div>
 
+<!-- ══════════ 6-POINT GAME ══════════ -->
+<div class="screen" id="screen-sixpoint">
+  <div class="sbody" id="sixPointBody"></div>
+</div>
+
 <!-- ══════════ HISTORY ══════════ -->
 <div class="screen" id="screen-history">
   <div class="shdr" id="historyBackHdr" style="display:none;align-items:center;gap:10px;padding:10px 14px">
@@ -392,6 +404,7 @@ input::placeholder{color:#bbb}
 <div class="bnav" id="bnav" style="display:none">
   <div class="ni active" id="ni-score"   onclick="showS('score')"><div class="ni-icon">⛳</div><div class="ni-lbl">Scorecard</div></div>
   <div class="ni"        id="ni-bets"    onclick="showS('bets')"><div class="ni-icon">💰</div><div class="ni-lbl">Nassau</div></div>
+  <div class="ni"        id="ni-sixpoint" onclick="showS('sixpoint')" style="display:none"><div class="ni-icon">6️⃣</div><div class="ni-lbl">6-Point</div></div>
   <div class="ni"        id="ni-history" onclick="showS('history')"><div class="ni-icon">📜</div><div class="ni-lbl">History</div></div>
   <div class="ni"        id="ni-new"     onclick="newRound()"><div class="ni-icon">🔄</div><div class="ni-lbl">New Round</div></div>
 </div>
@@ -412,6 +425,7 @@ const G = {
   singleGames:[], // [{p1:i, p2:i, bet:2}]
   scores:[], hole:0, roundDate:null, internationals:{},
   startHole:1, // 1-18: actual hole number the group tees off on (shotgun starts)
+  sixPointGames:[], // [{players:[i,i,i], perPoint:1}]
 };
 
 // Translate a "play order" index (0-17, i.e. 1st-18th hole played) to the
@@ -445,6 +459,7 @@ function loadG(){
     if(!G.internationals || typeof G.internationals !== 'object') G.internationals = {};
     if(!G.roundDate) G.roundDate = new Date().toISOString();
     if(!G.startHole || G.startHole<1 || G.startHole>18) G.startHole = 1;
+    if(!Array.isArray(G.sixPointGames)) G.sixPointGames = [];
     return true;
   }catch(e){ return false; }
 }
@@ -507,6 +522,8 @@ function renderAllPairOptions(){
   renderSinglesOptions();
   renderTeamGamesList();
   renderSingleGamesList();
+  renderSixPointOptions();
+  renderSixPointGamesList();
 }
 
 function renderTeamOptions(){
@@ -587,6 +604,55 @@ function setSingleBet(i,v){G.singleGames[i].bet=v;renderSingleGamesList();}
 function removeSingleGame(i){G.singleGames.splice(i,1);renderSinglesOptions();renderSingleGamesList();}
 
 /* ═══════════════════════════════════════════════
+   6-POINT GAME SETUP
+═══════════════════════════════════════════════ */
+const SIX_POINT_OPTIONS=[0.25,0.5,1,2,5,10];
+
+// All 3-player combinations from G.n players
+function threeCombos(){
+  const combos=[];
+  for(let a=0;a<G.n;a++)for(let b=a+1;b<G.n;b++)for(let c=b+1;c<G.n;c++){
+    combos.push([a,b,c]);
+  }
+  return combos;
+}
+
+function renderSixPointOptions(){
+  const nm=names();
+  let h='<div class="pair-grid">';
+  threeCombos().forEach(combo=>{
+    const already=G.sixPointGames.some(g=>JSON.stringify(g.players)===JSON.stringify(combo));
+    h+=`<div class="pbtn${already?' sel':''}" onclick="addSixPointGame(${JSON.stringify(combo)})">${combo.map(i=>nm[i]).join(' · ')}</div>`;
+  });
+  h+='</div>';
+  document.getElementById('sixPointGrid').innerHTML=h;
+}
+
+function renderSixPointGamesList(){
+  const nm=names();
+  let h='';
+  G.sixPointGames.forEach((g,i)=>{
+    h+=`<div class="game-item">
+      <div class="game-item-label">${g.players.map(pi=>nm[pi]).join(' · ')}
+        <div class="game-item-sub">6-Point Game</div></div>
+      <div class="bet-picker">${SIX_POINT_OPTIONS.map(v=>`<button class="bp-btn${g.perPoint===v?' sel':''}" onclick="setSixPointValue(${i},${v})">${v<1?(v*100)+'¢':'$'+v}</button>`).join('')}</div>
+      <button class="game-del" onclick="removeSixPointGame(${i})">×</button>
+    </div>`;
+  });
+  if(!h) h='<div class="add-hint">No 6-Point game added — tap 3 players above</div>';
+  document.getElementById('sixPointGamesList').innerHTML=h;
+}
+
+function addSixPointGame(players){
+  const already=G.sixPointGames.findIndex(g=>JSON.stringify(g.players)===JSON.stringify(players));
+  if(already>=0){G.sixPointGames.splice(already,1);}
+  else{G.sixPointGames.push({players,perPoint:1});}
+  renderSixPointOptions();renderSixPointGamesList();
+}
+function setSixPointValue(i,v){G.sixPointGames[i].perPoint=v;renderSixPointGamesList();}
+function removeSixPointGame(i){G.sixPointGames.splice(i,1);renderSixPointOptions();renderSixPointGamesList();}
+
+/* ═══════════════════════════════════════════════
    START ROUND
 ═══════════════════════════════════════════════ */
 function startRound(){
@@ -613,6 +679,7 @@ function startRound(){
   G.internationals={}; // reset any leftover International state from a previous round
   saveG();
   document.getElementById('bnav').style.display='flex';
+  document.getElementById('ni-sixpoint').style.display = G.sixPointGames.length ? 'flex' : 'none';
   document.getElementById('badge').textContent='HOLE '+G.startHole;
   showS('score');renderCard();
 }
@@ -914,6 +981,78 @@ function settleInternational(matchup, intl){
   return { netToInternationalee, h18Result: h18ForIntee };
 }
 
+/* ═══════════════════════════════════════════════
+   6-POINT GAME ENGINE
+═══════════════════════════════════════════════ */
+// Computes per-hole point distribution and running totals for a 6-Point game.
+// game = {players:[i,i,i], perPoint:N}
+// Returns {pointsPerHole: [[p1,p2,p3],...18], running: [[cum1,cum2,cum3],...18],
+//          totals:[t1,t2,t3], holesPlayed, settlement:{...} or null}
+function computeSixPoint(game){
+  const [pA,pB,pC] = game.players;
+  const idxs=[pA,pB,pC];
+
+  // Full handicap strokes (rounded index, applied directly to SI — no zeroing)
+  const strokes = idxs.map(pi=>{
+    const hi=Math.round(G.players[pi].idx);
+    return G.si.map(si=>{
+      if(hi>=si+18) return 2;
+      if(hi>=si) return 1;
+      return 0;
+    });
+  });
+
+  const pointsPerHole=[], running=[];
+  let cum=[0,0,0];
+  let holesPlayed=0;
+
+  for(let h=0;h<18;h++){
+    const grosses = idxs.map(pi=>G.scores[pi][h]);
+    if(grosses.some(g=>g===null)){
+      pointsPerHole.push(null);
+      running.push([...cum]);
+      continue;
+    }
+    holesPlayed++;
+    const nets = grosses.map((g,ii)=>g-strokes[ii][h]);
+    const minNet=Math.min(...nets);
+    const countAtMin=nets.filter(n=>n===minNet).length;
+    let pts;
+    if(countAtMin===3) pts=[2,2,2];
+    else if(countAtMin===2) pts=nets.map(n=>n===minNet?3:0);
+    else pts=nets.map(n=>n===minNet?6:0);
+
+    pointsPerHole.push(pts);
+    cum=[cum[0]+pts[0], cum[1]+pts[1], cum[2]+pts[2]];
+    running.push([...cum]);
+  }
+
+  const totals=cum;
+  let settlement=null;
+  if(holesPlayed===18){
+    // Rank players by points (descending). Ties split evenly among tied players for that rank's payments.
+    const ranked = idxs.map((pi,ii)=>({pi, pts:totals[ii]})).sort((a,b)=>b.pts-a.pts);
+    const money = idxs.map(()=>0);
+    const idxOf = pi => idxs.indexOf(pi);
+
+    // Standard (no ties) settlement: 2nd pays 1st, 3rd pays 2nd & 1st
+    // For ties, split payment differences proportionally — simplest correct approach:
+    // for every pair (i,j) with i ranked above j, j pays i (pts_i - pts_j)*perPoint (0 if tied)
+    for(let i=0;i<3;i++){
+      for(let j=i+1;j<3;j++){
+        const diff = (ranked[i].pts - ranked[j].pts) * game.perPoint;
+        if(diff>0){
+          money[idxOf(ranked[i].pi)] += diff;
+          money[idxOf(ranked[j].pi)] -= diff;
+        }
+      }
+    }
+    settlement = { money, ranked: ranked.map(r=>({pi:r.pi, pts:r.pts})) };
+  }
+
+  return { pointsPerHole, running, totals, holesPlayed, settlement, strokes, players:idxs };
+}
+
 function buildMatchups(){
   const m=[];
   G.teamGames.forEach((g,i)=>{
@@ -1077,7 +1216,7 @@ function renderCard(){
   // ── Vertical scorecard table (moved from Totals tab) ──
   html += renderVerticalScorecard();
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v3.2</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v3.3</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -1435,7 +1574,7 @@ function renderBets(){
   } else {
     matchups.forEach(m=>{ html+=renderMatchScorecard(m); });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v3.2</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v3.3</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -1573,6 +1712,7 @@ function showS(name){
   document.getElementById(`ni-${name}`)?.classList.add('active');
   if(name==='bets')renderBets();
   if(name==='score')renderCard();
+  if(name==='sixpoint')renderSixPoint();
   if(name==='history'){
     renderHistory();
     // Show "back to setup" header only if there's no round in progress (bnav hidden)
@@ -1685,6 +1825,7 @@ function confirmNewRound(){
   G.par=[]; G.si=[];
   G.teamGames=[];
   G.singleGames=[];
+  G.sixPointGames=[];
   G.scores=[];
   G.hole=0;
   G.roundDate=null;
@@ -1939,6 +2080,107 @@ function showToast(msg){
 }
 
 // ── History list screen ──
+/* ═══════════════════════════════════════════════
+   6-POINT GAME SCREEN
+═══════════════════════════════════════════════ */
+function renderSixPoint(){
+  let html='<div style="padding:12px 16px;padding-bottom:120px">';
+
+  if(!G.sixPointGames.length){
+    html+=`<div style="text-align:center;color:rgba(255,255,255,.5);padding:40px 0">No 6-Point game configured</div>`;
+  } else {
+    G.sixPointGames.forEach((game,gi)=>{
+      const nm=game.players.map(pi=>G.players[pi].name);
+      const r=computeSixPoint(game);
+      const pp=game.perPoint;
+      const ppLabel = pp<1 ? (pp*100)+'¢' : '$'+pp;
+
+      html+=`<div class="msc-card" style="margin-bottom:14px">
+        <div class="msc-card-hdr">
+          <div>
+            <div class="msc-card-title">${nm.join(' · ')}</div>
+            <div class="msc-card-sub">6-Point Game · ${ppLabel}/point · ${roundDateStr()}${G.startHole>1?(' · Shotgun start: Hole '+G.startHole):''}</div>
+          </div>
+        </div>
+        <div class="msc-wrap"><table class="sct">
+          <thead><tr><td class="row-lbl par" style="text-align:center">Hole</td><td class="hdr-tot">HCP</td>`;
+      nm.forEach((n,ii)=>{
+        html+=`<td class="hdr-name">${n}<br><span style="font-size:8px;font-weight:400">Idx ${G.players[game.players[ii]].idx.toFixed(1)}</span></td>`;
+      });
+      html+='</tr></thead><tbody>';
+
+      let fPar=0,bPar=0;
+      const fPts=[0,0,0], bPts=[0,0,0], fScored=[false,false,false], bScored=[false,false,false];
+
+      for(let playIdx=0;playIdx<18;playIdx++){
+        const h=actualHoleIdx(playIdx);
+        const parVal=G.par[h];
+        if(playIdx<9) fPar+=parVal; else bPar+=parVal;
+
+        html+=`<tr><td class="row-lbl" style="font-weight:700;text-align:center;font-size:11px">${h+1}<br><span style="font-size:8px;font-weight:400;color:#999">${parVal}</span></td>`;
+        html+=`<td class="tot" style="background:#f5f5f5;color:#666;font-size:10px">${G.si[h]}</td>`;
+
+        const pts=r.pointsPerHole[playIdx];
+        game.players.forEach((pi,ii)=>{
+          const g=G.scores[pi][h];
+          const s=r.strokes[ii][h];
+          const inner=g!==null
+            ?(s>=2?`<span class="circ-val c2">${g}</span>`:s>=1?`<span class="circ-val">${g}</span>`:`${g}`)
+            :(s>=2?`<span class="circ-val c2" style="color:#ccc"></span>`:s>=1?`<span class="circ-val" style="color:#ccc"></span>`:'');
+          let ptCell='';
+          if(pts!==null){
+            ptCell=`<div style="font-size:9px;color:var(--gold);font-weight:800">${pts[ii]}pt</div>`;
+            if(playIdx<9){fPts[ii]+=pts[ii];fScored[ii]=true;} else {bPts[ii]+=pts[ii];bScored[ii]=true;}
+          }
+          html+=`<td class="sc">${inner}${ptCell}</td>`;
+        });
+        html+='</tr>';
+
+        if(playIdx===8){
+          html+=`<tr style="border-top:2px solid var(--gm);border-bottom:2px solid var(--gm)"><td class="row-lbl out">OUT</td><td class="tot out">${fPar}</td>`;
+          game.players.forEach((pi,ii)=>html+=`<td class="tot out">${fScored[ii]?fPts[ii]+'pt':'—'}</td>`);
+          html+='</tr>';
+        }
+      }
+      html+=`<tr style="border-top:2px solid var(--gm)"><td class="row-lbl out">IN</td><td class="tot out">${bPar}</td>`;
+      game.players.forEach((pi,ii)=>html+=`<td class="tot out">${bScored[ii]?bPts[ii]+'pt':'—'}</td>`);
+      html+='</tr>';
+
+      html+=`<tr style="border-top:2px solid #546e7a;background:var(--gp)"><td class="row-lbl out" style="font-weight:800">TOT</td><td class="tot" style="font-weight:800">${fPar+bPar}</td>`;
+      game.players.forEach((pi,ii)=>html+=`<td class="tot" style="font-weight:800">${r.totals[ii]}pt</td>`);
+      html+='</tr>';
+
+      html+='</tbody></table></div>';
+
+      // Settlement
+      if(r.settlement){
+        html+='<div class="intl-panel intl-active">';
+        html+='<div class="intl-txt">🏆 <b>Final — '+r.holesPlayed+' holes</b><br>';
+        html+=r.settlement.ranked.map(s=>`${G.players[s.pi].name}: ${s.pts}pt`).join(' · ');
+        html+='</div>';
+        // Net $ position for each player
+        const moneyLines=[];
+        game.players.forEach((pi,ii)=>{
+          const v=r.settlement.money[ii];
+          if(v!==0){
+            moneyLines.push(`<div class="intl-owes" style="margin-top:6px">${G.players[pi].name}: ${fmt(v)}</div>`);
+          }
+        });
+        html+=moneyLines.join('');
+        html+='</div>';
+      } else {
+        html+=`<div class="intl-panel"><div class="intl-txt">In progress — ${r.holesPlayed}/18 holes scored. Running totals: ${game.players.map((pi,ii)=>G.players[pi].name+' '+r.totals[ii]+'pt').join(' · ')}</div></div>`;
+      }
+
+      html+='</div>'; // msc-card
+    });
+  }
+
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v3.3</div>';
+  html+='</div>';
+  document.getElementById('sixPointBody').innerHTML=html;
+}
+
 function renderHistory(){
   const hist=loadHistory();
   let html='<div style="padding:12px 16px;padding-bottom:120px">';
@@ -1960,7 +2202,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v3.2</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v3.3</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -2039,7 +2281,7 @@ function openHistoryDetail(i){
   const matchups=buildMatchups();
   matchups.forEach(m=>{ html+=renderMatchScorecard(m); });
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v3.2</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v3.3</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -2461,6 +2703,7 @@ renderAllPairOptions();initSetup();
 (function(){
   if(loadG()){
     document.getElementById('bnav').style.display='flex';
+  document.getElementById('ni-sixpoint').style.display = G.sixPointGames.length ? 'flex' : 'none';
     document.getElementById('badge').textContent='HOLE '+(G.hole+1);
     document.getElementById('cntVal').textContent=G.n;
     showS('score'); renderCard();
@@ -2476,7 +2719,7 @@ renderAllPairOptions();initSetup();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v3.2';
+const CACHE='nassau-v3.3';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
