@@ -233,6 +233,12 @@ input::placeholder{color:#bbb}
 .msc .sc.circ{border-radius:0}
 .circ-val{display:inline-block;width:16px;height:16px;border:1.5px solid var(--red);border-radius:50%;line-height:14px;text-align:center;font-size:10px;font-weight:700;vertical-align:middle}
 .circ-val.c2{border-width:2.5px;border-color:#8e0000}
+/* Gross score markers: circles for birdie/eagle, squares for bogey/double+ */
+.mark-val{display:inline-block;width:18px;height:18px;line-height:16px;text-align:center;font-size:10px;font-weight:700;vertical-align:middle;margin:2px}
+.mark-circ1{border:1.5px solid #2e7d32;border-radius:50%}
+.mark-circ2{border:1.5px solid #2e7d32;border-radius:50%;outline:1.5px solid #2e7d32;outline-offset:2px}
+.mark-sq1{border:1.5px solid var(--red);border-radius:2px}
+.mark-sq2{border:1.5px solid #8e0000;border-radius:2px;outline:1.5px solid #8e0000;outline-offset:2px}
 /* net score cells */
 .msc .net{background:#f0f7f2;color:var(--gm);font-weight:700;padding:3px 2px;text-align:center;border:1px solid #c8e6c9;font-size:10px}
 .msc .net.ov{background:#fff5f5;color:var(--red)}
@@ -282,9 +288,12 @@ input::placeholder{color:#bbb}
 
 /* ── BOTTOM NAV ── */
 .bnav{position:fixed;bottom:0;left:0;right:0;background:var(--gd);border-top:1px solid rgba(201,168,76,.3);display:flex;z-index:200;padding-bottom:env(safe-area-inset-bottom)}
-.ni{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.ni-icon{font-size:22px}
-.ni-lbl{font-size:10px;color:var(--gl);margin-top:2px}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 2px 6px;cursor:pointer;-webkit-tap-highlight-color:transparent;min-width:0}
+.ni-icon{font-size:20px;position:relative;display:inline-block}
+.ni-badge{position:absolute;top:-4px;right:-8px;background:var(--red);color:#fff;font-size:9px;font-weight:800;line-height:1;border-radius:8px;min-width:14px;height:14px;display:flex;align-items:center;justify-content:center;padding:0 3px}
+.ni-badge.ni-badge-gold{background:var(--gold);color:var(--gd)}
+.ni-badge.ni-badge-globe{background:transparent;font-size:13px;min-width:0;height:auto;padding:0;top:-6px;right:-10px}
+.ni-lbl{font-size:8.5px;color:var(--gl);margin-top:2px;white-space:nowrap;text-align:center}
 .ni.active .ni-lbl{color:var(--gold)}
 </style>
 </head>
@@ -350,7 +359,7 @@ input::placeholder{color:#bbb}
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v4.1
+    Nassau Golf · Derrick GWC · v4.7
   </div>
 </div>
 </div>
@@ -385,6 +394,11 @@ input::placeholder{color:#bbb}
   <div class="sbody" id="sixPointBody"></div>
 </div>
 
+<!-- ══════════ BIRDIE JUICE ══════════ -->
+<div class="screen" id="screen-birdiejuice">
+  <div class="sbody" id="birdieJuiceBody"></div>
+</div>
+
 <!-- ══════════ HISTORY ══════════ -->
 <div class="screen" id="screen-history">
   <div class="shdr" id="historyBackHdr" style="display:none;align-items:center;gap:10px;padding:10px 14px">
@@ -405,9 +419,10 @@ input::placeholder{color:#bbb}
 
 <!-- ══════════ BOTTOM NAV ══════════ -->
 <div class="bnav" id="bnav" style="display:none">
-  <div class="ni active" id="ni-score"   onclick="showS('score')"><div class="ni-icon">⛳</div><div class="ni-lbl">Scorecard</div></div>
-  <div class="ni"        id="ni-bets"    onclick="showS('bets')"><div class="ni-icon">💰</div><div class="ni-lbl">Nassau</div></div>
+  <div class="ni active" id="ni-score"   onclick="showS('score')"><div class="ni-icon">⛳<span class="ni-badge ni-badge-gold" id="holeBadge" style="display:none">1</span></div><div class="ni-lbl">Scorecard</div></div>
+  <div class="ni"        id="ni-bets"    onclick="showS('bets')"><div class="ni-icon">💰<span class="ni-badge ni-badge-globe" id="intlBadge" style="display:none">🌍</span></div><div class="ni-lbl">Nassau</div></div>
   <div class="ni"        id="ni-sixpoint" onclick="showS('sixpoint')" style="display:none"><div class="ni-icon">6️⃣</div><div class="ni-lbl">6-Point</div></div>
+  <div class="ni"        id="ni-birdiejuice" onclick="showS('birdiejuice')"><div class="ni-icon">🐦🥃<span class="ni-badge" id="bjBadge" style="display:none">0</span></div><div class="ni-lbl">Birdie Juice</div></div>
   <div class="ni"        id="ni-history" onclick="showS('history')"><div class="ni-icon">📜</div><div class="ni-lbl">History</div></div>
   <div class="ni"        id="ni-new"     onclick="newRound()"><div class="ni-icon">🔄</div><div class="ni-lbl">New Round</div></div>
 </div>
@@ -429,6 +444,7 @@ const G = {
   scores:[], hole:0, roundDate:null, internationals:{},
   startHole:1, // 1-18: actual hole number the group tees off on (shotgun starts)
   sixPointGames:[], // [{players:[i,i,i], perPoint:1}]
+  birdieJuice:{ earned:[], redeemed:0 }, // earned:[{pi,h,actualHole,playerName}], redeemed:int
 };
 
 // Translate a "play order" index (0-17, i.e. 1st-18th hole played) to the
@@ -463,6 +479,7 @@ function loadG(){
     if(!G.roundDate) G.roundDate = new Date().toISOString();
     if(!G.startHole || G.startHole<1 || G.startHole>18) G.startHole = 1;
     if(!Array.isArray(G.sixPointGames)) G.sixPointGames = [];
+    if(!G.birdieJuice || !Array.isArray(G.birdieJuice.earned)) G.birdieJuice = {earned:[], redeemed:0};
     return true;
   }catch(e){ return false; }
 }
@@ -685,6 +702,8 @@ function startRound(){
   document.getElementById('ni-sixpoint').style.display = G.sixPointGames.length ? 'flex' : 'none';
   document.getElementById('badge').textContent='HOLE '+G.startHole;
   showS('score');renderCard();
+  updateBirdieJuiceBadge();
+  updateInternationalBadge();
   window.scrollTo(0,0);
   document.getElementById('sbody').scrollTop=0;
 }
@@ -1137,6 +1156,7 @@ function adjustScore(pi, h, delta){
   const next = cur===null ? G.par[h] : cur+delta;
   if(next<1||next>15)return;
   G.scores[pi][h]=next;
+  checkBirdieJuice(pi,h,cur);
   saveG();
   renderCard();
 }
@@ -1144,9 +1164,114 @@ function adjustScore(pi, h, delta){
 // Quick-entry: set a score directly (e.g. tap "4" for par, "5" for bogey, "6" for double)
 function setScore(pi, h, value){
   if(value<1||value>15)return;
+  const prev=G.scores[pi][h];
   G.scores[pi][h]=value;
+  checkBirdieJuice(pi,h,prev);
   saveG();
   renderCard();
+}
+
+/* ═══════════════════════════════════════════════
+   BIRDIE JUICE
+═══════════════════════════════════════════════ */
+// Called after any score change. Logs/un-logs a birdie-juice entry for this
+// player+hole based on whether the NEW score is a gross birdie (par-1) and
+// whether the PREVIOUS score already was. Pops up the "earned" dialog on a
+// fresh birdie (prev wasn't a birdie, new is).
+function checkBirdieJuice(pi, h, prevGross){
+  if(!G.birdieJuice) G.birdieJuice={earned:[],redeemed:0};
+  const par=G.par[h];
+  const newGross=G.scores[pi][h];
+  const wasBirdie = prevGross!==null && (prevGross-par)===-1;
+  const isBirdie  = newGross!==null && (newGross-par)===-1;
+
+  if(isBirdie && !wasBirdie){
+    // New birdie — log it and show the popup
+    G.birdieJuice.earned.push({pi, h, actualHole:h+1, playerName:G.players[pi].name});
+    showBirdieJuicePopup(G.players[pi].name, h+1);
+  } else if(!isBirdie && wasBirdie){
+    // Score changed away from a birdie — remove the logged entry for this pi+h
+    const idx=G.birdieJuice.earned.findIndex(e=>e.pi===pi && e.h===h);
+    if(idx>=0) G.birdieJuice.earned.splice(idx,1);
+  }
+  updateBirdieJuiceBadge();
+}
+
+// Updates the small badge on the bottom-nav Birdie Juice icon to show remaining credits
+function updateBirdieJuiceBadge(){
+  if(!G.birdieJuice) G.birdieJuice={earned:[],redeemed:0};
+  const remaining=G.birdieJuice.earned.length - G.birdieJuice.redeemed;
+  const badge=document.getElementById('bjBadge');
+  if(!badge) return;
+  if(remaining>0){
+    badge.textContent=remaining;
+    badge.style.display='flex';
+  } else {
+    badge.style.display='none';
+  }
+}
+
+function showBirdieJuicePopup(playerName, actualHole){
+  const existing=document.getElementById('birdieJuicePopup');
+  if(existing) existing.remove();
+
+  const overlay=document.createElement('div');
+  overlay.className='export-overlay';
+  overlay.id='birdieJuicePopup';
+  overlay.innerHTML=`
+    <div style="background:#fff;border-radius:14px;padding:24px;max-width:320px;text-align:center">
+      <div style="font-size:36px;margin-bottom:8px">🐦🥃</div>
+      <div style="font-size:18px;font-weight:800;color:var(--ink);margin-bottom:8px">Birdie Juice Earned!</div>
+      <div style="font-size:13px;color:#666;margin-bottom:16px"><b>${playerName}</b> made a birdie on hole ${actualHole}.</div>
+      <button class="export-overlay-btn save" style="width:100%" onclick="document.getElementById('birdieJuicePopup').remove()">🍻 Cheers!</button>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+// ── Birdie Juice screen ──
+function renderBirdieJuice(){
+  if(!G.birdieJuice) G.birdieJuice={earned:[],redeemed:0};
+  const earned=G.birdieJuice.earned.length;
+  const redeemed=G.birdieJuice.redeemed;
+  const remaining=earned-redeemed;
+
+  let html='<div style="padding:12px 16px;padding-bottom:120px">';
+  html+='<div class="tottitle" style="color:var(--gold)">🐦🥃 Birdie Juice</div>';
+
+  html+=`<div class="msum" style="margin:10px 0;text-align:center">
+    <div style="font-size:48px;font-weight:800;color:var(--gold)">${remaining}</div>
+    <div style="font-size:12px;color:var(--gl);text-transform:uppercase;letter-spacing:1px">Remaining Credits</div>
+    <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:6px">${earned} earned · ${redeemed} redeemed</div>
+  </div>`;
+
+  html+=`<button onclick="redeemBirdieJuice()" ${remaining<=0?'disabled':''} style="width:100%;border:none;border-radius:10px;cursor:pointer;-webkit-tap-highlight-color:transparent;margin-bottom:10px;padding:14px;text-align:center;background:var(--gm);color:#fff;${remaining<=0?'opacity:.4':''}">
+    <div style="font-size:48px;font-weight:800;line-height:1">🍻</div>
+    <div style="font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-top:4px">Redeem a Birdie Juice Credit</div>
+  </button>`;
+
+  html+='<div class="msum" style="margin-top:14px"><div class="msum-hdr">Birdies This Round</div>';
+  if(!earned){
+    html+='<div style="text-align:center;color:rgba(255,255,255,.5);padding:20px 0">No birdies yet — go make one!</div>';
+  } else {
+    G.birdieJuice.earned.forEach(e=>{
+      html+=`<div class="mrow"><div class="mname">${e.playerName}</div><div class="mamt" style="color:var(--gold)">Hole ${e.actualHole}</div></div>`;
+    });
+  }
+  html+='</div>';
+
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v4.7</div>';
+  html+='</div>';
+  document.getElementById('birdieJuiceBody').innerHTML=html;
+}
+
+function redeemBirdieJuice(){
+  if(!G.birdieJuice) G.birdieJuice={earned:[],redeemed:0};
+  const remaining=G.birdieJuice.earned.length - G.birdieJuice.redeemed;
+  if(remaining<=0) return;
+  G.birdieJuice.redeemed++;
+  saveG();
+  renderBirdieJuice();
+  updateBirdieJuiceBadge();
 }
 
 // Touch swipe support on scroll wheel
@@ -1191,6 +1316,12 @@ function renderCard(){
   document.getElementById('badge').textContent = G.startHole>1
     ? `${ordinal(playIdx+1)} HOLE OF MATCH`
     : `HOLE ${h+1}`;
+  // Bottom-nav Scorecard icon shows the current play-order position (1-18)
+  const holeBadge=document.getElementById('holeBadge');
+  if(holeBadge){
+    holeBadge.textContent=playIdx+1;
+    holeBadge.style.display='flex';
+  }
   // Navigation steps through ACTUAL holes in PLAY ORDER (wraps for shotgun starts)
   document.getElementById('btnPrev').disabled=playIdx===0;
   document.getElementById('btnNext').disabled=playIdx===17;
@@ -1261,7 +1392,7 @@ function renderCard(){
   // ── Vertical scorecard table (moved from Totals tab) ──
   html += renderVerticalScorecard();
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v4.1</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v4.7</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -1614,12 +1745,23 @@ function activateInternational(matchId){
   G.internationals[matchId] = true;
   saveG();
   renderBets();
+  updateInternationalBadge();
 }
 function deactivateInternational(matchId){
   if(!G.internationals) G.internationals = {};
   delete G.internationals[matchId];
   saveG();
   renderBets();
+  updateInternationalBadge();
+}
+
+// Shows a 🌍 badge on the bottom-nav Nassau icon if The International has been
+// called (activated) for any match in the current round.
+function updateInternationalBadge(){
+  const badge=document.getElementById('intlBadge');
+  if(!badge) return;
+  const anyActive = G.internationals && Object.keys(G.internationals).length>0;
+  badge.style.display = anyActive ? 'flex' : 'none';
 }
 
 function renderBets(){
@@ -1647,13 +1789,25 @@ function renderBets(){
   } else {
     matchups.forEach(m=>{ html+=renderMatchScorecard(m); });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v4.1</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v4.7</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
 /* ═══════════════════════════════════════════════
    TOTALS SCREEN
 ═══════════════════════════════════════════════ */
+// Returns markup wrapping a gross score per its relation to par:
+//   eagle or better -> double circle, birdie -> single circle, par -> plain,
+//   bogey -> single square, double or worse -> double square
+function scoreMark(g, par){
+  const toPar=g-par;
+  if(toPar<=-2) return `<span class="mark-val mark-circ2">${g}</span>`;
+  if(toPar===-1) return `<span class="mark-val mark-circ1">${g}</span>`;
+  if(toPar===1) return `<span class="mark-val mark-sq1">${g}</span>`;
+  if(toPar>=2) return `<span class="mark-val mark-sq2">${g}</span>`;
+  return `${g}`;
+}
+
 function renderVerticalScorecard(){
   let html=`<div id="totalsCard" style="background:#fff;border-radius:12px;overflow:hidden;padding:0 0 8px;margin-top:10px">`;
   html+=`<div style="background:var(--gd);padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
@@ -1672,16 +1826,6 @@ function renderVerticalScorecard(){
   });
   html+='</tr></thead><tbody>';
 
-  // Strokes per hole based on each player's FULL handicap index (rounded), applied to SI
-  const fullStrokes = G.players.map(p=>{
-    const hi = Math.round(p.idx);
-    return G.si.map(si=>{
-      if(hi>=si+18) return 2;
-      if(hi>=si) return 1;
-      return 0;
-    });
-  });
-
   // 1st-9th holes played (Nassau "Front 9")
   const fTot=G.players.map(()=>0), fAny=G.players.map(()=>false);
   let fPar=0;
@@ -1692,10 +1836,7 @@ function renderVerticalScorecard(){
     G.players.forEach((p,pi)=>{
       const g=G.scores[pi][h];
       if(g!==null){fTot[pi]+=g;fAny[pi]=true;}
-      const s=fullStrokes[pi][h];
-      const inner=g!==null
-        ?(s>=2?`<span class="circ-val c2">${g}</span>`:s>=1?`<span class="circ-val">${g}</span>`:`${g}`)
-        :(s>=2?`<span class="circ-val c2" style="color:#ccc"></span>`:s>=1?`<span class="circ-val" style="color:#ccc"></span>`:'·');
+      const inner=g!==null ? scoreMark(g,G.par[h]) : '·';
       html+=`<td>${inner}</td>`;
     });
     html+='</tr>';
@@ -1715,10 +1856,7 @@ function renderVerticalScorecard(){
     G.players.forEach((p,pi)=>{
       const g=G.scores[pi][h];
       if(g!==null){bTot[pi]+=g;bAny[pi]=true;}
-      const s=fullStrokes[pi][h];
-      const inner=g!==null
-        ?(s>=2?`<span class="circ-val c2">${g}</span>`:s>=1?`<span class="circ-val">${g}</span>`:`${g}`)
-        :(s>=2?`<span class="circ-val c2" style="color:#ccc"></span>`:s>=1?`<span class="circ-val" style="color:#ccc"></span>`:'·');
+      const inner=g!==null ? scoreMark(g,G.par[h]) : '·';
       html+=`<td>${inner}</td>`;
     });
     html+='</tr>';
@@ -1787,6 +1925,7 @@ function showS(name){
   if(name==='bets')renderBets();
   if(name==='score')renderCard();
   if(name==='sixpoint')renderSixPoint();
+  if(name==='birdiejuice')renderBirdieJuice();
   if(name==='history'){
     renderHistory();
     // Show "back to setup" header only if there's no round in progress (bnav hidden)
@@ -1900,6 +2039,7 @@ function confirmNewRound(){
   G.teamGames=[];
   G.singleGames=[];
   G.sixPointGames=[];
+  G.birdieJuice={earned:[],redeemed:0};
   G.scores=[];
   G.hole=0;
   G.roundDate=null;
@@ -1911,6 +2051,8 @@ function confirmNewRound(){
 
   document.getElementById('bnav').style.display='none';
   document.getElementById('badge').textContent='SETUP';
+  document.getElementById('holeBadge').style.display='none';
+  document.getElementById('intlBadge').style.display='none';
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-setup').classList.add('active');
 
@@ -2256,7 +2398,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach(game=>{ html+=render6PointCard(game); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v4.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v4.7</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -2282,7 +2424,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v4.1</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v4.7</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -2365,7 +2507,7 @@ function openHistoryDetail(i){
   // 6-Point game cards (read-only) — computeSixPoint reads from the swapped-in G snapshot
   G.sixPointGames.forEach(game=>{ html += render6PointCard(game); });
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v4.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v4.7</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -2791,6 +2933,8 @@ renderAllPairOptions();initSetup();
     document.getElementById('badge').textContent='HOLE '+(G.hole+1);
     document.getElementById('cntVal').textContent=G.n;
     showS('score'); renderCard();
+    updateBirdieJuiceBadge();
+    updateInternationalBadge();
     const t=document.createElement('div');
     t.textContent='Round restored ✓';
     t.style.cssText='position:fixed;top:72px;left:50%;transform:translateX(-50%);background:var(--gm);color:#fff;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;z-index:999;pointer-events:none';
@@ -2803,7 +2947,7 @@ renderAllPairOptions();initSetup();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v4.1';
+const CACHE='nassau-v4.7';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
