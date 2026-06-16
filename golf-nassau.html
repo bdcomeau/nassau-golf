@@ -295,6 +295,30 @@ input::placeholder{color:#bbb}
 .sct .pnm{text-align:left;padding-left:6px;font-weight:600;font-size:11px;max-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sct .tot{background:#faf7f0;font-weight:700}
 .sct .ns{border-left:2px solid var(--gl)}
+/* ── Derrick card-style scorecard ── */
+.dck{border-collapse:collapse;font-size:11px;width:auto}
+.dck th,.dck td{border:1px solid #4a4a4a;text-align:center;padding:2px 2px;white-space:nowrap;width:1%}
+.dck .d-hole{background:#3a3a3a;color:#fff;font-weight:700}
+.dck .d-deck1{background:#e8eaed;font-size:9px;padding:2px 1px}
+.dck .d-deck2{background:#c5cdd8;font-size:9px;padding:2px 1px}
+.dck .d-deck3{background:#aab6c6;font-size:9px;padding:2px 1px}
+.dck .d-deck4{background:#9aa8bb;font-size:9px;padding:2px 1px}
+.dck .d-decknum{font-size:8px;padding:2px 1px;letter-spacing:-.3px}
+.dck .d-hcp{background:#e6e2e2;font-weight:700}
+.dck .d-par{background:#c3cc5a;font-weight:700}
+.dck .d-hdr{background:#3a3a3a;color:#fff;font-weight:800;font-size:9px;letter-spacing:.3px;text-align:center;vertical-align:middle}
+.dck .d-deckhdr{color:#1a2a3a;font-weight:800;font-size:8px;line-height:1.1;text-align:center}
+.dck .d-score{background:#fff;font-weight:700;font-size:13px}
+.dck .d-sub{background:#3a3a3a;color:#fff;font-weight:700}
+.dck .d-subpar{background:#aeb84e;color:#1a1a1a;font-weight:800}
+.dck .d-match{background:#fff;font-weight:600;font-size:11px}
+.dck .d-matchhdr{background:#1B4332;color:var(--gold);font-weight:800;font-size:9px;text-align:center;vertical-align:middle}
+.dck .d-vert{writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);white-space:nowrap;padding:4px 0;height:auto;min-height:62px;vertical-align:middle;text-align:center;line-height:1;font-size:9px;font-weight:800}
+.dck .d-vert .d-sub2{font-size:7px;font-weight:600;opacity:.85}
+.dck .d-press{background:#fff3cd;font-weight:700;color:#8a6d00}
+.dck .d-wins{background:#c3cc5a;font-weight:800}
+.dck .circle{display:inline-block;min-width:15px;height:15px;line-height:15px;border:1.5px solid var(--gd);border-radius:50%;font-weight:700;font-size:11px}
+.dck-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .dot{display:inline-block;width:4px;height:4px;background:var(--red);border-radius:50%;vertical-align:super;margin-left:1px}
 .dot2{background:#8e0000}
 .nu{color:var(--gm);font-weight:700}.no{color:var(--red);font-weight:700}
@@ -383,7 +407,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v6.8
+    Nassau Golf · Derrick GWC · v8.2
   </div>
 </div>
 </div>
@@ -458,6 +482,13 @@ input::placeholder{color:#bbb}
 ═══════════════════════════════════════════════ */
 const DERRICK_PAR = [4,3,4,4,3,5,4,3,4, 4,4,4,4,3,4,4,4,5];
 const DERRICK_SI  = [6,18,4,12,16,2,10,14,8, 9,1,15,7,17,3,11,13,5];
+// DECK yardages from the physical Derrick GWC card (holes 1-18)
+const DERRICK_YARDS = {
+  d1: [329,183,410,303,218,560,360,156,410, 457,410,450,451,143,398,384,427,520],
+  d2: [322,174,383,289,195,523,345,147,401, 442,386,439,444,135,380,362,398,493],
+  d3: [300,148,374,278,186,518,311,138,320, 393,382,404,423,119,342,358,349,485],
+  d4: [294,145,314,270,104,434,302,132,316, 393,338,357,358, 83,305,330,342,402],
+};
 
 /* ═══════════════════════════════════════════════
    STATE
@@ -466,7 +497,7 @@ const G = {
   n:4, players:[], par:[], si:[],
   teamGames:[],   // [{a:[i,i], b:[i,i], bet:2}]
   singleGames:[], // [{p1:i, p2:i, bet:2}]
-  scores:[], hole:0, roundDate:null, internationals:{},
+  scores:[], hole:0, roundDate:null, roundEnd:null, internationals:{},
   startHole:1, // 1-18: actual hole number the group tees off on (shotgun starts)
   sixPointGames:[], // [{players:[i,i,i], perPoint:1}]
   birdieJuice:{ earned:[], redeemed:0 }, // earned:[{pi,h,actualHole,playerName}], redeemed:int
@@ -489,6 +520,13 @@ function actualHoleLabel(playIdx){
 
 /* ── PERSISTENCE ── */
 function saveG(){
+  // Stamp the finish time the moment the round becomes complete; clear if edited back to incomplete
+  try{
+    if(typeof isRoundComplete==='function' && G.players && G.players.length){
+      if(isRoundComplete()){ if(!G.roundEnd) G.roundEnd=new Date().toISOString(); }
+      else { if(G.roundEnd) G.roundEnd=null; }
+    }
+  }catch(e){}
   try{ localStorage.setItem('nassau_G', JSON.stringify(G)); }catch(e){}
 }
 function loadG(){
@@ -763,6 +801,7 @@ function startRound(){
   G.scores=G.players.map(()=>Array(18).fill(null));
   G.hole=G.startHole-1; // start on the actual hole the group tees off on
   G.roundDate=new Date().toISOString();
+  G.roundEnd=null;
   G.internationals={}; // reset any leftover International state from a previous round
   saveG();
   document.getElementById('bnav').style.display='flex';
@@ -1394,7 +1433,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v6.8</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v8.2</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -1467,17 +1506,7 @@ function renderCard(){
 
   let html='';
 
-  // Final combined totals (Nassau + 6-Point) — shown once all 18 holes are scored
-  if(isRoundComplete()){
-    const combined=computeCombinedMoney();
-    html += `<div class="msum" style="margin-bottom:10px"><div class="msum-hdr">🏁 Final Totals (Nassau + 6-Point)</div>`;
-    G.players.forEach((p,pi)=>{
-      const v=combined[pi];
-      const cls=v>0?'pos':v<0?'neg':'zero';
-      html += `<div class="mrow"><div class="mname">${p.name}</div><div class="mamt ${cls}">${fmt(v)}</div></div>`;
-    });
-    html += `</div>`;
-  }
+  // (Final combined totals now live at the bottom of the master scorecard below)
 
   // Banner: International prompts
   if(playIdx===17 && !isRoundComplete()){
@@ -1562,10 +1591,10 @@ function renderCard(){
     </div>`;
   });
 
-  // ── Vertical scorecard table (moved from Totals tab) ──
-  html += renderVerticalScorecard();
+  // ── Master scorecard only (match cards live on the Nassau tab) ──
+  html += renderMasterScorecard();
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v6.8</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v8.2</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -1957,12 +1986,16 @@ function renderBets(){
   html+='</div>';
 
   const matchups=buildMatchups();
-  if(!matchups.length){
+  const hasSix = G.sixPointGames && G.sixPointGames.length;
+  if(!matchups.length && !hasSix){
     html+=`<div style="text-align:center;color:rgba(255,255,255,.5);padding:40px 0">No games configured</div>`;
   } else {
-    matchups.forEach(m=>{ html+=renderMatchScorecard(m); });
+    matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
+    if(hasSix){
+      G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
+    }
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v6.8</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v8.2</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -1979,6 +2012,367 @@ function scoreMark(g, par){
   if(toPar===1) return `<span class="mark-val mark-sq1">${g}</span>`;
   if(toPar>=2) return `<span class="mark-val mark-sq2">${g}</span>`;
   return `${g}`;
+}
+
+/* ═══════════════════════════════════════════════
+   DERRICK-STYLE MASTER SCORECARD
+   Full course card with all players' gross scores,
+   handicap-stroke holes circled, net totals.
+═══════════════════════════════════════════════ */
+function renderMasterScorecard(){
+  const Y = DERRICK_YARDS;
+  // Each player's full-handicap stroke map (rounded index)
+  const strokeMaps = G.players.map(p => matchStrokes(Math.round(p.idx)));
+
+  let html = `<div id="masterCard" style="background:#fff;border-radius:12px;overflow:hidden;margin-top:10px">`;
+  html += `<div style="background:var(--gd);padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
+    <div><div style="font-size:15px;font-weight:700;color:var(--gold);font-family:Georgia,serif">Derrick GWC · Master Scorecard</div>
+    <div style="font-size:11px;color:var(--gl)">${roundDateStr()}${G.startHole>1?(' · Shotgun: Hole '+G.startHole):''}</div></div>
+    <button class="export-btn" onclick="exportEl('masterCard','Derrick-Master-Scorecard')" ontouchstart="">📸</button>
+  </div>`;
+
+  html += `<div class="dck-wrap"><table class="dck"><thead><tr>
+    <th class="d-hdr">HOLE</th>
+    <th class="d-deckhdr d-deck1 d-vert">DECK 1</th>
+    <th class="d-deckhdr d-deck2 d-vert">DECK 2</th>
+    <th class="d-deckhdr d-deck3 d-vert">DECK 3</th>
+    <th class="d-deckhdr d-deck4 d-vert">DECK 4</th>
+    <th class="d-hdr d-vert">M HCP</th>
+    <th class="d-hdr">PAR</th>`;
+  G.players.forEach(p=>{
+    html += `<th class="d-hdr d-vert">${p.name.trim()} <span class="d-sub2">${p.idx.toFixed(1)}</span></th>`;
+  });
+  html += `</tr></thead><tbody>`;
+
+  function holeRow(playIdx){
+    const h = actualHoleIdx(playIdx);
+    let r = `<tr>
+      <td class="d-hole">${h+1}</td>
+      <td class="d-deck1">${Y.d1[h]}</td>
+      <td class="d-deck2">${Y.d2[h]}</td>
+      <td class="d-deck3">${Y.d3[h]}</td>
+      <td class="d-deck4">${Y.d4[h]}</td>
+      <td class="d-hcp">${G.si[h]}</td>
+      <td class="d-par">${G.par[h]}</td>`;
+    G.players.forEach((p,pi)=>{
+      const g=G.scores[pi][h];
+      if(g===null){ r+=`<td class="d-score">·</td>`; return; }
+      const stk=strokeMaps[pi][h];
+      const inner = stk>0 ? `<span class="circle">${g}</span>` : `${g}`;
+      r += `<td class="d-score">${inner}</td>`;
+    });
+    return r+'</tr>';
+  }
+
+  // Front 9
+  for(let i=0;i<9;i++) html+=holeRow(i);
+  // OUT
+  html += subRow('OUT', 0, 9, strokeMaps);
+  // Back 9
+  for(let i=9;i<18;i++) html+=holeRow(i);
+  // IN
+  html += subRow('IN', 9, 18, strokeMaps);
+  // TOT
+  html += totRow(strokeMaps);
+  // NET
+  html += netRow();
+  // Money summary rows (once round complete)
+  if(isRoundComplete()){
+    const nassau = computeMoney();
+    const hasSix = G.sixPointGames && G.sixPointGames.length;
+    const six = hasSix ? computeSixPointMoney() : null;
+    const total = G.players.map((_,pi)=>nassau[pi] + (six?six[pi]:0));
+    html += moneyRow('Nassau $', nassau, '#1f5135');
+    if(hasSix) html += moneyRow('6-Point $', six, '#1f5135');
+    html += moneyRow('Total $ Today', total, 'var(--gd)', true);
+  }
+
+  html += `</tbody></table></div>`;
+  html += `<div style="padding:6px 14px;font-size:10px;color:var(--inkl)">○ = handicap stroke hole. NET = gross total − full handicap index.</div>`;
+  html += `<div style="padding:0 14px 8px;font-size:10px;color:var(--inkl);font-weight:600">⏱️ ${paceOfPlayStr()}</div>`;
+  html += `</div>`;
+  return html;
+
+  function subRow(label, start, end, sm){
+    const yTot = k => { let s=0; for(let i=start;i<end;i++) s+=Y[k][actualHoleIdx(i)]; return s; };
+    let parTot=0; for(let i=start;i<end;i++) parTot+=G.par[actualHoleIdx(i)];
+    let r = `<tr><td class="d-sub">${label}</td>
+      <td class="d-sub d-decknum">${yTot('d1')}</td><td class="d-sub d-decknum">${yTot('d2')}</td>
+      <td class="d-sub d-decknum">${yTot('d3')}</td><td class="d-sub d-decknum">${yTot('d4')}</td>
+      <td class="d-sub"></td><td class="d-subpar">${parTot}</td>`;
+    G.players.forEach((p,pi)=>{
+      let sum=0, any=false, all=true;
+      for(let i=start;i<end;i++){ const g=G.scores[pi][actualHoleIdx(i)]; if(g!==null){sum+=g;any=true;} else all=false; }
+      r += `<td class="d-sub" style="background:#5a5a5a">${all?sum:'·'}</td>`;
+    });
+    return r+'</tr>';
+  }
+  function totRow(sm){
+    const yT = k => Y[k].reduce((a,b)=>a+b,0);
+    let r=`<tr><td class="d-subpar">TOT</td>
+      <td class="d-subpar d-decknum">${yT('d1')}</td><td class="d-subpar d-decknum">${yT('d2')}</td>
+      <td class="d-subpar d-decknum">${yT('d3')}</td><td class="d-subpar d-decknum">${yT('d4')}</td>
+      <td class="d-subpar"></td><td class="d-subpar">${G.par.reduce((a,b)=>a+b,0)}</td>`;
+    G.players.forEach((p,pi)=>{
+      const all=G.scores[pi].every(s=>s!==null);
+      const tot=G.scores[pi].reduce((a,b)=>a+(b||0),0);
+      r+=`<td class="d-subpar">${all?tot:'·'}</td>`;
+    });
+    return r+'</tr>';
+  }
+  function netRow(){
+    let r=`<tr><td class="d-sub" style="background:var(--gm)">NET</td>
+      <td class="d-sub" style="background:var(--gm)" colspan="6"></td>`;
+    G.players.forEach((p,pi)=>{
+      const all=G.scores[pi].every(s=>s!==null);
+      const tot=G.scores[pi].reduce((a,b)=>a+(b||0),0);
+      const net=all?tot-Math.round(p.idx):null;
+      r+=`<td class="d-sub" style="background:var(--gm)">${net!==null?net:'·'}</td>`;
+    });
+    return r+'</tr>';
+  }
+  function moneyRow(label, money, bg, bold){
+    const fw = bold ? 800 : 700;
+    let r=`<tr><td class="d-sub" style="background:${bg};font-weight:${fw};font-size:9px">${label}</td>
+      <td class="d-sub" style="background:${bg}" colspan="6"></td>`;
+    G.players.forEach((p,pi)=>{
+      const v=money[pi];
+      const disp = v>0?'+$'+v : v<0?'-$'+Math.abs(v) : '$0';
+      const col = v>0?'#7CFC9E' : v<0?'#ff9b9b' : '#fff';
+      r+=`<td class="d-sub" style="background:${bg};color:${col};font-weight:${fw}">${disp}</td>`;
+    });
+    return r+'</tr>';
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   DERRICK-STYLE PER-MATCH CARDS
+   One card per match showing adjusted match handicaps,
+   gross scores, and running F9/B9/18/press columns.
+═══════════════════════════════════════════════ */
+function renderMatchCards(){
+  let html='';
+  const matchups = buildMatchups();
+  matchups.forEach((m,mi)=>{
+    html += renderOneMatchCard(m, mi);
+  });
+  // 6-point games
+  if(G.sixPointGames && G.sixPointGames.length){
+    G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
+  }
+  return html;
+}
+
+function renderOneMatchCard(m, mi){
+  const Y=DERRICK_YARDS;
+  const allIdxs=[...m.sideA,...m.sideB];
+  const playHdcps=matchPlayHdcps(allIdxs); // adjusted: low player → 0
+  const strokeMaps=playHdcps.map(ph=>matchStrokes(ph));
+  const games=computeMatchGames(m);
+
+  // International eligibility (same logic as the original scorecard):
+  // intl17.bucketedLabels = games eligible to fold into the Large Press after H17.
+  const intlActive = (G.internationals||{})[m.matchId];
+  const intl17 = computeInternational(m);
+  const bucketed        = (intlActive && intl17) ? intl17.bucketedLabels : new Set();
+  const previewBucketed = intl17 ? intl17.bucketedLabels : new Set();
+  function intlKey(g){ return g.isFrontPress ? g.label+'#leg18' : g.label; }
+  function intlMarker(g){
+    const key=intlKey(g);
+    if(bucketed.has(key) || previewBucketed.has(key)) return '🌍';
+    return '';
+  }
+
+  // Build per-hole running state for each game column
+  const cols = games.map(g=>{
+    const cells=Array(18).fill('');
+    let running=0, started=false;
+    for(let playIdx=0; playIdx<18; playIdx++){
+      if(playIdx < g.startH || playIdx > g.endH){ cells[playIdx]=''; continue; }
+      const r=holeResult(m, playIdx);
+      if(r===null){ cells[playIdx]=''; continue; }
+      if(!started && playIdx===g.startH && g.isPress){ cells[playIdx]='P'; started=true; running=0; continue; }
+      running+=r;
+      cells[playIdx] = running>0?`+${running}`:running<0?`${running}`:'E';
+    }
+    return {label:g.label, cells, game:g};
+  });
+
+  const cardId=`matchCard${mi}`;
+  let html=`<div id="${cardId}" style="background:#fff;border-radius:12px;overflow:hidden;margin-top:10px">`;
+  html+=`<div style="background:var(--gd);padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
+    <div><div style="font-size:14px;font-weight:700;color:var(--gold)">${m.labelA} vs ${m.labelB}</div>
+    <div style="font-size:11px;color:var(--gl)">${m.type==='2v2-combined'?'2v2 High-Low':'1v1'} · $${m.bet}/side</div></div>
+    <button class="export-btn" onclick="exportEl('${cardId}','Match-${mi+1}')" ontouchstart="">📸</button>
+  </div>`;
+
+  // Adjusted handicap note
+  const hcpNote = allIdxs.map((pi,ii)=>`${G.players[pi].name.split(/\s+/)[0]} ${playHdcps[ii]>0?'+'+playHdcps[ii]:'scratch'}`).join(' · ');
+  html+=`<div style="padding:6px 14px;font-size:10px;color:var(--inkl);background:#f9f7f3">Adjusted match handicaps: ${hcpNote}</div>`;
+
+  html+=`<div class="dck-wrap"><table class="dck"><thead><tr>
+    <th class="d-hdr">H</th><th class="d-hdr">HCP</th><th class="d-hdr">PAR</th>`;
+  allIdxs.forEach((pi,ii)=>{
+    html+=`<th class="d-hdr d-vert">${G.players[pi].name.trim()} <span class="d-sub2">${playHdcps[ii]>0?'+'+playHdcps[ii]:'0'}</span></th>`;
+  });
+  cols.forEach(c=>{
+    const lbl=c.label.replace('Front 9','F9').replace('Back 9','B9').replace('Full 18','18').replace(/Press (\d+).*/,'P$1');
+    const globe=intlMarker(c.game);
+    html+=`<th class="d-matchhdr">${lbl}${globe?'<br>'+globe:''}</th>`;
+  });
+  html+=`</tr></thead><tbody>`;
+
+  function row(playIdx){
+    const h=actualHoleIdx(playIdx);
+    let r=`<tr><td class="d-hole">${h+1}</td><td class="d-hcp">${G.si[h]}</td><td class="d-par">${G.par[h]}</td>`;
+    allIdxs.forEach((pi,ii)=>{
+      const g=G.scores[pi][h];
+      if(g===null){ r+=`<td class="d-score">·</td>`; return; }
+      const stk=strokeMaps[ii][h];
+      r+=`<td class="d-score">${stk>0?`<span class="circle">${g}</span>`:g}</td>`;
+    });
+    cols.forEach(c=>{
+      const v=c.cells[playIdx];
+      const cls = v==='P'?'d-press':'d-match';
+      r+=`<td class="${cls}">${v}</td>`;
+    });
+    return r+'</tr>';
+  }
+
+  for(let i=0;i<9;i++) html+=row(i);
+  html+=matchSubRow('OUT',0,9,allIdxs,cols);
+  for(let i=9;i<18;i++) html+=row(i);
+  html+=matchSubRow('IN',9,18,allIdxs,cols);
+
+  // ── Overall match result (includes International Large Press if active) ──
+  let grandTotalA=0;
+  games.forEach(g=>{
+    const key = g.isFrontPress ? g.label+'#leg18' : g.label;
+    if(g.isFrontPress){
+      const pay9 = g.leg9.settled ? (g.leg9.score>0?(m.bet||2):g.leg9.score<0?-(m.bet||2):0) : 0;
+      const pay18bucketed = bucketed.has(g.label+'#leg18');
+      const pay18 = (!pay18bucketed && g.leg18.settled) ? (g.leg18.score>0?(m.bet||2):g.leg18.score<0?-(m.bet||2):0) : 0;
+      grandTotalA += pay9 + pay18;
+    } else if(bucketed.has(key)){
+      // value folded into the large press
+    } else if(g.settled && g.winner!=='tie'){
+      grandTotalA += g.winner==='A' ? g.value : -g.value;
+    }
+  });
+  let pressNoteA=null;
+  if(intlActive && intl17){
+    const intlResult = settleInternational(m, intl17);
+    if(intlResult){
+      const netA = intl17.internationaleeSide==='A' ? intlResult.largePressNetToInternationalee : -intlResult.largePressNetToInternationalee;
+      grandTotalA += netA;
+      pressNoteA = netA;
+    }
+  }
+  const totalCols = 3 + allIdxs.length + cols.length;
+  const winVerb = (m.type==='2v2-combined') ? 'win' : 'wins';
+  let resultLine;
+  if(intlActive && intl17 && pressNoteA===null){
+    resultLine = '🌍 International on — pending hole 18';
+  } else if(grandTotalA>0){
+    resultLine = `${m.labelA} ${winVerb} $${Math.abs(grandTotalA)}`;
+  } else if(grandTotalA<0){
+    resultLine = `${m.labelB} ${winVerb} $${Math.abs(grandTotalA)}`;
+  } else {
+    resultLine = 'All square — $0';
+  }
+  html+=`<tr><td colspan="${totalCols}" style="background:var(--gd);color:var(--gold);font-weight:800;font-size:12px;text-align:center;padding:7px 4px">${resultLine}</td></tr>`;
+
+  // WINS row — settlement per game column, signed from the first side's (Player 1 / Side A) perspective.
+  // A loss for Side A shows as a red -$ amount.
+  html+=`<tr><td class="d-wins" colspan="3">WINS</td>`;
+  allIdxs.forEach(()=>html+=`<td class="d-wins"></td>`);
+  cols.forEach(c=>{
+    const g=c.game;
+    const key=intlKey(g);
+    let amt='', neg=false;
+    if(bucketed.has(key)){
+      amt='🌍';  // value folded into the Large Press
+    } else if(g.settled && g.winner!=='tie'){
+      // Signed amount: positive = Side A wins, negative = Side A loses
+      let signed;
+      if(g.isFrontPress){ signed = g.combinedPay||0; }
+      else { signed = g.winner==='A' ? g.value : -g.value; }
+      neg = signed < 0;
+      amt = neg ? '-$'+Math.abs(signed) : '$'+Math.abs(signed);
+    } else if(g.settled && g.winner==='tie'){ amt='$0'; }
+    const col = neg ? 'color:var(--red)' : '';
+    html+=`<td class="d-wins" style="${col}">${amt}</td>`;
+  });
+  html+='</tr>';
+
+  html+=`</tbody></table></div>`;
+  html+=`<div style="padding:6px 14px;font-size:10px;color:var(--inkl)">○ = stroke hole · E = even · P = press starts · 🌍 = International-eligible game</div>`;
+  html+=`<div style="padding:0 14px 8px;font-size:10px;color:var(--inkl);font-weight:600">⏱️ ${paceOfPlayStr()}</div>`;
+  html+=buildInternationalPanel(m);
+  html+=`</div>`;
+  return html;
+
+  function matchSubRow(label,start,end,idxs,cols){
+    let parTot=0; for(let i=start;i<end;i++) parTot+=G.par[actualHoleIdx(i)];
+    let r=`<tr><td class="d-sub">${label}</td><td class="d-sub"></td><td class="d-subpar">${parTot}</td>`;
+    idxs.forEach((pi)=>{
+      let sum=0,all=true;
+      for(let i=start;i<end;i++){const g=G.scores[pi][actualHoleIdx(i)];if(g!==null)sum+=g;else all=false;}
+      r+=`<td class="d-sub" style="background:#5a5a5a">${all?sum:'·'}</td>`;
+    });
+    cols.forEach(()=>r+=`<td class="d-sub"></td>`);
+    return r+'</tr>';
+  }
+}
+
+function renderSixPointCard(game, gi){
+  const r=computeSixPoint(game);
+  const idxs=game.players;
+  const cardId=`sixCard${gi}`;
+  let html=`<div id="${cardId}" style="background:#fff;border-radius:12px;overflow:hidden;margin-top:10px">`;
+  html+=`<div style="background:var(--gd);padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
+    <div><div style="font-size:14px;font-weight:700;color:var(--gold)">6-Point · ${idxs.map(i=>G.players[i].name.split(/\s+/)[0]).join(', ')}</div>
+    <div style="font-size:11px;color:var(--gl)">$${game.perPoint}/point</div></div>
+    <button class="export-btn" onclick="exportEl('${cardId}','SixPoint-${gi+1}')" ontouchstart="">📸</button>
+  </div>`;
+  const playHdcps=matchPlayHdcps(idxs);
+  html+=`<div class="dck-wrap"><table class="dck"><thead><tr>
+    <th class="d-hdr">H</th><th class="d-hdr">HCP</th><th class="d-hdr">PAR</th>`;
+  idxs.forEach((pi,ii)=>html+=`<th class="d-hdr d-vert">${G.players[pi].name.trim()} <span class="d-sub2">${playHdcps[ii]>0?'+'+playHdcps[ii]:'0'}</span></th>`);
+  idxs.forEach((pi)=>html+=`<th class="d-matchhdr">${G.players[pi].name.split(/\s+/)[0].slice(0,3)}<br>pts</th>`);
+  html+=`</tr></thead><tbody>`;
+  const strokeMaps=playHdcps.map(ph=>matchStrokes(ph));
+  for(let playIdx=0;playIdx<18;playIdx++){
+    const h=actualHoleIdx(playIdx);
+    html+=`<tr><td class="d-hole">${h+1}</td><td class="d-hcp">${G.si[h]}</td><td class="d-par">${G.par[h]}</td>`;
+    idxs.forEach((pi,ii)=>{
+      const g=G.scores[pi][h];
+      html+=`<td class="d-score">${g===null?'·':strokeMaps[ii][h]>0?`<span class="circle">${g}</span>`:g}</td>`;
+    });
+    const pts=r.pointsPerHole[playIdx];
+    idxs.forEach((pi,ii)=>html+=`<td class="d-match">${pts?pts[ii]:''}</td>`);
+    html+='</tr>';
+  }
+  // Totals
+  html+=`<tr><td class="d-wins" colspan="3">TOTAL PTS</td>`;
+  idxs.forEach(()=>html+=`<td class="d-wins"></td>`);
+  r.totals.forEach(t=>html+=`<td class="d-wins">${t}</td>`);
+  html+='</tr>';
+  // Money settlement row (only once all 18 holes scored)
+  if(r.settlement){
+    html+=`<tr><td class="d-sub" colspan="3" style="background:var(--gm)">$ WON/LOST</td>`;
+    idxs.forEach(()=>html+=`<td class="d-sub" style="background:var(--gm)"></td>`);
+    idxs.forEach((pi,ii)=>{
+      const v=r.settlement.money[ii];
+      html+=`<td class="d-sub" style="background:var(--gm)">${v>0?'+$'+v:v<0?'-$'+Math.abs(v):'$0'}</td>`;
+    });
+    html+='</tr>';
+  }
+  html+=`</tbody></table></div>`;
+  html+=`<div style="padding:6px 14px;font-size:10px;color:var(--inkl)">○ = handicap stroke hole · points awarded on net score each hole</div>`;
+  html+=`<div style="padding:0 14px 8px;font-size:10px;color:var(--inkl);font-weight:600">⏱️ ${paceOfPlayStr()}</div>`;
+  html+=`</div>`;
+  return html;
 }
 
 function renderVerticalScorecard(){
@@ -2259,6 +2653,36 @@ function confirmNewRound(){
 /* ═══════════════════════════════════════════════
    EXPORT AS PHOTO
 ═══════════════════════════════════════════════ */
+function exportEl(cardId, title){
+  const card = document.getElementById(cardId);
+  if(!card){ alert('Card not found'); return; }
+  const wrap = card.querySelector('.dck-wrap');
+  const tbl  = wrap ? wrap.querySelector('table') : null;
+  const saved = { cardW:card.style.width, wrapOvf:wrap?wrap.style.overflow:'', wrapW:wrap?wrap.style.width:'', tblW:tbl?tbl.style.width:'' };
+  const fullW = tbl ? tbl.scrollWidth : card.scrollWidth;
+  card.style.width = fullW + 'px';
+  if(wrap){ wrap.style.overflow='visible'; wrap.style.width=fullW+'px'; }
+  if(tbl){ tbl.style.width='auto'; }
+  const btn = card.querySelector('.export-btn');
+  if(btn) btn.style.display='none';
+  setTimeout(()=>{
+    html2canvas(card, { backgroundColor:'#ffffff', scale:2, useCORS:true, logging:false, width:fullW, windowWidth:fullW+40, scrollX:0, scrollY:0 })
+    .then(canvas=>{
+      card.style.width=saved.cardW;
+      if(wrap){ wrap.style.overflow=saved.wrapOvf; wrap.style.width=saved.wrapW; }
+      if(tbl){ tbl.style.width=saved.tblW; }
+      if(btn) btn.style.display='';
+      showExportOverlay(canvas.toDataURL('image/png'), title);
+    }).catch(err=>{
+      card.style.width=saved.cardW;
+      if(wrap){ wrap.style.overflow=saved.wrapOvf; wrap.style.width=saved.wrapW; }
+      if(tbl){ tbl.style.width=saved.tblW; }
+      if(btn) btn.style.display='';
+      alert('Export failed: '+err.message);
+    });
+  }, 50);
+}
+
 function exportCard(cardId, title){
   const card = document.getElementById(cardId);
   if(!card){ alert('Card not found'); return; }
@@ -2383,6 +2807,24 @@ function roundDateStr(){
   return d.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric', year:'numeric'});
 }
 
+// Returns e.g. "Round started 12:36 PM · Pace of play 4 hours 10 minutes"
+// or just the start time if the round isn't finished yet.
+function paceOfPlayStr(){
+  if(!G.roundDate) return '';
+  const start = new Date(G.roundDate);
+  const startStr = start.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
+  if(!G.roundEnd) return `Round started ${startStr}`;
+  const end = new Date(G.roundEnd);
+  let mins = Math.round((end - start)/60000);
+  if(mins < 0) mins = 0;
+  const h = Math.floor(mins/60), m = mins%60;
+  let dur;
+  if(h>0 && m>0) dur = `${h} hour${h>1?'s':''} ${m} minute${m>1?'s':''}`;
+  else if(h>0)  dur = `${h} hour${h>1?'s':''}`;
+  else          dur = `${m} minute${m>1?'s':''}`;
+  return `Round started ${startStr} · Pace of play ${dur}`;
+}
+
 /* ═══════════════════════════════════════════════
    ROUND HISTORY
 ═══════════════════════════════════════════════ */
@@ -2404,6 +2846,18 @@ function isRoundComplete(){
 // since 6-Point settlement is null until all 18 holes are scored).
 function computeCombinedMoney(){
   const total = computeMoney(); // Nassau totals per player, zero-filled
+  (G.sixPointGames||[]).forEach(game=>{
+    const r=computeSixPoint(game);
+    if(r.settlement){
+      game.players.forEach((pi,ii)=>{ total[pi] += r.settlement.money[ii]; });
+    }
+  });
+  return total;
+}
+
+// 6-Point money per player (zero-filled), independent of Nassau
+function computeSixPointMoney(){
+  const total = G.players.map(()=>0);
   (G.sixPointGames||[]).forEach(game=>{
     const r=computeSixPoint(game);
     if(r.settlement){
@@ -2450,6 +2904,7 @@ function buildRoundSnapshot(){
 
   return {
     roundDate: G.roundDate || new Date().toISOString(),
+    roundEnd: G.roundEnd || null,
     savedAt: new Date().toISOString(),
     startHole: G.startHole || 1,
     n: G.n,
@@ -2603,7 +3058,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach(game=>{ html+=render6PointCard(game); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v6.8</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v8.2</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -2709,7 +3164,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v6.8</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v8.2</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -2768,7 +3223,7 @@ function openHistoryDetail(i){
     par:r.par, si:r.si, scores:r.scores,
     teamGames:r.teamGames, singleGames:r.singleGames,
     sixPointGames:r.sixPointGames||[],
-    internationals:r.internationals, roundDate:r.roundDate,
+    internationals:r.internationals, roundDate:r.roundDate, roundEnd:r.roundEnd||null,
     startHole:r.startHole||1, hole:(r.startHole||1)-1,
   });
 
@@ -2783,17 +3238,17 @@ function openHistoryDetail(i){
   });
   html+='</div>';
 
-  // Vertical scorecard
-  html+=renderVerticalScorecard();
+  // Master scorecard (Derrick-styled)
+  html+=renderMasterScorecard();
 
-  // Nassau match cards (read-only)
+  // Nassau match cards (Derrick-styled, read-only with International controls)
   const matchups=buildMatchups();
-  matchups.forEach(m=>{ html+=renderMatchScorecard(m); });
+  matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
 
-  // 6-Point game cards (read-only) — computeSixPoint reads from the swapped-in G snapshot
-  G.sixPointGames.forEach(game=>{ html += render6PointCard(game); });
+  // 6-Point game cards (Derrick-styled) — computeSixPoint reads from the swapped-in G snapshot
+  G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v6.8</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v8.2</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -3239,7 +3694,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v6.8';
+const CACHE='nassau-v8.2';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
