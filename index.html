@@ -416,7 +416,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v9.1
+    Nassau Golf · Derrick GWC · v9.2
   </div>
 </div>
 </div>
@@ -1132,66 +1132,77 @@ function computeInternational(matchup){
     pNum++;
   }
 
-  // Determine internationalee (team AHEAD overall after 17 holes) via the Full 18 score.
-  const full18 = games17.find(g=>g.label==='Full 18');
-  const overallScore = full18.score; // positive = side A ahead, negative = side B ahead
+  // ── Determine who is DOWN MONEY through 17 holes ──
+  // Total each side's provisional standing: every game at its current-through-17 margin,
+  // counted at its stake if non-zero (front-press legs counted separately).
+  // The net-negative side is the LOSING side and the only one who may call it.
+  let netToA = 0; // positive = side A is up money through 17
+  games17.forEach(g=>{
+    if(g.isFrontPress){
+      if(g.leg9.score>0) netToA += base; else if(g.leg9.score<0) netToA -= base;
+      if(g.leg18.score>0) netToA += base; else if(g.leg18.score<0) netToA -= base;
+    } else {
+      const v = g.value;
+      if(g.score>0) netToA += v; else if(g.score<0) netToA -= v;
+    }
+  });
 
-  // Perfectly tied overall — no losing team, International unavailable
-  if(overallScore === 0) return null;
+  // Perfectly even on money — nobody is down, International unavailable
+  if(netToA === 0) return null;
 
-  const internationaleeSide = overallScore > 0 ? 'A' : 'B';
-  const overallSign = overallScore > 0 ? 1 : -1; // sign favoring the internationalee
+  // The losing side (down money) is the internationaler who may CALL it.
+  const callerSide = netToA > 0 ? 'B' : 'A';   // side that is DOWN money
 
-  // ── Bucket each game ──
-  // A game already DECIDED AGAINST THE TRAILER (i.e. its score17 favors the internationalee
-  // by at least `threshold`) gets pooled into ONE large press, settled entirely by H18.
-  // Everything else (including Front 9, which is always settled by H17) plays out normally.
-  //   2v2 high-low: a hole swings the score by ±2 -> threshold = 3
-  //   1v1:          a hole swings the score by ±1 -> threshold = 2
+  // ── Bucket each out-of-band game into the Large Press ──
+  //   1v1:  protected = -1, E, +1   -> consolidate if |margin| >= 2
+  //   2v2:  protected = -2..+2      -> consolidate if |margin| >= 3
+  // Front 9 (and any front-press leg9) NEVER consolidates — always settles normally.
+  // Eligibility is symmetric: which side the margin favours does not matter.
   const threshold = (matchup.type === '2v2-combined') ? 3 : 2;
 
-  let largePress = 0;          // total $ pooled into the H18 press
+  let largePress = 0;               // total $ pooled into the H18 press
   const bucketedLabels = new Set(); // labels of games whose VALUE moved into largePress
 
   games17.forEach(g=>{
     if(g.isFrontPress){
-      // leg9 (Front 9 portion) always settled by H17 — never bucketed, plays out normally
-      // leg18 (H_start–18 portion) is the part that can be bucketed
-      const s17 = g.leg18.score;
-      if(Math.sign(s17)===overallSign && Math.abs(s17)>=threshold){
-        largePress += base; // only the leg18 half ($base) is bucketed
+      const s17 = g.leg18.score; // only the leg18 (back) half can be bucketed
+      if(Math.abs(s17) >= threshold){
+        largePress += base;
         bucketedLabels.add(g.label+'#leg18');
       }
     } else if(g.label!=='Front 9'){
-      // Back 9, Full 18, and back-nine presses — Front 9 itself is excluded (always settles normally)
       const s17 = g.score;
-      if(Math.sign(s17)===overallSign && Math.abs(s17)>=threshold){
+      if(Math.abs(s17) >= threshold){
         largePress += g.value;
         bucketedLabels.add(g.label);
       }
     }
   });
 
+  // No out-of-band games to bundle — nothing to International
+  if(largePress === 0) return null;
+
   return {
     largePress,
-    bucketedLabels,             // Set of game labels (or 'label#leg18') excluded from normal settlement
-    internationaleeSide,        // 'A' or 'B' — the team AHEAD overall after 17
-    internationaleeIdx: internationaleeSide==='A' ? matchup.sideA : matchup.sideB,
-    internationalerIdx: internationaleeSide==='A' ? matchup.sideB : matchup.sideA,
+    bucketedLabels,             // Set of labels (or 'label#leg18') excluded from normal settlement
+    callerSide,                 // 'A' or 'B' — the team DOWN money after 17 (who may call it)
+    internationaleeSide: callerSide,  // alias for existing settlement code
+    internationaleeIdx: callerSide==='A' ? matchup.sideA : matchup.sideB,
+    internationalerIdx: callerSide==='A' ? matchup.sideB : matchup.sideA,
     games17,
+    netToA,                     // provisional money standing through 17 (A perspective)
   };
 }
 
 // Settle the large press once H18 is scored.
+// The CALLER (losing side, down money through 17) wins the press if they win hole 18
+// (any non-zero margin in their favour = at least one point). Halve on 18 = push.
 // Returns { largePressNetToInternationalee, h18Result } or null if H18 not yet scored.
-//   - Internationalee wins H18 point -> they win the entire large press (+largePress)
-//   - Halve on H18 -> large press is a push (0 to either side)
-//   - Internationaler wins H18 point -> they win the large press (-largePress to internationalee)
 function settleInternational(matchup, intl){
   const h18 = holeResult(matchup, 17);
   if(h18 === null) return null;
 
-  // h18 is from sideA's perspective. Convert to internationalee's perspective.
+  // h18 is from sideA's perspective. Convert to the caller's perspective.
   const h18ForIntee = intl.internationaleeSide==='A' ? h18 : -h18;
   const sign = h18ForIntee>0 ? 1 : h18ForIntee<0 ? -1 : 0;
 
@@ -1520,7 +1531,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v9.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v9.2</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -1681,7 +1692,7 @@ function renderCard(){
   // ── Master scorecard only (match cards live on the Nassau tab) ──
   html += renderMasterScorecard();
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v9.1</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v9.2</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -1953,17 +1964,15 @@ function buildInternationalPanel(m){
       return `<div class="intl-panel"><div class="intl-txt" style="opacity:.7">Match is tied through 17 — no International available.</div></div>`;
     }
     if(intl.largePress<=0){
-      // H17 complete, one side is ahead, but nothing is decided enough yet to form a press
-      const inteeLabel0 = intl.internationaleeSide==='A' ? m.labelA : m.labelB;
-      const intlerLabel0 = intl.internationaleeSide==='A' ? m.labelB : m.labelA;
-      return `<div class="intl-panel"><div class="intl-txt" style="opacity:.7">${intlerLabel0} is down after 17, but every game is still live — nothing to press yet.</div></div>`;
+      // H17 complete, one side is down money, but nothing is out-of-band to bundle yet
+      const callerLbl0 = intl.internationaleeSide==='A' ? m.labelA : m.labelB;
+      return `<div class="intl-panel"><div class="intl-txt" style="opacity:.7">${callerLbl0} is down after 17, but every game is still close — nothing to press yet.</div></div>`;
     }
     // Show the offer button — available to the losing team after H17
-    const inteeLabel = intl.internationaleeSide==='A' ? m.labelA : m.labelB;
-    const intlerLabel = intl.internationaleeSide==='A' ? m.labelB : m.labelA;
+    const callerLbl = intl.internationaleeSide==='A' ? m.labelA : m.labelB;
     return `<div class="intl-panel">
       <div class="intl-offer">
-        <div class="intl-txt"><b>${intlerLabel}</b> is down after 17, with $${intl.largePress} in already-decided bets.
+        <div class="intl-txt"><b>${callerLbl}</b> is down money after 17, with $${intl.largePress} of out-of-band bets that can be bundled.
           Call <b>The International</b> to combine those into one Large Press — winner of hole 18 takes it all,
           on top of whatever the other games settle for.</div>
         <button class="intl-btn" onclick="activateInternational('${m.matchId}')">🌍 The International</button>
@@ -2078,7 +2087,7 @@ function renderBets(){
   } else {
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v9.1</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v9.2</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3178,7 +3187,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v9.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v9.2</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -3284,7 +3293,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v9.1</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v9.2</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -3368,7 +3377,7 @@ function openHistoryDetail(i){
   // 6-Point game cards (Derrick-styled) — computeSixPoint reads from the swapped-in G snapshot
   G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v9.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v9.2</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -3814,7 +3823,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v9.1';
+const CACHE='nassau-v9.2';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
