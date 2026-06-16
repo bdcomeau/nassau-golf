@@ -126,12 +126,14 @@ input::placeholder{color:#bbb}
 
 /* ── SCROLL WHEEL SCORE ── */
 .score-row{display:flex;align-items:center;justify-content:center;gap:8px}
-/* Drum-roll score selector */
-.drum-row{display:flex;align-items:center;justify-content:center;gap:0}
+/* Drum-roll score selector — 1 left (Birdie) + wheel + 3 right (Bogey/Dbl/Tri) */
+.drum-row{display:flex;align-items:center;justify-content:center;gap:0;width:100%}
 .drum-center{display:flex;align-items:center;gap:4px;flex-shrink:0}
-.drum-side{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:38px;padding:2px 0;-webkit-tap-highlight-color:transparent}
-.drum-far{opacity:.45}
-.drum-side-num{font-size:17px;font-weight:700;line-height:1.1}
+.drum-side{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;padding:2px 4px;-webkit-tap-highlight-color:transparent}
+.drum-far{opacity:.4}
+.drum-active{opacity:1}
+.drum-side-num{font-size:16px;font-weight:700;line-height:1.1;opacity:.55}
+.drum-side-bright{opacity:1;font-size:18px}
 .drum-side-lbl{font-size:8px;color:var(--inkl);text-transform:uppercase;letter-spacing:.3px;margin-top:1px;text-align:center}
 
 /* Horizontal score wheel: ◀ [score] ▶ */
@@ -142,7 +144,7 @@ input::placeholder{color:#bbb}
 .sw-unset{background:#f5f2ec;border:2px dashed #ccc}
 .sw-unset:active{background:#eae6df;border-color:#aaa}
 .sw-num-par-hint{font-size:22px;font-weight:700;color:#bbb;line-height:1}
-.sw-lbl-hint{font-size:8px;color:#bbb;text-transform:uppercase;letter-spacing:.3px;margin-top:1px}
+.sw-lbl-hint{font-size:8.5px;font-weight:600;color:#bbb;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;text-align:center;line-height:1.1}
 .sw-score.par-score{background:#f0f7f2;border:2.5px solid var(--gm)}
 .sw-score.birdie{background:#e8f5e9;border:2.5px solid #2e7d32}
 .sw-score.eagle{background:#c8e6c9;border:2.5px solid #1b5e20}
@@ -380,7 +382,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v6.0
+    Nassau Golf · Derrick GWC · v6.1
   </div>
 </div>
 </div>
@@ -1390,7 +1392,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v6.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v6.1</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -1506,14 +1508,12 @@ function renderCard(){
       <div class="pcard-body">
         <div class="drum-row">
           ${(()=>{
-            const base=gross!==null?gross:par;
-            return [-2,-1].map(delta=>{
-              const v=base+delta;
-              const isFar=delta===-2;
-              if(v<1) return '<div class="drum-side'+(isFar?' drum-far':'')+'"><div class="drum-side-num"> </div><div class="drum-side-lbl"> </div></div>';
-              const sc2=scoreClass(v,par,0);
-              return '<div class="drum-side'+(isFar?' drum-far':'')+'" onclick="adjustScore('+pi+','+h+','+delta+')" style="cursor:pointer"><div class="drum-side-num '+sc2.lblCls+'">'+v+'</div><div class="drum-side-lbl">'+sc2.lbl+'</div></div>';
-            }).join('');
+            // LEFT: always Birdie (par-1) only — fixed relative to par, not current score
+            const bv=par-1;
+            if(bv<1) return '<div class="drum-side"><div class="drum-side-num"> </div><div class="drum-side-lbl"> </div></div>';
+            const scB=scoreClass(bv,par,0);
+            const isActive=gross===bv;
+            return '<div class="drum-side'+(isActive?' drum-active':'')+'" onclick="adjustScore('+pi+','+h+','+(bv-(gross||par))+')" style="cursor:pointer"><div class="drum-side-num '+scB.lblCls+(isActive?' drum-side-bright':'')+'">'+bv+'</div><div class="drum-side-lbl">'+scB.lbl+'</div></div>';
           })()}
           <div class="drum-center">
             <button class="sw-btn" ontouchstart="adjustScore(${pi},${h},-1)" onclick="adjustScore(${pi},${h},-1)">◀</button>
@@ -1521,7 +1521,7 @@ function renderCard(){
             <div class="sw-score sw-unset" onclick="setParScore(${pi},${h})"
               ontouchstart="setParScore(${pi},${h})">
               <div class="sw-num sw-num-par-hint">${par}</div>
-              <div class="sw-label sw-lbl-hint">Tap for Par</div>
+              <div class="sw-label sw-lbl-hint" style="font-size:9px;font-weight:600;letter-spacing:.4px">TAP FOR PAR</div>
             </div>` : `
             <div class="sw-score ${sc.box}"
               ontouchstart="swipeStart(${pi},${h},event)"
@@ -1536,13 +1536,13 @@ function renderCard(){
             <button class="sw-btn" ontouchstart="adjustScore(${pi},${h},1)" onclick="adjustScore(${pi},${h},1)">▶</button>
           </div>
           ${(()=>{
-            const base=gross!==null?gross:par;
-            return [1,2].map(delta=>{
-              const v=base+delta;
-              const isFar=delta===2;
-              if(v>15) return '<div class="drum-side'+(isFar?' drum-far':'')+'"><div class="drum-side-num"> </div><div class="drum-side-lbl"> </div></div>';
+            // RIGHT: always Bogey, Double, Triple — fixed relative to par
+            return [1,2,3].map((delta,idx)=>{
+              const v=par+delta;
               const sc2=scoreClass(v,par,0);
-              return '<div class="drum-side'+(isFar?' drum-far':'')+'" onclick="adjustScore('+pi+','+h+','+delta+')" style="cursor:pointer"><div class="drum-side-num '+sc2.lblCls+'">'+v+'</div><div class="drum-side-lbl">'+sc2.lbl+'</div></div>';
+              const isActive=gross===v;
+              const isFar=idx===2;
+              return '<div class="drum-side'+(isFar?' drum-far':'')+(isActive?' drum-active':'')+'" onclick="adjustScore('+pi+','+h+','+(v-(gross||par))+')" style="cursor:pointer"><div class="drum-side-num '+sc2.lblCls+(isActive?' drum-side-bright':'')+'">'+v+'</div><div class="drum-side-lbl">'+sc2.lbl+'</div></div>';
             }).join('');
           })()}
         </div>
@@ -1553,7 +1553,7 @@ function renderCard(){
   // ── Vertical scorecard table (moved from Totals tab) ──
   html += renderVerticalScorecard();
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v6.0</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v6.1</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -1950,7 +1950,7 @@ function renderBets(){
   } else {
     matchups.forEach(m=>{ html+=renderMatchScorecard(m); });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v6.0</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v6.1</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -2573,7 +2573,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach(game=>{ html+=render6PointCard(game); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v6.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v6.1</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -2676,7 +2676,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v6.0</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v6.1</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -2760,7 +2760,7 @@ function openHistoryDetail(i){
   // 6-Point game cards (read-only) — computeSixPoint reads from the swapped-in G snapshot
   G.sixPointGames.forEach(game=>{ html += render6PointCard(game); });
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v6.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v6.1</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -3206,7 +3206,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v6.0';
+const CACHE='nassau-v6.1';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
