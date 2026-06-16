@@ -68,10 +68,12 @@ input::placeholder{color:#bbb}
 .tog.on::after{left:20px}
 
 .pair-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
-.pbtn{border:2px solid var(--border);background:var(--cream);border-radius:10px;padding:10px 8px;text-align:center;font-size:13px;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent}
-.pbtn.sel{border-color:var(--gm);background:var(--gp);color:var(--gd);font-weight:600}
-.pbtn .pn{font-size:11px;color:var(--inkl);margin-top:3px}
-.pbtn.sel .pn{color:var(--gm)}
+.pbtn{border:2px solid var(--border);background:var(--cream);border-radius:10px;padding:10px 8px;text-align:center;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;line-height:1.4}
+.pbtn.sel{border-color:var(--gm);background:var(--gp);color:var(--gd)}
+.pbtn .pn{font-size:13px;font-weight:600;color:var(--ink);margin-top:0}
+.pbtn.sel .pn{color:var(--gd)}
+.pbtn .pn-vs{font-size:10px;font-weight:400;color:var(--inkl);margin:2px 0}
+.pbtn.sel .pn-vs{color:var(--gm)}
 
 .bet-row{display:flex;align-items:center;gap:10px;padding:10px 0}
 .bet-lbl{flex:1;font-size:15px}
@@ -85,6 +87,7 @@ input::placeholder{color:#bbb}
 .cnt-val{font-size:28px;font-weight:800;color:var(--ink);min-width:40px;text-align:center}
 
 .btn-go{background:var(--gold);color:var(--gd);border:none;border-radius:14px;padding:16px;font-size:17px;font-weight:700;width:100%;cursor:pointer;margin-top:8px;-webkit-tap-highlight-color:transparent}
+.btn-reset{background:none;color:var(--inkl);border:1.5px solid var(--border);border-radius:14px;padding:10px;font-size:14px;font-weight:600;width:100%;cursor:pointer;margin-top:8px;-webkit-tap-highlight-color:transparent}
 .btn-go:active{opacity:.85}
 
 /* ── SCORE SCREEN ── */
@@ -361,8 +364,16 @@ input::placeholder{color:#bbb}
 
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
+  <button class="btn-reset" onclick="showResetConfirm()">↺ Reset Setup</button>
+  <div id="resetConfirm" style="display:none" class="save-dialog save-dialog-warn" style="margin-top:8px">
+    <div class="save-dialog-txt">⚠️ Clear all names, handicaps, and selected games?</div>
+    <div class="save-dialog-btns">
+      <button class="save-dialog-btn yes" onclick="confirmResetSetup()">Reset</button>
+      <button class="save-dialog-btn no" onclick="document.getElementById('resetConfirm').style.display='none'">Cancel</button>
+    </div>
+  </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v5.5
+    Nassau Golf · Derrick GWC · v5.7
   </div>
 </div>
 </div>
@@ -573,7 +584,7 @@ function renderTeamOptions(){
   combos.forEach((c,i)=>{
     const already=G.teamGames.some(g=>JSON.stringify(g.a)===JSON.stringify(c.a)&&JSON.stringify(g.b)===JSON.stringify(c.b));
     h+=`<div class="pbtn${already?' sel':''}" onclick="addTeamGame(${i})">`+
-       `${nm[c.a[0]]} & ${nm[c.a[1]]}<div class="pn">vs<br>${nm[c.b[0]]} & ${nm[c.b[1]]}</div></div>`;
+       `${nm[c.a[0]]} & ${nm[c.a[1]]}<div class="pn-vs">vs</div><div class="pn">${nm[c.b[0]]} & ${nm[c.b[1]]}</div></div>`;
   });
   h+='</div>';
   if(!combos.length) h='<div class="add-hint">Need 4 players</div>';
@@ -611,7 +622,7 @@ function renderSinglesOptions(){
   let h='<div class="pair-grid">';
   for(let a=0;a<G.n;a++)for(let b=a+1;b<G.n;b++){
     const already=G.singleGames.some(s=>s.p1===a&&s.p2===b);
-    h+=`<div class="pbtn${already?' sel':''}" onclick="addSingleGame(${a},${b})">${nm[a]}<div class="pn">vs<br>${nm[b]}</div></div>`;
+    h+=`<div class="pbtn${already?' sel':''}" onclick="addSingleGame(${a},${b})">${nm[a]}<div class="pn-vs">vs</div><div class="pn">${nm[b]}</div></div>`;
   }
   h+='</div>';
   document.getElementById('singlesGrid').innerHTML=h;
@@ -660,7 +671,7 @@ function renderSixPointOptions(){
   let h='<div class="pair-grid">';
   threeCombos().forEach(combo=>{
     const already=G.sixPointGames.some(g=>JSON.stringify(g.players)===JSON.stringify(combo));
-    h+=`<div class="pbtn${already?' sel':''}" onclick="addSixPointGame(${JSON.stringify(combo)})">${combo.map(i=>nm[i]).join(' · ')}</div>`;
+    h+=`<div class="pbtn${already?' sel':''}" onclick="addSixPointGame(${JSON.stringify(combo)})">${combo.map((pi,j)=>(j===0?nm[pi]:`<div class="pn">${nm[pi]}</div>`)).join('<div class="pn-vs">·</div>')}</div>`;
   });
   h+='</div>';
   document.getElementById('sixPointGrid').innerHTML=h;
@@ -693,6 +704,30 @@ function removeSixPointGame(i){G.sixPointGames.splice(i,1);renderSixPointOptions
 /* ═══════════════════════════════════════════════
    START ROUND
 ═══════════════════════════════════════════════ */
+function showResetConfirm(){
+  document.getElementById('resetConfirm').style.display='block';
+  document.getElementById('setupErr').textContent='';
+}
+
+function confirmResetSetup(){
+  // Clear all player fields
+  for(let i=0;i<5;i++){
+    const pn=document.getElementById(`pn${i}`); if(pn) pn.value='';
+    const ph=document.getElementById(`ph${i}`); if(ph) ph.value='';
+    const gid=document.getElementById(`gid${i}`); if(gid) gid.value='';
+    const ct=document.getElementById(`contact${i}`); if(ct) ct.value='';
+  }
+  // Clear all games
+  G.teamGames=[]; G.singleGames=[]; G.sixPointGames=[];
+  // Reset to 2 players
+  G.n=2;
+  document.getElementById('cntVal').textContent=G.n;
+  document.getElementById('resetConfirm').style.display='none';
+  document.getElementById('setupErr').textContent='';
+  renderPlayers();
+  renderAllPairOptions();
+}
+
 function startRound(){
   const err=document.getElementById('setupErr');err.textContent='';
   G.startHole = parseInt(document.getElementById('startHoleSel').value, 10) || 1;
@@ -1339,7 +1374,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v5.5</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v5.7</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -1498,7 +1533,7 @@ function renderCard(){
   // ── Vertical scorecard table (moved from Totals tab) ──
   html += renderVerticalScorecard();
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v5.5</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v5.7</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -1895,7 +1930,7 @@ function renderBets(){
   } else {
     matchups.forEach(m=>{ html+=renderMatchScorecard(m); });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v5.5</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v5.7</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -2518,7 +2553,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach(game=>{ html+=render6PointCard(game); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v5.5</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v5.7</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -2544,7 +2579,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v5.5</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v5.7</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -2628,7 +2663,7 @@ function openHistoryDetail(i){
   // 6-Point game cards (read-only) — computeSixPoint reads from the swapped-in G snapshot
   G.sixPointGames.forEach(game=>{ html += render6PointCard(game); });
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v5.5</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v5.7</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -2844,7 +2879,7 @@ function renderMMPairOptions(){
   pairs.forEach((c,i)=>{
     const already=G.teamGames.some(g=>JSON.stringify(g.a)===JSON.stringify(c.a)&&JSON.stringify(g.b)===JSON.stringify(c.b));
     h+=`<div class="pbtn${already?' sel':''}" onclick="mmAddTeamGame(${i})">`+
-       `${G.players[c.a[0]].name} & ${G.players[c.a[1]].name}<div class="pn">vs<br>${G.players[c.b[0]].name} & ${G.players[c.b[1]].name}</div></div>`;
+       `${G.players[c.a[0]].name} & ${G.players[c.a[1]].name}<div class="pn-vs">vs</div><div class="pn">${G.players[c.b[0]].name} & ${G.players[c.b[1]].name}</div></div>`;
   });
   document.getElementById('mmPairGrid').innerHTML=`<div class="pair-grid">${h}</div>`;
   renderMMTeamGamesList();
@@ -2880,7 +2915,7 @@ function renderMMSingles(){
   for(let a=0;a<G.n;a++){
     for(let b=a+1;b<G.n;b++){
       const already=G.singleGames.some(s=>s.p1===a&&s.p2===b);
-      h+=`<div class="pbtn${already?' sel':''}" onclick="mmAddSingleGame(${a},${b})">${G.players[a].name}<div class="pn">vs<br>${G.players[b].name}</div></div>`;
+      h+=`<div class="pbtn${already?' sel':''}" onclick="mmAddSingleGame(${a},${b})">${G.players[a].name}<div class="pn-vs">vs</div><div class="pn">${G.players[b].name}</div></div>`;
     }
   }
   document.getElementById('mmSinglesGrid').innerHTML=`<div class="pair-grid">${h}</div>`;
@@ -3074,7 +3109,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v5.5';
+const CACHE='nassau-v5.7';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
