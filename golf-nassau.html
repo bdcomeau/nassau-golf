@@ -416,7 +416,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v9.7
+    Nassau Golf · Derrick GWC · v9.9
   </div>
 </div>
 </div>
@@ -1171,40 +1171,50 @@ function computeInternational(matchup){
   const threshold = (matchup.type === '2v2-combined') ? 3 : 2;
 
   let largePress = 0;               // total $ pooled into the H18 press
+  let bankedToA  = 0;               // leader's signed net across bundled bets, credited when called
+  let frontNetToA = 0;              // signed net of all FRONT-NINE-settled games (A perspective)
   const bucketedLabels = new Set(); // labels (or 'label#leg9' / 'label#leg18') pulled into the pot
 
   games17.forEach(g=>{
     if(g.isFrontPress){
-      // Front-press LEG 1 (front nine portion) — always into the pot, absolute value
+      // Front-press LEG 1 (front nine portion) — netted with other front-nine games
       if(g.leg9.score !== 0){
-        largePress += base;          // each press leg is worth $base
+        frontNetToA += g.leg9.score>0 ? base : -base;
         bucketedLabels.add(g.label+'#leg9');
       }
-      // Front-press LEG 2 (back nine portion) — bundled only if out of band
+      // Front-press LEG 2 (back nine portion) — bundled only if out of band, full stake
       if(Math.abs(g.leg18.score) >= threshold){
         largePress += base;
+        bankedToA  += g.leg18.score>0 ? base : -base;
         bucketedLabels.add(g.label+'#leg18');
       }
     } else if(g.label==='Front 9'){
-      // F9 Nassau — always into the pot, absolute value
+      // F9 Nassau — netted with other front-nine games
       if(g.score !== 0){
-        largePress += g.value;
+        frontNetToA += g.score>0 ? g.value : -g.value;
         bucketedLabels.add(g.label);
       }
     } else {
-      // Back 9, Full 18, back-nine presses — out-of-band only
+      // Back 9, Full 18, back-nine presses — out-of-band only, full stake
       if(Math.abs(g.score) >= threshold){
         largePress += g.value;
+        bankedToA  += g.score>0 ? g.value : -g.value;
         bucketedLabels.add(g.label);
       }
     }
   });
+
+  // Front-nine-settled games go into the pot NETTED between the teams:
+  // only the absolute net difference is added to the pot, and that signed net is banked.
+  largePress += Math.abs(frontNetToA);
+  bankedToA  += frontNetToA;
 
   // No money to bundle — nothing to International
   if(largePress === 0) return null;
 
   return {
     largePress,
+    bankedToA,                  // leader's signed net across bundled bets (banked when called)
     bucketedLabels,             // Set of labels (or 'label#leg18') excluded from normal settlement
     callerSide,                 // 'A' or 'B' — the team DOWN money after 17 (who may call it)
     internationaleeSide: callerSide,  // alias for existing settlement code
@@ -1357,13 +1367,19 @@ function computeMoney(){
       li.forEach(i=>money[i]-=amt);
     });
 
-    // Add the large press result (if International active and H18 scored)
+    // The International (if active): double-or-nothing.
     if(intl){
-      const result = settleInternational(m, intl);
-      if(result){
-        const net = result.largePressNetToInternationalee;
-        intl.internationaleeIdx.forEach(i=>money[i]+=net);
-        intl.internationalerIdx.forEach(i=>money[i]-=net);
+      // 1) BANK the leader's net across bundled bets to side A's books (credited when called).
+      m.sideA.forEach(i=>money[i]+=intl.bankedToA);
+      m.sideB.forEach(i=>money[i]-=intl.bankedToA);
+
+      // 2) Hole 18 plays for the pot amount again (only once H18 is scored).
+      const h18 = holeResult(m, 17);
+      if(h18 !== null){
+        // h18 > 0 favours side A, < 0 favours side B, 0 = halve (push, no swing).
+        const swingToA = h18>0 ? intl.largePress : h18<0 ? -intl.largePress : 0;
+        m.sideA.forEach(i=>money[i]+=swingToA);
+        m.sideB.forEach(i=>money[i]-=swingToA);
       }
     }
   });
@@ -1552,7 +1568,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v9.7</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v9.9</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -1713,7 +1729,7 @@ function renderCard(){
   // ── Master scorecard only (match cards live on the Nassau tab) ──
   html += renderMasterScorecard();
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v9.7</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v9.9</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -1904,15 +1920,14 @@ function renderMatchScorecard(m){
     });
     const colSpan=allPi.length+3;
 
-    // Add the large press settlement (if International active and H18 scored)
-    let pressNoteA = null; // amount won by side A from the large press (can be 0 = push)
+    // Add the International (double-or-nothing): bank + hole-18 swing.
+    let pressNoteA = null; // net amount to side A from the International
     if(intlActive && intl17){
-      const intlResult = settleInternational(m, intl17);
-      if(intlResult){
-        const netA = intl17.internationaleeSide==='A' ? intlResult.largePressNetToInternationalee : -intlResult.largePressNetToInternationalee;
-        grandTotalA += netA;
-        pressNoteA = netA;
-      }
+      const h18 = holeResult(m, 17);
+      const swingToA = h18===null ? 0 : (h18>0 ? intl17.largePress : h18<0 ? -intl17.largePress : 0);
+      const netA = intl17.bankedToA + swingToA;
+      grandTotalA += netA;
+      pressNoteA = netA;
     }
 
     let gtWinner, gtAmtDisplay, gtCls;
@@ -2007,44 +2022,45 @@ function buildInternationalPanel(m){
   }
   const inteeLabel = intl.internationaleeSide==='A' ? m.labelA : m.labelB;
   const intlerLabel = intl.internationaleeSide==='A' ? m.labelB : m.labelA;
-  const result = settleInternational(m, intl);
+  const h18 = holeResult(m, 17);
 
-  if(!result){
+  if(h18===null){
+    // International called, hole 18 not yet scored — bank is credited, pot rides on 18.
+    const bankSide = intl.bankedToA>0 ? m.labelA : intl.bankedToA<0 ? m.labelB : null;
+    const bankTxt = bankSide ? `${bankSide} banked $${Math.abs(intl.bankedToA)}.` : 'Nothing banked.';
     return `<div class="intl-panel intl-active">
       <div class="intl-txt">🌍 <b>The International is ON.</b><br>
-        Large Press: <b>$${intl.largePress}</b> — winner of hole 18 takes it, on top of how the other games settle.</div>
+        ${bankTxt} Hole 18 plays for the $${intl.largePress} pot again — winner of 18 takes it (double-or-nothing).</div>
       <button class="intl-undo" onclick="deactivateInternational('${m.matchId}')">Undo</button>
     </div>`;
   }
 
-  // H18 settled
-  const net = result.largePressNetToInternationalee;
+  // H18 settled — describe the swing
+  const swingToA = h18>0 ? intl.largePress : h18<0 ? -intl.largePress : 0;
   let resultTxt;
-  if(net > 0){
-    resultTxt = `${inteeLabel} won hole 18 — takes the $${intl.largePress} Large Press`;
-  } else if(net < 0){
-    resultTxt = `${intlerLabel} won hole 18 — takes the $${intl.largePress} Large Press`;
+  if(h18>0){
+    resultTxt = `${m.labelA} won hole 18 — wins the $${intl.largePress} pot (double-or-nothing)`;
+  } else if(h18<0){
+    resultTxt = `${m.labelB} won hole 18 — wins the $${intl.largePress} pot (double-or-nothing)`;
   } else {
-    resultTxt = `Hole 18 halved — the $${intl.largePress} Large Press is a push`;
+    resultTxt = `Hole 18 halved — the banked pot stands, no swing`;
   }
 
-  // Overall total for this match = normal settlement of non-bucketed games + the large press
+  // Overall total for this match = normal (non-bucketed) settlement + bank + swing
   const bucketed = intl.bucketedLabels;
   let totalA = 0;
   computeMatchGames(m).forEach(g=>{
     if(g.isFrontPress){
-      const pay9 = g.leg9.settled ? (g.leg9.score>0?(m.bet||2):g.leg9.score<0?-(m.bet||2):0) : 0;
-      const pay18bucketed = bucketed.has(g.label+'#leg18');
-      const pay18 = (!pay18bucketed && g.leg18.settled) ? (g.leg18.score>0?(m.bet||2):g.leg18.score<0?-(m.bet||2):0) : 0;
+      const pay9  = (!bucketed.has(g.label+'#leg9')  && g.leg9.settled  && g.leg9.score!==0)  ? (g.leg9.score>0?(m.bet||2):-(m.bet||2)) : 0;
+      const pay18 = (!bucketed.has(g.label+'#leg18') && g.leg18.settled && g.leg18.score!==0) ? (g.leg18.score>0?(m.bet||2):-(m.bet||2)) : 0;
       totalA += pay9 + pay18;
     } else if(bucketed.has(g.label)){
-      // value moved into the large press
+      // value moved into the large press / bank
     } else if(g.settled && g.winner!=='tie'){
       totalA += g.winner==='A' ? g.value : -g.value;
     }
   });
-  const netA = intl.internationaleeSide==='A' ? net : -net;
-  totalA += netA;
+  totalA += intl.bankedToA + swingToA;
 
   const overallWinner = totalA>0?m.labelA:totalA<0?m.labelB:null;
   const overallAmt = Math.abs(totalA);
@@ -2108,7 +2124,7 @@ function renderBets(){
   } else {
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v9.7</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v9.9</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -2397,18 +2413,16 @@ function renderOneMatchCard(m, mi){
   });
   let pressNoteA=null;
   if(intlActive && intl17){
-    const intlResult = settleInternational(m, intl17);
-    if(intlResult){
-      const netA = intl17.internationaleeSide==='A' ? intlResult.largePressNetToInternationalee : -intlResult.largePressNetToInternationalee;
-      grandTotalA += netA;
-      pressNoteA = netA;
-    }
+    const h18 = holeResult(m, 17);
+    const swingToA = h18===null ? 0 : (h18>0 ? intl17.largePress : h18<0 ? -intl17.largePress : 0);
+    pressNoteA = intl17.bankedToA + swingToA;
+    grandTotalA += pressNoteA;
   }
   const totalCols = 3 + allIdxs.length + cols.length;
   const winVerb = (m.type==='2v2-combined') ? 'win' : 'wins';
   let resultLine;
-  if(intlActive && intl17 && pressNoteA===null){
-    resultLine = '🌍 International on — pending hole 18';
+  if(intlActive && intl17 && holeResult(m,17)===null){
+    resultLine = `🌍 International banked $${Math.abs(intl17.bankedToA)} — hole 18 plays for $${intl17.largePress} more`;
   } else if(grandTotalA>0){
     resultLine = `${m.labelA} ${winVerb} $${Math.abs(grandTotalA)}`;
   } else if(grandTotalA<0){
@@ -3043,12 +3057,13 @@ function buildRoundSnapshot(){
     if(intlActive){
       const intl=computeInternational(m);
       if(intl){
-        const result=settleInternational(m,intl);
+        const h18=holeResult(m,17);
+        const swingToA = h18===null?0:(h18>0?intl.largePress:h18<0?-intl.largePress:0);
         intlData={
-          guarantee:intl.guarantee,
           largePress:intl.largePress,
-          internationaleeSide:intl.internationaleeSide,
-          result: result || null, // null if H18 wasn't scored (shouldn't happen if round complete)
+          bankedToA:intl.bankedToA,
+          callerSide:intl.callerSide,
+          netToA: intl.bankedToA + swingToA,
         };
       }
     }
@@ -3214,7 +3229,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v9.7</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v9.9</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -3320,7 +3335,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v9.7</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v9.9</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -3404,7 +3419,7 @@ function openHistoryDetail(i){
   // 6-Point game cards (Derrick-styled) — computeSixPoint reads from the swapped-in G snapshot
   G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v9.7</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v9.9</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -3850,7 +3865,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v9.7';
+const CACHE='nassau-v9.9';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
