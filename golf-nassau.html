@@ -122,7 +122,14 @@ input::placeholder{color:#bbb}
 .pcard-body{padding:5px 10px 6px}
 
 /* ── SCROLL WHEEL SCORE ── */
-.score-row{display:flex;align-items:center;gap:8px}
+.score-row{display:flex;align-items:center;justify-content:center;gap:8px}
+/* Drum-roll score selector */
+.drum-row{display:flex;align-items:center;justify-content:center;gap:0}
+.drum-center{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.drum-side{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:38px;padding:2px 0;-webkit-tap-highlight-color:transparent}
+.drum-far{opacity:.45}
+.drum-side-num{font-size:17px;font-weight:700;line-height:1.1}
+.drum-side-lbl{font-size:8px;color:var(--inkl);text-transform:uppercase;letter-spacing:.3px;margin-top:1px;text-align:center}
 
 /* Horizontal score wheel: ◀ [score] ▶ */
 .scroll-wheel{display:flex;flex-direction:row;align-items:center;gap:4px;flex-shrink:0;user-select:none;-webkit-user-select:none}
@@ -139,24 +146,18 @@ input::placeholder{color:#bbb}
 .sw-score.stroke-2{border-color:#8e0000!important}
 .sw-num{font-size:24px;font-weight:800;color:var(--ink);line-height:1}
 .sw-label{font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:1px}
-.sw-label.par-lbl{color:var(--gm)}
-.sw-label.birdie-lbl{color:#2e7d32}
-.sw-label.eagle-lbl{color:#1b5e20}
-.sw-label.bogey-lbl{color:var(--red)}
-.sw-label.double-lbl{color:#b71c1c}
-.sw-label.triple-lbl{color:#880e4f}
+.sw-label.par-lbl,.drum-side-num.par-lbl{color:var(--gm)}
+.sw-label.birdie-lbl,.drum-side-num.birdie-lbl{color:#2e7d32}
+.sw-label.eagle-lbl,.drum-side-num.eagle-lbl{color:#1b5e20}
+.sw-label.bogey-lbl,.drum-side-num.bogey-lbl{color:var(--red)}
+.sw-label.double-lbl,.drum-side-num.double-lbl{color:#b71c1c}
+.sw-label.triple-lbl,.drum-side-num.triple-lbl{color:#880e4f}
 .sw-label.other-lbl{color:var(--inkl)}
 
 .pip{display:inline-block;width:7px;height:7px;background:var(--red);border-radius:50%;position:absolute;top:3px;right:3px}
 .pip2{background:#8e0000;width:6px;height:6px;top:3px;right:10px}
 
-.quick-entry{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:4px}
-.qe-btn{background:#f5f2ec;border:1.5px solid transparent;border-radius:6px;padding:4px;text-align:center;font-size:16px;font-weight:800;color:var(--ink);cursor:pointer;-webkit-tap-highlight-color:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
-.qe-lbl{font-size:8px;font-weight:600;color:var(--inkl);text-transform:uppercase;letter-spacing:.3px}
-.qe-btn.qe-active.qe-bird{background:#e8f5e9;border-color:#2e7d32;color:#2e7d32}
-.qe-btn.qe-active.qe-par{background:#f0f7f2;border-color:var(--gm);color:var(--gm)}
-.qe-btn.qe-active.qe-bog{background:#fff5f5;border-color:var(--red);color:var(--red)}
-.qe-btn.qe-active.qe-dbl{background:#ffebee;border-color:#b71c1c;color:#b71c1c}
+
 
 /* ── NASSAU PANEL ── */
 .npanel{background:var(--gd);border-radius:10px;padding:8px 10px;margin-bottom:6px}
@@ -361,7 +362,7 @@ input::placeholder{color:#bbb}
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v5.0
+    Nassau Golf · Derrick GWC · v5.3
   </div>
 </div>
 </div>
@@ -1168,38 +1169,53 @@ function adjustScore(pi, h, delta){
   renderCard();
 }
 
-// Quick-entry: set a score directly (e.g. tap "4" for par, "5" for bogey, "6" for double)
-function setScore(pi, h, value){
-  if(value<1||value>15)return;
-  const prev=G.scores[pi][h];
-  G.scores[pi][h]=value;
-  checkBirdieJuice(pi,h,prev);
-  saveG();
-  renderCard();
-}
 
 /* ═══════════════════════════════════════════════
    BIRDIE JUICE
 ═══════════════════════════════════════════════ */
-// Called after any score change. Logs/un-logs a birdie-juice entry for this
-// player+hole based on whether the NEW score is a gross birdie (par-1) and
-// whether the PREVIOUS score already was. Pops up the "earned" dialog on a
-// fresh birdie (prev wasn't a birdie, new is).
+// Score type helper — returns null (no juice), 'birdie', 'eagle', or 'hole-in-one'
+function birdieJuiceType(gross, par){
+  if(gross===null) return null;
+  if(gross===1) return 'hole-in-one';          // always, regardless of par
+  const toPar=gross-par;
+  if(toPar<=-2) return 'eagle';
+  if(toPar===-1) return 'birdie';
+  return null;
+}
+// Credits awarded per score type
+const BJ_CREDITS={birdie:1, eagle:2, 'hole-in-one':5};
+
+// Called after any score change. Logs/un-logs entries and shows appropriate popup.
 function checkBirdieJuice(pi, h, prevGross){
   if(!G.birdieJuice) G.birdieJuice={earned:[],redeemed:0};
   const par=G.par[h];
   const newGross=G.scores[pi][h];
-  const wasBirdie = prevGross!==null && (prevGross-par)===-1;
-  const isBirdie  = newGross!==null && (newGross-par)===-1;
+  const wasType = birdieJuiceType(prevGross, par);
+  const isType  = birdieJuiceType(newGross, par);
 
-  if(isBirdie && !wasBirdie){
-    // New birdie — log it and show the popup
-    G.birdieJuice.earned.push({pi, h, actualHole:h+1, playerName:G.players[pi].name});
-    showBirdieJuicePopup(G.players[pi].name, h+1);
-  } else if(!isBirdie && wasBirdie){
-    // Score changed away from a birdie — remove the logged entry for this pi+h
-    const idx=G.birdieJuice.earned.findIndex(e=>e.pi===pi && e.h===h);
-    if(idx>=0) G.birdieJuice.earned.splice(idx,1);
+  // Remove any existing entry for this pi+h (handles changes between types too)
+  if(wasType){
+    const oldCredits=BJ_CREDITS[wasType];
+    let removed=0;
+    G.birdieJuice.earned=G.birdieJuice.earned.filter(e=>{
+      if(e.pi===pi && e.h===h && removed<oldCredits){ removed++; return false; }
+      return true;
+    });
+  }
+
+  if(isType){
+    // Push one entry per credit awarded (so remaining = earned.length - redeemed stays simple)
+    const credits=BJ_CREDITS[isType];
+    for(let i=0;i<credits;i++){
+      G.birdieJuice.earned.push({pi, h, actualHole:h+1, playerName:G.players[pi].name, type:isType, credit:i+1, credits});
+    }
+    if(isType==='hole-in-one'){
+      showHoleInOnePopup(G.players[pi].name, h+1);
+    } else if(isType==='eagle'){
+      showEaglePopup(G.players[pi].name, h+1, newGross, par);
+    } else {
+      showBirdieJuicePopup(G.players[pi].name, h+1);
+    }
   }
   updateBirdieJuiceBadge();
 }
@@ -1218,21 +1234,52 @@ function updateBirdieJuiceBadge(){
   }
 }
 
-function showBirdieJuicePopup(playerName, actualHole){
-  const existing=document.getElementById('birdieJuicePopup');
-  if(existing) existing.remove();
+function _showBJOverlay(id, html){
+  const ex=document.getElementById(id); if(ex) ex.remove();
+  const ov=document.createElement('div'); ov.className='export-overlay'; ov.id=id;
+  ov.innerHTML=html; document.body.appendChild(ov);
+}
 
-  const overlay=document.createElement('div');
-  overlay.className='export-overlay';
-  overlay.id='birdieJuicePopup';
-  overlay.innerHTML=`
+function showBirdieJuicePopup(playerName, actualHole){
+  _showBJOverlay('birdieJuicePopup',`
     <div style="background:#fff;border-radius:14px;padding:24px;max-width:320px;text-align:center">
       <div style="font-size:36px;margin-bottom:8px">🐦🥃</div>
       <div style="font-size:18px;font-weight:800;color:var(--ink);margin-bottom:8px">Birdie Juice Earned!</div>
       <div style="font-size:13px;color:#666;margin-bottom:16px"><b>${playerName}</b> made a birdie on hole ${actualHole}.</div>
       <button class="export-overlay-btn save" style="width:100%" onclick="document.getElementById('birdieJuicePopup').remove()">🍻 Cheers!</button>
-    </div>`;
-  document.body.appendChild(overlay);
+    </div>`);
+}
+
+function showEaglePopup(playerName, actualHole, gross, par){
+  const desc = par===3&&gross===1 ? 'a hole-in-one' : (par-gross===2?'an eagle':`a ${par-gross}-under`);
+  _showBJOverlay('birdieJuicePopup',`
+    <div style="background:linear-gradient(160deg,#1b4332,#2d6a4f);border-radius:14px;padding:28px 24px;max-width:320px;text-align:center">
+      <div style="font-size:48px;margin-bottom:8px">🦅🥃</div>
+      <div style="font-size:22px;font-weight:800;color:var(--gold);margin-bottom:8px">Eagle! Birdie Juice × 2</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.85);margin-bottom:6px"><b>${playerName}</b> made ${desc} on hole ${actualHole}.</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.55);margin-bottom:20px">That earns 2 Birdie Juice credits — pour a double!</div>
+      <button class="export-overlay-btn save" style="width:100%;background:var(--gold);color:var(--gd)" onclick="document.getElementById('birdieJuicePopup').remove()">🍻🍻 Double Cheers!</button>
+    </div>`);
+}
+
+function showHoleInOnePopup(playerName, actualHole){
+  _showBJOverlay('birdieJuicePopup',`
+    <div style="background:linear-gradient(160deg,#0a1628,#1a3a5c);border-radius:14px;padding:28px 24px;max-width:340px;text-align:center;position:relative;overflow:hidden">
+      <div style="font-size:56px;margin-bottom:4px">🕳️⛳🏆</div>
+      <div style="font-size:26px;font-weight:800;color:var(--gold);margin-bottom:4px;letter-spacing:.5px">HOLE IN ONE!</div>
+      <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:16px">${playerName} · Hole ${actualHole}</div>
+      <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:14px;margin-bottom:16px;text-align:left">
+        <div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Did you know?</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.85);line-height:1.6">
+          🎯 The odds of an amateur golfer making a hole-in-one are approximately <b style="color:var(--gold)">1 in 12,500</b> per attempt.<br><br>
+          ⛳ A PGA Tour professional's odds are roughly <b style="color:var(--gold)">1 in 3,000</b> — still astronomically rare.<br><br>
+          🌍 The odds of a golfer making <b style="color:var(--gold)">two holes-in-one</b> in the same round are estimated at <b style="color:var(--gold)">1 in 67 million</b>.<br><br>
+          🏌️ Only about <b style="color:var(--gold)">1–2%</b> of all golfers will ever make a hole-in-one in their lifetime.<br><br>
+          🥃 This earns <b style="color:var(--gold)">5 Birdie Juice credits</b>. The whole bar buys a round for this one.
+        </div>
+      </div>
+      <button class="export-overlay-btn save" style="width:100%;background:var(--gold);color:var(--gd);font-size:16px;padding:14px" onclick="document.getElementById('birdieJuicePopup').remove()">🏆 What a Shot!</button>
+    </div>`);
 }
 
 // ── Birdie Juice screen ──
@@ -1256,17 +1303,31 @@ function renderBirdieJuice(){
     <div style="font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-top:4px">Redeem a Birdie Juice Credit</div>
   </button>`;
 
-  html+='<div class="msum" style="margin-top:14px"><div class="msum-hdr">Birdies This Round</div>';
-  if(!earned){
+  // Build a de-duped display list (one row per player+hole, not one per credit)
+  const seen=new Set();
+  const displayList=[];
+  G.birdieJuice.earned.forEach(e=>{
+    const key=e.pi+'-'+e.h;
+    if(!seen.has(key)){ seen.add(key); displayList.push(e); }
+  });
+  const typeIcon={birdie:'🐦',eagle:'🦅','hole-in-one':'🕳️'};
+  const typeLabel={birdie:'Birdie','eagle':'Eagle','hole-in-one':'Hole in One'};
+
+  html+='<div class="msum" style="margin-top:14px"><div class="msum-hdr">Birdies & Eagles This Round</div>';
+  if(!displayList.length){
     html+='<div style="text-align:center;color:rgba(255,255,255,.5);padding:20px 0">No birdies yet — go make one!</div>';
   } else {
-    G.birdieJuice.earned.forEach(e=>{
-      html+=`<div class="mrow"><div class="mname">${e.playerName}</div><div class="mamt" style="color:var(--gold)">Hole ${e.actualHole}</div></div>`;
+    displayList.forEach(e=>{
+      const icon=typeIcon[e.type]||'🐦';
+      const lbl=typeLabel[e.type]||'Birdie';
+      const credits=e.credits||1;
+      const creditStr=credits>1?` <span style="color:var(--gold);font-size:11px">(×${credits} credits)</span>`:'';
+      html+=`<div class="mrow"><div class="mname">${icon} ${e.playerName}<div style="font-size:10px;color:var(--inkl)">${lbl} · Hole ${e.actualHole}</div></div><div class="mamt" style="color:var(--gold)">${creditStr||'🥃'}</div></div>`;
     });
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v5.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v5.3</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -1380,8 +1441,18 @@ function renderCard(){
         <div class="pcard-mon" style="${monCls}">${fmt(money[pi])}</div>
       </div>
       <div class="pcard-body">
-        <div style="display:flex;align-items:center;gap:8px">
-          <div class="scroll-wheel">
+        <div class="drum-row">
+          ${(()=>{
+            const base=gross!==null?gross:par;
+            return [-2,-1].map(delta=>{
+              const v=base+delta;
+              const isFar=delta===-2;
+              if(v<1) return '<div class="drum-side'+(isFar?' drum-far':'')+'"><div class="drum-side-num"> </div><div class="drum-side-lbl"> </div></div>';
+              const sc2=scoreClass(v,par,0);
+              return '<div class="drum-side'+(isFar?' drum-far':'')+'" onclick="adjustScore('+pi+','+h+','+delta+')" style="cursor:pointer"><div class="drum-side-num '+sc2.lblCls+'">'+v+'</div><div class="drum-side-lbl">'+sc2.lbl+'</div></div>';
+            }).join('');
+          })()}
+          <div class="drum-center">
             <button class="sw-btn" ontouchstart="adjustScore(${pi},${h},-1)" onclick="adjustScore(${pi},${h},-1)">◀</button>
             <div class="sw-score ${sc.box}"
               ontouchstart="swipeStart(${pi},${h},event)"
@@ -1397,12 +1468,16 @@ function renderCard(){
             </div>
             <button class="sw-btn" ontouchstart="adjustScore(${pi},${h},1)" onclick="adjustScore(${pi},${h},1)">▶</button>
           </div>
-          <div class="quick-entry">
-            <button class="qe-btn${gross===par-1?' qe-active qe-bird':''}" onclick="setScore(${pi},${h},${par-1})">${par-1}<span class="qe-lbl">Birdie</span></button>
-            <button class="qe-btn${gross===par?' qe-active qe-par':''}" onclick="setScore(${pi},${h},${par})">${par}<span class="qe-lbl">Par</span></button>
-            <button class="qe-btn${gross===par+1?' qe-active qe-bog':''}" onclick="setScore(${pi},${h},${par+1})">${par+1}<span class="qe-lbl">Bogey</span></button>
-            <button class="qe-btn${gross===par+2?' qe-active qe-dbl':''}" onclick="setScore(${pi},${h},${par+2})">${par+2}<span class="qe-lbl">Double</span></button>
-          </div>
+          ${(()=>{
+            const base=gross!==null?gross:par;
+            return [1,2].map(delta=>{
+              const v=base+delta;
+              const isFar=delta===2;
+              if(v>15) return '<div class="drum-side'+(isFar?' drum-far':'')+'"><div class="drum-side-num"> </div><div class="drum-side-lbl"> </div></div>';
+              const sc2=scoreClass(v,par,0);
+              return '<div class="drum-side'+(isFar?' drum-far':'')+'" onclick="adjustScore('+pi+','+h+','+delta+')" style="cursor:pointer"><div class="drum-side-num '+sc2.lblCls+'">'+v+'</div><div class="drum-side-lbl">'+sc2.lbl+'</div></div>';
+            }).join('');
+          })()}
         </div>
       </div>
     </div>`;
@@ -1411,7 +1486,7 @@ function renderCard(){
   // ── Vertical scorecard table (moved from Totals tab) ──
   html += renderVerticalScorecard();
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v5.0</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v5.3</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -1808,7 +1883,7 @@ function renderBets(){
   } else {
     matchups.forEach(m=>{ html+=renderMatchScorecard(m); });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v5.0</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v5.3</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -2430,7 +2505,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach(game=>{ html+=render6PointCard(game); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v5.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v5.3</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -2456,7 +2531,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v5.0</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v5.3</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -2540,7 +2615,7 @@ function openHistoryDetail(i){
   // 6-Point game cards (read-only) — computeSixPoint reads from the swapped-in G snapshot
   G.sixPointGames.forEach(game=>{ html += render6PointCard(game); });
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v5.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v5.3</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -2985,7 +3060,7 @@ renderAllPairOptions();initSetup();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v5.0';
+const CACHE='nassau-v5.3';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
