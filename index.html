@@ -416,7 +416,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v9.5
+    Nassau Golf · Derrick GWC · v9.6
   </div>
 </div>
 </div>
@@ -1154,33 +1154,49 @@ function computeInternational(matchup){
   // The losing side (down money) is the internationaler who may CALL it.
   const callerSide = netToA > 0 ? 'B' : 'A';   // side that is DOWN money
 
-  // ── Bucket each out-of-band game into the Large Press ──
-  //   1v1:  protected = -1, E, +1   -> consolidate if |margin| >= 2
-  //   2v2:  protected = -2..+2      -> consolidate if |margin| >= 3
-  // Front 9 (and any front-press leg9) NEVER consolidates — always settles normally.
-  // Eligibility is symmetric: which side the margin favours does not matter.
+  // ── Bucket games into the Large Press ──
+  // (1) OUT-OF-BAND games (settled by the back nine) — bundled if their through-17 margin
+  //     is outside the protected band:
+  //       1v1:  protected = -1, E, +1   -> consolidate if |margin| >= 2
+  //       2v2:  protected = -2..+2      -> consolidate if |margin| >= 3
+  //     Eligibility is symmetric — which side it favours does not matter.
+  // (2) FRONT-NINE-SETTLED games — the F9 Nassau and the leg-1 (front) half of any press that
+  //     started in the first nine. These ALWAYS go into the pot (by ABSOLUTE value) once the
+  //     International is called: a $2 F9 win by EITHER side adds $2 to the pot. They no longer
+  //     settle on their own (Option 2 — the winner's money goes back at risk).
   const threshold = (matchup.type === '2v2-combined') ? 3 : 2;
 
   let largePress = 0;               // total $ pooled into the H18 press
-  const bucketedLabels = new Set(); // labels of games whose VALUE moved into largePress
+  const bucketedLabels = new Set(); // labels (or 'label#leg9' / 'label#leg18') pulled into the pot
 
   games17.forEach(g=>{
     if(g.isFrontPress){
-      const s17 = g.leg18.score; // only the leg18 (back) half can be bucketed
-      if(Math.abs(s17) >= threshold){
+      // Front-press LEG 1 (front nine portion) — always into the pot, absolute value
+      if(g.leg9.score !== 0){
+        largePress += base;          // each press leg is worth $base
+        bucketedLabels.add(g.label+'#leg9');
+      }
+      // Front-press LEG 2 (back nine portion) — bundled only if out of band
+      if(Math.abs(g.leg18.score) >= threshold){
         largePress += base;
         bucketedLabels.add(g.label+'#leg18');
       }
-    } else if(g.label!=='Front 9'){
-      const s17 = g.score;
-      if(Math.abs(s17) >= threshold){
+    } else if(g.label==='Front 9'){
+      // F9 Nassau — always into the pot, absolute value
+      if(g.score !== 0){
+        largePress += g.value;
+        bucketedLabels.add(g.label);
+      }
+    } else {
+      // Back 9, Full 18, back-nine presses — out-of-band only
+      if(Math.abs(g.score) >= threshold){
         largePress += g.value;
         bucketedLabels.add(g.label);
       }
     }
   });
 
-  // No out-of-band games to bundle — nothing to International
+  // No money to bundle — nothing to International
   if(largePress === 0) return null;
 
   return {
@@ -1314,8 +1330,8 @@ function computeMoney(){
 
       if(bucketed){
         if(g.isFrontPress){
-          // Front-nine press: leg9 always settles normally; leg18 may be bucketed
-          if(g.leg9.settled && g.leg9.score!==0){
+          // leg9 (front) and leg18 (back) each settle normally UNLESS bucketed into the pot
+          if(!bucketed.has(g.label+'#leg9') && g.leg9.settled && g.leg9.score!==0){
             const amt9=base_(m);
             const wi=g.leg9.score>0?m.sideA:m.sideB, li=g.leg9.score>0?m.sideB:m.sideA;
             wi.forEach(i=>money[i]+=amt9); li.forEach(i=>money[i]-=amt9);
@@ -1532,7 +1548,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v9.5</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v9.6</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -1693,7 +1709,7 @@ function renderCard(){
   // ── Master scorecard only (match cards live on the Nassau tab) ──
   html += renderMasterScorecard();
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v9.5</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v9.6</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2088,7 +2104,7 @@ function renderBets(){
   } else {
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v9.5</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v9.6</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3194,7 +3210,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v9.5</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v9.6</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -3300,7 +3316,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v9.5</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v9.6</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -3384,7 +3400,7 @@ function openHistoryDetail(i){
   // 6-Point game cards (Derrick-styled) — computeSixPoint reads from the swapped-in G snapshot
   G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v9.5</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v9.6</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -3830,7 +3846,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v9.5';
+const CACHE='nassau-v9.6';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
