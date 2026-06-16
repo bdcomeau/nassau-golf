@@ -48,6 +48,9 @@ input::placeholder{color:#bbb}
 .p-row{display:grid;grid-template-columns:28px 1fr 72px 28px;gap:6px;align-items:start;margin-bottom:10px}
 .save-btn{width:28px;height:36px;background:var(--gp);border:1.5px solid var(--gm);border-radius:8px;color:var(--gm);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;flex-shrink:0}
 .save-btn:active{background:var(--gm);color:#fff}
+.gc-fetch-btn{width:28px;height:36px;background:#fff3cd;border:1.5px solid var(--gold);border-radius:8px;color:var(--gold);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;flex-shrink:0}
+.gc-fetch-btn:active{background:var(--gold);color:#fff}
+.gc-fetch-btn:disabled{opacity:.5}
 .save-dialog{grid-column:1/-1;margin-top:6px;padding:10px;background:#fff8e1;border:1.5px solid var(--gold);border-radius:8px}
 .save-dialog-warn{background:#fff5f5;border-color:var(--red)}
 .save-dialog-txt{font-size:12px;color:var(--ink);margin-bottom:8px;line-height:1.4}
@@ -412,7 +415,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v8.8
+    Nassau Golf · Derrick GWC · v8.9
   </div>
 </div>
 </div>
@@ -579,10 +582,86 @@ function renderPlayers(){
         <input type="text" id="gid${i}" placeholder="Golf Canada ID (10 digits)" value="${gid}" inputmode="numeric" pattern="[0-9]*" maxlength="10" class="golfid-input" ${act?'':'disabled'}>
       </div>
       <div><input type="number" id="ph${i}" placeholder="0.0" step=".1" min="0" max="54" value="${hx}" style="width:64px" ${act?'':'disabled'}><div class="hlbl">Hdcp</div></div>
+      <button class="gc-fetch-btn" id="gcbtn${i}" onclick="fetchHandicap(${i})" ${act?'':'disabled'} title="Fetch handicap from Golf Canada">⛳</button>
       <button class="save-btn" id="savebtn${i}" onclick="saveContact(${i})" ${act?'':'disabled'} title="Save player">💾</button>
     </div>`;
   }
   document.getElementById('playerInputs').innerHTML=h;
+}
+
+/* ═══════════════════════════════════════════════
+   GOLF CANADA HANDICAP LOOKUP (via Cloudflare Worker proxy)
+═══════════════════════════════════════════════ */
+function gcConfig(){
+  try{ return JSON.parse(localStorage.getItem('nassau_gc')||'{}'); }catch(e){ return {}; }
+}
+function saveGcConfig(cfg){
+  try{ localStorage.setItem('nassau_gc', JSON.stringify(cfg)); }catch(e){}
+}
+
+// Cached token so we don't log in for every player
+let _gcToken=null, _gcTokenExp=0;
+
+async function gcGetToken(cfg){
+  const now=Date.now();
+  if(_gcToken && now < _gcTokenExp-10000) return _gcToken;
+  const res=await fetch(cfg.worker.replace(/\/+$/,'')+'/token',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({username:cfg.username,password:cfg.password})
+  });
+  if(!res.ok){ const t=await res.text(); throw new Error('Login failed ('+res.status+'): '+t.slice(0,120)); }
+  const data=await res.json();
+  if(!data.access_token) throw new Error('No token returned');
+  _gcToken=data.access_token;
+  _gcTokenExp=now + ((data.expires_in||3600)*1000);
+  return _gcToken;
+}
+
+async function fetchHandicap(i){
+  const gid=(document.getElementById(`gid${i}`)?.value||'').trim();
+  if(!/^\d{10}$/.test(gid)){ alert('Enter the 10-digit Golf Canada ID for this player first.'); return; }
+
+  let cfg=gcConfig();
+  if(!cfg.worker || !cfg.username || !cfg.password){
+    if(!promptGcSetup()) return;
+    cfg=gcConfig();
+  }
+
+  const btn=document.getElementById(`gcbtn${i}`);
+  const orig=btn.textContent; btn.textContent='⏳'; btn.disabled=true;
+  try{
+    const token=await gcGetToken(cfg);
+    const res=await fetch(cfg.worker.replace(/\/+$/,'')+'/handicap?cardId='+encodeURIComponent(gid),{
+      headers:{'Authorization':'Bearer '+token}
+    });
+    if(!res.ok){ const t=await res.text(); throw new Error('Lookup failed ('+res.status+'): '+t.slice(0,120)); }
+    const data=await res.json();
+    // Response shape: { data: [ { handicapValue, displayHandicp, ... } ], total }
+    const rec = Array.isArray(data.data) ? data.data[0] : data;
+    if(!rec || rec.handicapValue===undefined) throw new Error('No handicap found for ID '+gid);
+    const hv = rec.handicapValue;
+    document.getElementById(`ph${i}`).value = hv;
+    btn.textContent='✓';
+    setTimeout(()=>{ btn.textContent=orig; btn.disabled=false; }, 1200);
+  }catch(e){
+    btn.textContent=orig; btn.disabled=false;
+    alert('Could not fetch handicap: '+e.message);
+  }
+}
+
+// Simple one-time setup prompt for Worker URL + credentials
+function promptGcSetup(){
+  const cfg=gcConfig();
+  const worker=prompt('Golf Canada lookup — Cloudflare Worker URL:', cfg.worker||'https://gc-proxy.bdapple.workers.dev');
+  if(worker===null) return false;
+  const username=prompt('Score Centre username:', cfg.username||'');
+  if(username===null) return false;
+  const password=prompt('Score Centre password:', cfg.password||'');
+  if(password===null) return false;
+  saveGcConfig({worker:worker.trim(), username:username.trim(), password});
+  _gcToken=null; _gcTokenExp=0; // force fresh login
+  return true;
 }
 document.getElementById('btnMinus').onclick=()=>{if(G.n>2){G.n--;document.getElementById('cntVal').textContent=G.n;renderPlayers();renderAllPairOptions();}};
 document.getElementById('btnPlus').onclick=()=>{if(G.n<5){G.n++;document.getElementById('cntVal').textContent=G.n;renderPlayers();renderAllPairOptions();}};
@@ -1438,7 +1517,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v8.8</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v8.9</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -1599,7 +1678,7 @@ function renderCard(){
   // ── Master scorecard only (match cards live on the Nassau tab) ──
   html += renderMasterScorecard();
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v8.8</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v8.9</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -1996,7 +2075,7 @@ function renderBets(){
   } else {
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v8.8</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v8.9</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3096,7 +3175,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v8.8</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v8.9</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -3202,7 +3281,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v8.8</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v8.9</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -3286,7 +3365,7 @@ function openHistoryDetail(i){
   // 6-Point game cards (Derrick-styled) — computeSixPoint reads from the swapped-in G snapshot
   G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v8.8</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v8.9</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -3732,7 +3811,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v8.8';
+const CACHE='nassau-v8.9';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
