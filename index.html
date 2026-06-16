@@ -117,7 +117,8 @@ input::placeholder{color:#bbb}
 .sbody{padding:6px 10px;padding-bottom:80px}
 
 /* ── PLAYER SCORE CARD ── */
-.pcard{background:#fff;border-radius:10px;margin-bottom:6px;overflow:hidden;box-shadow:var(--shadow)}
+.pcard{background:#fff;border-radius:10px;margin-bottom:6px;overflow:hidden;box-shadow:var(--shadow);border:2px solid transparent;transition:border-color .2s}
+.pcard-scored{border-color:var(--gm)}
 .pcard-hdr{display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:var(--gd)}
 .pcard-name{font-size:14px;font-weight:700;color:#fff}
 .pcard-hdcp{font-size:10px;color:var(--gl)}
@@ -382,7 +383,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v6.2
+    Nassau Golf · Derrick GWC · v6.4
   </div>
 </div>
 </div>
@@ -400,6 +401,7 @@ input::placeholder{color:#bbb}
     </div>
     <button class="manage-matches-btn" onclick="openMatchManager()">⚙️ Matches</button>
   </div>
+  <div id="holeErr" onclick="openMatchManager()" style="display:none;background:#e74c3c;color:#fff;text-align:center;font-size:13px;font-weight:700;padding:8px 12px;margin:0 10px 6px;border-radius:8px;cursor:pointer"></div>
   <div class="nine-tabs">
     <div class="ntab active" id="tabF" onclick="jumpN(0)">Front 9</div>
     <div class="ntab" id="tabB" onclick="jumpN(9)">Back 9</div>
@@ -1392,7 +1394,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v6.2</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v6.4</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -1497,7 +1499,7 @@ function renderCard(){
 
     const monCls=money[pi]>0?'color:var(--gl)':money[pi]<0?'color:#e74c3c':'color:var(--gold)';
 
-    html+=`<div class="pcard">
+    html+=`<div class="pcard${gross!==null?' pcard-scored':''}">
       <div class="pcard-hdr">
         <div style="display:flex;align-items:baseline;gap:6px">
           <div class="pcard-name">${p.name}</div>
@@ -1553,7 +1555,7 @@ function renderCard(){
   // ── Vertical scorecard table (moved from Totals tab) ──
   html += renderVerticalScorecard();
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v6.2</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v6.4</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -1950,7 +1952,7 @@ function renderBets(){
   } else {
     matchups.forEach(m=>{ html+=renderMatchScorecard(m); });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v6.2</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v6.4</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -2069,6 +2071,24 @@ function goH(d){
   const curPlay=playOrderIdx(G.hole);
   const n=curPlay+d;
   if(n<0||n>17)return;
+
+  // When advancing forward, warn if any player is missing a score on the current hole
+  if(d>0){
+    const missing=G.players.filter((_,pi)=>G.scores[pi][G.hole]===null).map(p=>p.name);
+    if(missing.length){
+      const err=document.getElementById('holeErr');
+      if(err){
+        err.innerHTML=`⚠️ Missing score for: <b>${missing.join(', ')}</b><br><span style="font-size:11px;font-weight:400;opacity:.9">If a player has left the round, remove them from all matches via <b>⚙️ Matches</b> above.</span>`;
+        err.style.display='block';
+        clearTimeout(goH._t);
+        goH._t=setTimeout(()=>{ err.style.display='none'; },5000);
+      }
+      return;
+    }
+  }
+
+  const err=document.getElementById('holeErr');
+  if(err) err.style.display='none';
   G.hole=actualHoleIdx(n);
   saveG();renderCard();
 }
@@ -2573,7 +2593,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach(game=>{ html+=render6PointCard(game); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v6.2</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v6.4</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -2676,7 +2696,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v6.2</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v6.4</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -2760,7 +2780,7 @@ function openHistoryDetail(i){
   // 6-Point game cards (read-only) — computeSixPoint reads from the swapped-in G snapshot
   G.sixPointGames.forEach(game=>{ html += render6PointCard(game); });
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v6.2</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v6.4</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -3206,7 +3226,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v6.2';
+const CACHE='nassau-v6.4';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
