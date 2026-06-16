@@ -139,6 +139,10 @@ input::placeholder{color:#bbb}
 .sw-btn{width:36px;height:44px;background:var(--gp);border:none;border-radius:8px;font-size:20px;font-weight:700;color:var(--gm);cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:background .1s}
 .sw-btn:active{background:var(--gm);color:#fff}
 .sw-score{width:60px;height:44px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;position:relative;-webkit-tap-highlight-color:transparent}
+.sw-unset{background:#f5f2ec;border:2px dashed #ccc}
+.sw-unset:active{background:#eae6df;border-color:#aaa}
+.sw-num-par-hint{font-size:22px;font-weight:700;color:#bbb;line-height:1}
+.sw-lbl-hint{font-size:8px;color:#bbb;text-transform:uppercase;letter-spacing:.3px;margin-top:1px}
 .sw-score.par-score{background:#f0f7f2;border:2.5px solid var(--gm)}
 .sw-score.birdie{background:#e8f5e9;border:2.5px solid #2e7d32}
 .sw-score.eagle{background:#c8e6c9;border:2.5px solid #1b5e20}
@@ -376,7 +380,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v5.9
+    Nassau Golf · Derrick GWC · v6.0
   </div>
 </div>
 </div>
@@ -1212,16 +1216,24 @@ function fmt(v){return v===0?'$0':(v>0?'+$':'-$')+Math.abs(v).toFixed(2).replace
 ═══════════════════════════════════════════════ */
 function adjustScore(pi, h, delta){
   const cur=G.scores[pi][h];
-  const next = cur===null ? G.par[h] : cur+delta;
+  // If unset, start from par and apply delta in one step
+  const next = cur===null ? G.par[h]+delta : cur+delta;
   if(next<1||next>15)return;
+  const prev=G.scores[pi][h];
   G.scores[pi][h]=next;
-  checkBirdieJuice(pi,h,cur);
+  checkBirdieJuice(pi,h,prev);
   saveG();
   renderCard();
 }
 
-
-/* ═══════════════════════════════════════════════
+// Tap the centre when unset — sets score to par directly
+function setParScore(pi, h){
+  if(G.scores[pi][h]!==null) return; // already set, ignore (swipe handlers take over)
+  G.scores[pi][h]=G.par[h];
+  checkBirdieJuice(pi,h,null);
+  saveG();
+  renderCard();
+}/* ═══════════════════════════════════════════════
    BIRDIE JUICE
 ═══════════════════════════════════════════════ */
 // Score type helper — returns null (no juice), 'birdie', 'eagle', or 'hole-in-one'
@@ -1378,7 +1390,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v5.9</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v6.0</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -1505,6 +1517,12 @@ function renderCard(){
           })()}
           <div class="drum-center">
             <button class="sw-btn" ontouchstart="adjustScore(${pi},${h},-1)" onclick="adjustScore(${pi},${h},-1)">◀</button>
+            ${gross===null ? `
+            <div class="sw-score sw-unset" onclick="setParScore(${pi},${h})"
+              ontouchstart="setParScore(${pi},${h})">
+              <div class="sw-num sw-num-par-hint">${par}</div>
+              <div class="sw-label sw-lbl-hint">Tap for Par</div>
+            </div>` : `
             <div class="sw-score ${sc.box}"
               ontouchstart="swipeStart(${pi},${h},event)"
               ontouchmove="swipeMove(event)"
@@ -1512,11 +1530,9 @@ function renderCard(){
               onmousedown="swipeStart(${pi},${h},event)"
               onmousemove="swipeMove(event)"
               onmouseup="swipeEnd()">
-              <div class="sw-num" style="${gross===null?'font-size:20px;color:#bbb;font-weight:400':''}">
-                ${gross!==null?gross:'—'}
-              </div>
+              <div class="sw-num">${gross}</div>
               <div class="sw-label ${sc.lblCls}">${sc.lbl}</div>
-            </div>
+            </div>`}
             <button class="sw-btn" ontouchstart="adjustScore(${pi},${h},1)" onclick="adjustScore(${pi},${h},1)">▶</button>
           </div>
           ${(()=>{
@@ -1537,7 +1553,7 @@ function renderCard(){
   // ── Vertical scorecard table (moved from Totals tab) ──
   html += renderVerticalScorecard();
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v5.9</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v6.0</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -1934,7 +1950,7 @@ function renderBets(){
   } else {
     matchups.forEach(m=>{ html+=renderMatchScorecard(m); });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v5.9</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v6.0</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -2557,7 +2573,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach(game=>{ html+=render6PointCard(game); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v5.9</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v6.0</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -2660,7 +2676,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v5.9</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v6.0</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -2744,7 +2760,7 @@ function openHistoryDetail(i){
   // 6-Point game cards (read-only) — computeSixPoint reads from the swapped-in G snapshot
   G.sixPointGames.forEach(game=>{ html += render6PointCard(game); });
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v5.9</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v6.0</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -3190,7 +3206,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v5.9';
+const CACHE='nassau-v6.0';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
