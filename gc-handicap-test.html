@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Golf Canada API Test (via Worker)</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f5f2ec;margin:0;padding:16px;color:#1a1a1a}
+  .card{background:#fff;border-radius:12px;padding:16px;max-width:520px;margin:0 auto 14px;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+  h1{font-size:18px;color:#1B4332;margin:0 0 4px}
+  .sub{font-size:12px;color:#666;margin-bottom:14px;line-height:1.5}
+  label{display:block;font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.4px;margin:10px 0 4px}
+  input{width:100%;border:1.5px solid #ddd;border-radius:8px;padding:9px 10px;font-size:14px;box-sizing:border-box}
+  button{border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:700;width:100%;margin-top:14px;cursor:pointer;background:#B8860B;color:#fff}
+  button:disabled{opacity:.4}
+  pre{background:#1e1e1e;color:#d4d4d4;padding:12px;border-radius:8px;font-size:11px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;margin-top:12px;line-height:1.5}
+  .ok{color:#7CFC9E;font-weight:700}
+  .err{color:#ff9b9b;font-weight:700}
+  .field-note{font-size:10px;color:#999;margin-top:2px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>⛳ Golf Canada API Test (via Worker)</h1>
+  <div class="sub">Tests the full chain: app → your Cloudflare Worker → Golf Canada. Enter your Worker URL plus credentials. Nothing is stored.</div>
+
+  <label>Cloudflare Worker URL</label>
+  <input id="worker" placeholder="https://gc-proxy.yourname.workers.dev" autocomplete="off">
+  <div class="field-note">No trailing slash. The page calls &lt;worker&gt;/token and &lt;worker&gt;/handicap.</div>
+
+  <label>Score Centre Username</label>
+  <input id="user" placeholder="e.g. M168111" autocomplete="off">
+
+  <label>Password</label>
+  <input id="pass" type="password" placeholder="password" autocomplete="off">
+
+  <label>Golf Canada Member ID (to look up)</label>
+  <input id="cardId" placeholder="member ID number" autocomplete="off">
+
+  <button id="go" onclick="runTest()">Run Test</button>
+  <pre id="out">Ready. Fill in the fields and tap Run Test.</pre>
+</div>
+
+<script>
+function log(msg, cls){
+  const out = document.getElementById('out');
+  out.innerHTML += '\n' + (cls ? `<span class="${cls}">${msg}</span>` : msg);
+}
+function reset(){ document.getElementById('out').innerHTML = ''; }
+
+async function runTest(){
+  reset();
+  const worker = document.getElementById('worker').value.trim().replace(/\/+$/,'');
+  const u = document.getElementById('user').value.trim();
+  const p = document.getElementById('pass').value;
+  const cardId = document.getElementById('cardId').value.trim();
+  if(!worker){ log('Enter your Worker URL first.', 'err'); return; }
+  if(!u || !p){ log('Enter username and password.', 'err'); return; }
+
+  const btn = document.getElementById('go');
+  btn.disabled = true;
+
+  // ① token
+  log('① POST ' + worker + '/token …');
+  let token;
+  try {
+    const res = await fetch(worker + '/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: u, password: p }),
+    });
+    log('   HTTP status: ' + res.status);
+    const text = await res.text();
+    let data; try { data = JSON.parse(text); } catch { data = text; }
+    if(!res.ok){
+      log('   Token request failed:', 'err');
+      log(typeof data==='string'?data:JSON.stringify(data,null,2));
+      btn.disabled=false; return;
+    }
+    token = data.access_token;
+    if(!token){ log('   No access_token in response:', 'err'); log(JSON.stringify(data,null,2)); btn.disabled=false; return; }
+    log('   ✓ Token received', 'ok');
+    log('   token_type: ' + (data.token_type||'?') + ', expires_in: ' + (data.expires_in||'?'));
+  } catch(e){
+    log('   ✗ ERROR reaching Worker: ' + e.message, 'err');
+    log('   Check the Worker URL and that it is deployed.', 'err');
+    btn.disabled=false; return;
+  }
+
+  if(!cardId){ log('\n(No member ID — stopping after successful login.)'); btn.disabled=false; return; }
+
+  // ② lookup
+  log('\n② GET ' + worker + '/handicap?cardId=' + cardId + ' …');
+  try {
+    const res = await fetch(worker + '/handicap?cardId=' + encodeURIComponent(cardId), {
+      headers: { 'Authorization': 'Bearer ' + token },
+    });
+    log('   HTTP status: ' + res.status);
+    const text = await res.text();
+    let data; try { data = JSON.parse(text); } catch { data = text; }
+    if(!res.ok){
+      log('   Lookup failed:', 'err');
+      log(typeof data==='string'?data:JSON.stringify(data,null,2));
+      btn.disabled=false; return;
+    }
+    log('   ✓ Lookup succeeded', 'ok');
+    log(JSON.stringify(data,null,2));
+    if(data.handicapValue !== undefined){
+      log('\n→ handicapValue = ' + data.handicapValue + '   displayHandicp = ' + (data.displayHandicp||'?'), 'ok');
+    }
+  } catch(e){
+    log('   ✗ ERROR: ' + e.message, 'err');
+    btn.disabled=false; return;
+  }
+
+  log('\n✓ Full chain works — ready to wire into Nassau Golf.', 'ok');
+  btn.disabled=false;
+}
+</script>
+</body>
+</html>
