@@ -442,7 +442,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v12.3
+    Nassau Golf · Derrick GWC · v12.4
   </div>
 </div>
 </div>
@@ -1922,7 +1922,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.4</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2091,7 +2091,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v12.3</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v12.4</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2418,31 +2418,50 @@ function buildInternationalPanel(m){
       return `<b>all square</b>`;
     }
 
+    // Per-matchup total to Side A with NO International — every game (and press leg) settles
+    // normally on the synthetic hole-18 scores. Lets the trailers see what they'd get if they
+    // DON'T call it, side by side with the International outcome.
+    function totalToA_noIntl(){
+      let tA = 0;
+      computeMatchGames(m).forEach(g=>{
+        if(g.isFrontPress){
+          const pay9  = (g.leg9.settled  && g.leg9.score!==0)  ? (g.leg9.score>0?base_(m):-base_(m)) : 0;
+          const pay18 = (g.leg18.settled && g.leg18.score!==0) ? (g.leg18.score>0?base_(m):-base_(m)) : 0;
+          tA += pay9 + pay18;
+        } else if(g.settled && g.winner!=='tie'){
+          tA += g.winner==='A' ? g.value : -g.value;
+        }
+      });
+      return tA;
+    }
+
     // Net offsets per player (0 = net par, +3 = three over net). Big gaps keep win/loss unambiguous;
-    // ties are exact because we work in NET terms.
+    // ties are exact because we work in NET terms. Each scenario captures BOTH outcomes:
+    // [label, withInternational, withoutInternational].
     const scen=[];
+    function pushScen(label, a, b){ setH18Net(a,b); scen.push([label, totalToA(), totalToA_noIntl()]); }
     if(is2v2){
-      setH18Net([0,0],[3,3]); scen.push([`${m.labelA} take both points (+2)`, totalToA()]);
-      setH18Net([0,3],[3,3]); scen.push([`${m.labelA} take one point (+1)`, totalToA()]);   // A low wins, high tied
-      setH18Net([0,3],[0,3]); scen.push([`Hole 18 halved`, totalToA()]);                      // both balls tied
-      setH18Net([3,3],[0,3]); scen.push([`${m.labelB} take one point (\u22121)`, totalToA()]); // B low wins, high tied
-      setH18Net([3,3],[0,0]); scen.push([`${m.labelB} take both points (\u22122)`, totalToA()]);
+      pushScen(`${m.labelA} take both points (+2)`, [0,0],[3,3]);
+      pushScen(`${m.labelA} take one point (+1)`,   [0,3],[3,3]);   // A low wins, high tied
+      pushScen(`Hole 18 halved`,                    [0,3],[0,3]);   // both balls tied
+      pushScen(`${m.labelB} take one point (\u22121)`, [3,3],[0,3]); // B low wins, high tied
+      pushScen(`${m.labelB} take both points (\u22122)`, [3,3],[0,0]);
     } else {
-      setH18Net([0],[2]); scen.push([`${m.labelA} win hole 18`, totalToA()]);
-      setH18Net([0],[0]); scen.push([`Hole 18 halved`, totalToA()]);
-      setH18Net([2],[0]); scen.push([`${m.labelB} win hole 18`, totalToA()]);
+      pushScen(`${m.labelA} win hole 18`, [0],[2]);
+      pushScen(`Hole 18 halved`,          [0],[0]);
+      pushScen(`${m.labelB} win hole 18`, [2],[0]);
     }
 
     // Restore original hole-18 scores and flag
     G.scores.forEach((r,pi)=>{ r[h18idx]=saved[pi]; });
     if(savedFlag===undefined) delete G.internationals[m.matchId]; else G.internationals[m.matchId]=savedFlag;
 
-    const scenHtml = scen.map(s=>`<div>• ${s[0]} → ${fmtA(s[1])}</div>`).join('');
+    const scenHtml = scen.map(s=>`<div>• ${s[0]} → <b>called:</b> ${fmtA(s[1])} · <b>not called:</b> ${fmtA(s[2])}</div>`).join('');
 
     return `<div class="intl-panel">
       <div class="intl-offer">
         <div class="intl-txt">The amount eligible for <b>The International</b> is <b>$${pot}</b>. Those games are marked with the 🌍 globe above — the remaining games play out normally.<br><br>
-          <b>${callerLbl}</b> is down money after 17 and may call it. If called, here is how the match settles for each hole-18 result:
+          <b>${callerLbl}</b> is down money after 17 and may call it. Here is how the match settles for each hole-18 result — if the International is <b>called</b> vs if it is <b>not called</b>:
           <div class="intl-scen">${scenHtml}</div>
         </div>
         <button class="intl-btn" onclick="activateInternational('${m.matchId}')">🌍 Call The International</button>
@@ -2552,7 +2571,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.3</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.4</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3692,7 +3711,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.4</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -3798,7 +3817,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.3</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.4</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -3892,7 +3911,7 @@ function openHistoryDetail(i){
     G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v12.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v12.4</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4362,7 +4381,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v12.3';
+const CACHE='nassau-v12.4';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html']))
