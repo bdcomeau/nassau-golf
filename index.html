@@ -46,6 +46,8 @@ input:focus{outline:none;border-color:var(--gm);background:#fff}
 input::placeholder{color:#bbb}
 .hlbl{font-size:11px;color:var(--inkl);text-align:center;margin-top:2px}
 .p-row{display:grid;grid-template-columns:28px 1fr 72px 36px;gap:6px;align-items:start;margin-bottom:10px}
+.p-row.p-dup{outline:2px solid var(--red);outline-offset:3px;border-radius:8px}
+.p-row.p-dup input[type=text]{border-color:var(--red);background:#fff5f4}
 .p-btnstack{display:flex;flex-direction:column;gap:6px;align-items:center}
 .save-btn{width:28px;height:36px;background:var(--gp);border:1.5px solid var(--gm);border-radius:8px;color:var(--gm);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;flex-shrink:0}
 .save-btn:active{background:var(--gm);color:#fff}
@@ -453,7 +455,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v13.0
+    Nassau Golf · Derrick GWC · v13.1
   </div>
 </div>
 </div>
@@ -618,6 +620,54 @@ function initSetup(){
 }
 // Capture whatever is currently typed in the player input rows into G.players, so a
 // re-render (e.g. changing the golfer count) preserves names/handicaps/IDs already entered.
+// Detect duplicate golfers among the active rows, reading the live inputs.
+// Matches on name (case-insensitive, trimmed) and on Golf Canada ID (when both present).
+// Returns { dupRows:Set(rowIndex), message }.
+function findDuplicatePlayers(){
+  const dupRows=new Set();
+  const byName={}, byGid={};
+  let dupName=null;
+  for(let i=0;i<G.n;i++){
+    const nmEl=document.getElementById('pn'+i);
+    const gidEl=document.getElementById('gid'+i);
+    const rawName=nmEl ? nmEl.value.trim() : '';
+    const name=rawName.toLowerCase();
+    const gid=gidEl ? gidEl.value.trim() : '';
+    if(name){
+      if(byName[name]!==undefined){ dupRows.add(byName[name]); dupRows.add(i); if(!dupName) dupName=rawName; }
+      else byName[name]=i;
+    }
+    if(gid){
+      if(byGid[gid]!==undefined){ dupRows.add(byGid[gid]); dupRows.add(i); if(!dupName) dupName=rawName||('Player '+(i+1)); }
+      else byGid[gid]=i;
+    }
+  }
+  let message='';
+  if(dupRows.size>0){
+    message = dupName
+      ? `“${dupName}” is entered more than once — each golfer must be unique.`
+      : `A golfer is entered more than once — each must be unique.`;
+  }
+  return { dupRows, message };
+}
+
+// Apply/clear the red highlight + note on duplicate rows (live feedback as the user types).
+function highlightDuplicateRows(){
+  const { dupRows, message } = findDuplicatePlayers();
+  for(let i=0;i<5;i++){
+    const row=document.getElementById('prow'+i);
+    if(!row) continue;
+    if(dupRows.has(i)) row.classList.add('p-dup'); else row.classList.remove('p-dup');
+  }
+  // Show a gentle live note in the setup error line (without clobbering a more specific error).
+  const err=document.getElementById('setupErr');
+  if(err){
+    if(dupRows.size>0) err.textContent=message;
+    else if(err.dataset._dupMsg) { err.textContent=''; }
+  }
+  if(err) err.dataset._dupMsg = dupRows.size>0 ? '1' : '';
+}
+
 function harvestPlayerInputs(){
   for(let i=0;i<5;i++){
     const nmEl=document.getElementById('pn'+i);
@@ -643,14 +693,14 @@ function renderPlayers(){
   for(let i=0;i<5;i++){
     const act=i<G.n,nm=G.players[i]?.name||'',hx=G.players[i]?.idx!==undefined?G.players[i].idx:'';
     const gid=G.players[i]?.golfId||'';
-    h+=`<div class="p-row" style="${act?'':'opacity:.3;pointer-events:none'}">
+    h+=`<div class="p-row" id="prow${i}" style="${act?'':'opacity:.3;pointer-events:none'}">
       <div class="p-num" style="${act?'':'background:#ddd;color:#aaa'}">${i+1}</div>
       <div>
-        <input type="text" id="pn${i}" placeholder="Player ${i+1}" value="${nm}" oninput="renderAllPairOptions()" ${act?'':'disabled'}>
+        <input type="text" id="pn${i}" placeholder="Player ${i+1}" value="${nm}" oninput="renderAllPairOptions();highlightDuplicateRows()" ${act?'':'disabled'}>
         <select class="contact-select" id="contact${i}" onchange="selectContact(${i})" ${act?'':'disabled'}>
           ${contactOpts}
         </select>
-        <input type="text" id="gid${i}" placeholder="Golf Canada ID (10 digits)" value="${gid}" inputmode="numeric" pattern="[0-9]*" maxlength="10" class="golfid-input" ${act?'':'disabled'}>
+        <input type="text" id="gid${i}" placeholder="Golf Canada ID (10 digits)" value="${gid}" inputmode="numeric" pattern="[0-9]*" maxlength="10" class="golfid-input" oninput="highlightDuplicateRows()" ${act?'':'disabled'}>
       </div>
       <div><input type="number" id="ph${i}" placeholder="0.0" step=".1" min="0" max="54" value="${hx}" style="width:64px" ${act?'':'disabled'}><div class="hlbl">Hdcp</div></div>
       <div class="p-btnstack">
@@ -1102,6 +1152,14 @@ function startRound(){
     const gidRaw=(document.getElementById(`gid${i}`)?.value||'').trim();
     if(gidRaw && !/^\d{10}$/.test(gidRaw)){err.textContent=`Golf Canada ID for ${name} must be 10 digits.`;return;}
     G.players.push({name,idx,golfId:gidRaw,playHdcp:0,strokes:[]});
+  }
+
+  // Block duplicate golfers — each player must be unique (by name or Golf Canada ID).
+  const dupInfo=findDuplicatePlayers();
+  if(dupInfo.dupRows.size>0){
+    err.textContent = dupInfo.message;
+    highlightDuplicateRows();
+    return;
   }
   G.par=[...DERRICK_PAR]; G.si=[...DERRICK_SI];
   G.scorecardOnly = !!document.getElementById('scorecardOnly').checked;
@@ -1951,7 +2009,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.1</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2120,7 +2178,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v13.0</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v13.1</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2628,7 +2686,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.0</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.1</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3775,7 +3833,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.1</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -3881,7 +3939,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.0</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.1</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -3977,7 +4035,7 @@ function openHistoryDetail(i){
     G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v13.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v13.1</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4413,6 +4471,7 @@ function selectContact(i){
   const gidEl = document.getElementById(`gid${i}`);
   if(gidEl) gidEl.value = c.golfId || '';
   renderAllPairOptions();
+  highlightDuplicateRows();
 }
 function deleteContact(name){
   const contacts = loadContacts().filter(c=>c.name!==name);
@@ -4449,7 +4508,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v13.0';
+const CACHE='nassau-v13.1';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html']))
