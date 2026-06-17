@@ -435,7 +435,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v11.5
+    Nassau Golf · Derrick GWC · v11.6
   </div>
 </div>
 </div>
@@ -451,7 +451,7 @@ input::placeholder{color:#bbb}
       </div>
       <button class="hnav-btn" id="btnNext" onclick="goH(1)">›</button>
     </div>
-    <button class="manage-matches-btn" onclick="openMatchManager()">⚙️ Matches</button>
+    <button class="manage-matches-btn" id="manageBtn" onclick="openMatchManager()">⚙️ Matches</button>
   </div>
   <div id="holeErr" onclick="openMatchManager()" style="display:none;background:#e74c3c;color:#fff;text-align:center;font-size:13px;font-weight:700;padding:8px 12px;margin:0 10px 6px;border-radius:8px;cursor:pointer"></div>
   <div class="nine-tabs">
@@ -1049,6 +1049,7 @@ function applyScorecardOnlyNav(){
   const so = !!G.scorecardOnly;
   document.getElementById('ni-bets').style.display = so ? 'none' : 'flex';
   document.getElementById('ni-sixpoint').style.display = (!so && G.sixPointGames.length) ? 'flex' : 'none';
+  const mb=document.getElementById('manageBtn'); if(mb) mb.textContent = so ? '⚙️ Players' : '⚙️ Matches';
 }
 
 function startRound(){
@@ -1786,7 +1787,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.5</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.6</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -1947,7 +1948,7 @@ function renderCard(){
   // ── Master scorecard only (match cards live on the Nassau tab) ──
   html += renderMasterScorecard();
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v11.5</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v11.6</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2391,7 +2392,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.5</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.6</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3529,7 +3530,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.5</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.6</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -3635,7 +3636,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.5</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.6</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -3729,7 +3730,7 @@ function openHistoryDetail(i){
     G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v11.5</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v11.6</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -3836,8 +3837,7 @@ function mmConfirmAddPlayer(){
 
   saveG();
   renderMMPlayers();
-  renderMMPairOptions();
-  renderMMSingles();
+  if(!G.scorecardOnly){ renderMMPairOptions(); renderMMSingles(); }
 }
 
 function mmRemovePlayer(i){
@@ -3885,8 +3885,7 @@ function mmConfirmRemovePlayer(i){
 
   saveG();
   renderMMPlayers();
-  renderMMPairOptions();
-  renderMMSingles();
+  if(!G.scorecardOnly){ renderMMPairOptions(); renderMMSingles(); }
 }
 
 function openMatchManager(){
@@ -3896,17 +3895,8 @@ function openMatchManager(){
   const overlay=document.createElement('div');
   overlay.className='mm-overlay';
   overlay.id='mmOverlay';
-  overlay.innerHTML=`
-    <div class="mm-sheet">
-      <div class="mm-hdr">
-        <div class="mm-title">Manage Matches</div>
-        <button class="mm-close" onclick="closeMatchManager()">Done</button>
-      </div>
-      <div class="slabel">Players (${G.n})</div>
-      <div class="card" id="mmPlayersCard">
-        <div id="mmPlayersList"></div>
-        ${G.n<5 ? `<button class="add-player-btn" onclick="mmAddPlayer()">+ Add Player</button>` : `<div style="font-size:11px;color:var(--inkl);text-align:center">Max 5 players</div>`}
-      </div>
+  const so = !!G.scorecardOnly;
+  const gamesSections = so ? '' : `
       <div class="slabel">2v2 Nassau Games (High-Low)</div>
       <div class="card" id="mmTeamGamesCard">
         <div style="font-size:12px;color:#666;margin:0 0 8px">Tap a pairing to add or remove it.</div>
@@ -3918,17 +3908,32 @@ function openMatchManager(){
         <div style="font-size:12px;color:#666;margin:0 0 8px">Tap a matchup to add or remove it.</div>
         <div id="mmSinglesGrid"></div>
         <div id="mmSingleGamesList"></div>
+      </div>`;
+  const footNote = so
+    ? `Scorecard-only round — add or remove players here. Existing scores are kept.`
+    : `Adding a match starts it from the current hole. Removing a match keeps scores but drops it from Nassau/Totals.`;
+
+  overlay.innerHTML=`
+    <div class="mm-sheet">
+      <div class="mm-hdr">
+        <div class="mm-title">${so ? 'Manage Players' : 'Manage Matches / Players'}</div>
+        <button class="mm-close" onclick="closeMatchManager()">Done</button>
       </div>
+      <div class="slabel">Players (${G.n})</div>
+      <div class="card" id="mmPlayersCard">
+        <div id="mmPlayersList"></div>
+        ${G.n<5 ? `<button class="add-player-btn" onclick="mmAddPlayer()">+ Add Player</button>` : `<div style="font-size:11px;color:var(--inkl);text-align:center">Max 5 players</div>`}
+      </div>
+      ${gamesSections}
       <div style="font-size:11px;color:var(--inkl);margin-top:10px;text-align:center">
-        Adding a match starts it from the current hole. Removing a match keeps scores but drops it from Nassau/Totals.
+        ${footNote}
       </div>
     </div>`;
   document.body.appendChild(overlay);
   overlay.addEventListener('click',e=>{ if(e.target===overlay) closeMatchManager(); });
 
   renderMMPlayers();
-  renderMMPairOptions();
-  renderMMSingles();
+  if(!so){ renderMMPairOptions(); renderMMSingles(); }
 }
 
 function closeMatchManager(){
@@ -4195,7 +4200,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v11.5';
+const CACHE='nassau-v11.6';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
