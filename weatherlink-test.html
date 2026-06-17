@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WeatherLink Test</title>
+<style>
+  body{font-family:-apple-system,system-ui,sans-serif;max-width:560px;margin:0 auto;padding:18px;background:#0f2e22;color:#fff}
+  h1{color:#d4af37;font-size:20px}
+  .card{background:#fff;color:#222;border-radius:12px;padding:14px;margin:12px 0}
+  label{display:block;font-size:12px;font-weight:700;margin:8px 0 3px;color:#444}
+  input{width:100%;box-sizing:border-box;padding:9px;border:1.5px solid #ccc;border-radius:8px;font-size:15px}
+  button{width:100%;margin-top:12px;padding:11px;background:#1a5c3a;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700}
+  button:active{background:#0d3d24}
+  pre{background:#111;color:#7CFC9E;padding:10px;border-radius:8px;font-size:11px;overflow:auto;white-space:pre-wrap;word-break:break-all}
+  .hint{font-size:11px;color:#bcd;margin-top:6px}
+  .big{font-size:15px;color:#d4af37;font-weight:700}
+</style>
+</head>
+<body>
+<h1>🌦️ WeatherLink v2 — Test</h1>
+<p class="hint">This page runs entirely in your browser and calls your Cloudflare Worker. Your key/secret are only sent to the Worker; nothing is stored or logged here. Run it from your phone or any browser.</p>
+
+<div class="card">
+  <label>Worker URL</label>
+  <input id="worker" value="https://gc-proxy.bdapple.workers.dev" placeholder="https://gc-proxy.your-subdomain.workers.dev">
+  <label>WeatherLink API Key</label>
+  <input id="key" placeholder="paste API Key" autocomplete="off">
+  <label>WeatherLink API Secret</label>
+  <input id="secret" placeholder="paste API Secret" autocomplete="off" type="password">
+
+  <button onclick="listStations()">1 · List my stations (find Station ID)</button>
+
+  <label style="margin-top:14px">Station ID (from step 1)</label>
+  <input id="station" placeholder="e.g. 123456">
+  <button onclick="getCurrent()">2 · Get current conditions</button>
+</div>
+
+<div class="card" id="out" style="display:none">
+  <div id="summary" class="big"></div>
+  <pre id="raw"></pre>
+</div>
+
+<script>
+function workerBase(){ return document.getElementById('worker').value.trim().replace(/\/+$/,''); }
+function show(summary, raw){
+  document.getElementById('out').style.display='block';
+  document.getElementById('summary').innerHTML = summary;
+  document.getElementById('raw').textContent = typeof raw==='string'?raw:JSON.stringify(raw,null,2);
+}
+
+async function listStations(){
+  const key=document.getElementById('key').value.trim();
+  const secret=document.getElementById('secret').value.trim();
+  if(!key||!secret){ alert('Enter API Key and Secret'); return; }
+  show('Loading stations…','');
+  try{
+    const r=await fetch(`${workerBase()}/wl-stations?apiKey=${encodeURIComponent(key)}`,{
+      headers:{'X-Api-Secret':secret}
+    });
+    const data=await r.json();
+    if(!r.ok){ show('Error '+r.status, data); return; }
+    const stations=(data.stations||[]).map(s=>`• ${s.station_name||'(unnamed)'} — ID: ${s.station_id} (UUID: ${s.station_id_uuid||'n/a'})`).join('<br>');
+    show('Your stations:<br>'+(stations||'(none found)'), data);
+    // auto-fill the first station id
+    if(data.stations && data.stations[0]) document.getElementById('station').value=data.stations[0].station_id;
+  }catch(e){ show('Fetch failed', e.message); }
+}
+
+async function getCurrent(){
+  const key=document.getElementById('key').value.trim();
+  const secret=document.getElementById('secret').value.trim();
+  const station=document.getElementById('station').value.trim();
+  if(!key||!secret||!station){ alert('Need key, secret, and station ID'); return; }
+  show('Loading current conditions…','');
+  try{
+    const r=await fetch(`${workerBase()}/wl-current?apiKey=${encodeURIComponent(key)}&stationId=${encodeURIComponent(station)}`,{
+      headers:{'X-Api-Secret':secret}
+    });
+    const data=await r.json();
+    if(!r.ok){ show('Error '+r.status, data); return; }
+    // Dig out common fields from the sensor data structures
+    let temp,hum,wind,windDir,bar;
+    (data.sensors||[]).forEach(sen=>{
+      (sen.data||[]).forEach(d=>{
+        if(d.temp!==undefined && temp===undefined) temp=d.temp;
+        if(d.hum!==undefined && hum===undefined) hum=d.hum;
+        if(d.wind_speed_last!==undefined && wind===undefined) wind=d.wind_speed_last;
+        if(d.wind_dir_last!==undefined && windDir===undefined) windDir=d.wind_dir_last;
+        if(d.bar_sea_level!==undefined && bar===undefined) bar=d.bar_sea_level;
+      });
+    });
+    const parts=[];
+    if(temp!==undefined) parts.push(`🌡️ ${temp}°F`);
+    if(hum!==undefined) parts.push(`💧 ${hum}%`);
+    if(wind!==undefined) parts.push(`💨 ${wind} mph${windDir!==undefined?' @'+windDir+'°':''}`);
+    if(bar!==undefined) parts.push(`📊 ${bar} inHg`);
+    show(parts.join(' · ')||'(could not parse — see raw below)', data);
+  }catch(e){ show('Fetch failed', e.message); }
+}
+</script>
+</body>
+</html>
