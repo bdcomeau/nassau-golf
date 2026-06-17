@@ -323,6 +323,8 @@ input::placeholder{color:#bbb}
 .dck .d-vert{writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);white-space:nowrap;padding:4px 0;height:auto;min-height:62px;vertical-align:middle;text-align:center;line-height:1;font-size:9px;font-weight:800}
 .dck .d-vert .d-sub2{font-size:7px;font-weight:600;opacity:.85}
 .dck .d-press{background:#fff3cd;font-weight:700;color:#8a6d00}
+.dck .d-nassauhdr{background:#1f6b46}
+.dck .d-nassaucell{background:#eef5ef}
 .dck .d-wins{background:#c3cc5a;font-weight:800}
 .dck .circle{display:inline-block;min-width:15px;height:15px;line-height:15px;border:1.5px solid var(--gd);border-radius:50%;font-weight:700;font-size:11px}
 .dck .circle1{display:inline-block;min-width:15px;height:15px;line-height:15px;border:1px solid var(--red);border-radius:50%;font-weight:700;font-size:11px;color:inherit}
@@ -418,7 +420,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v11.1
+    Nassau Golf · Derrick GWC · v11.2
   </div>
 </div>
 </div>
@@ -1743,7 +1745,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.2</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -1904,7 +1906,7 @@ function renderCard(){
   // ── Master scorecard only (match cards live on the Nassau tab) ──
   html += renderMasterScorecard();
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v11.1</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v11.2</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2348,7 +2350,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.1</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.2</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -2583,9 +2585,15 @@ function renderOneMatchCard(m, mi){
     html+=`<th class="d-hdr d-vert">${G.players[pi].name.trim()} <span class="d-sub2">${playHdcps[ii]>0?'+'+playHdcps[ii]:'0'}</span></th>`;
   });
   cols.forEach(c=>{
-    const lbl=c.label.replace('Front 9','F9').replace('Back 9','B9').replace('Full 18','18').replace(/Press (\d+).*/,'P$1');
+    const isNassau = !c.game.isPress; // F9, B9, 18 are the three base Nassau bets
     const globe=intlMarker(c.game);
-    html+=`<th class="d-matchhdr">${lbl}${globe?'<br>'+globe:''}</th>`;
+    if(isNassau){
+      const lbl = c.label.replace('Front 9','Nassau F9').replace('Back 9','Nassau B9').replace('Full 18','Nassau 18');
+      html+=`<th class="d-matchhdr d-nassauhdr d-vert">${lbl}${globe?'<br>'+globe:''}</th>`;
+    } else {
+      const lbl=c.label.replace(/Press (\d+).*/,'P$1');
+      html+=`<th class="d-matchhdr">${lbl}${globe?'<br>'+globe:''}</th>`;
+    }
   });
   html+=`</tr></thead><tbody>`;
 
@@ -2609,7 +2617,8 @@ function renderOneMatchCard(m, mi){
     });
     cols.forEach(c=>{
       const v=c.cells[playIdx];
-      const cls = v==='P'?'d-press':'d-match';
+      const isNassau = !c.game.isPress;
+      const cls = v==='P'?'d-press':(isNassau?'d-match d-nassaucell':'d-match');
       r+=`<td class="${cls}">${v}</td>`;
     });
     return r+'</tr>';
@@ -2697,7 +2706,10 @@ function renderOneMatchCard(m, mi){
       for(let i=start;i<end;i++){const g=G.scores[pi][actualHoleIdx(i)];if(g!==null)sum+=g;else all=false;}
       r+=`<td class="d-sub" style="background:#5a5a5a">${all?sum:'·'}</td>`;
     });
-    cols.forEach(()=>r+=`<td class="d-sub"></td>`);
+    cols.forEach(c=>{
+      const tint = !c.game.isPress ? ' d-nassaucell' : '';
+      r+=`<td class="d-sub${tint}"></td>`;
+    });
     return r+'</tr>';
   }
 }
@@ -3474,7 +3486,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.2</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -3580,7 +3592,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.1</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.2</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -3671,7 +3683,7 @@ function openHistoryDetail(i){
   // 6-Point game cards (Derrick-styled) — computeSixPoint reads from the swapped-in G snapshot
   G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v11.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v11.2</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4137,7 +4149,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v11.1';
+const CACHE='nassau-v11.2';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
