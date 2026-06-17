@@ -360,7 +360,10 @@ input::placeholder{color:#bbb}
 <div class="screen active" id="screen-setup">
 <div class="setup">
 
-  <button class="view-history-btn" onclick="showS('history')">📜 View Round History</button>
+  <div style="display:flex;gap:8px;margin-bottom:14px">
+    <button class="view-history-btn" style="margin-bottom:0;flex:1" onclick="showS('history')">📜 Round History</button>
+    <a class="view-history-btn" style="margin-bottom:0;flex:1;text-align:center;text-decoration:none;display:block" href="help.html" target="_blank" rel="noopener">❓ Help</a>
+  </div>
 
   <div class="slabel">Number of Players</div>
   <div class="card">
@@ -435,7 +438,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v11.6
+    Nassau Golf · Derrick GWC · v11.7
   </div>
 </div>
 </div>
@@ -1787,7 +1790,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.7</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -1948,7 +1951,7 @@ function renderCard(){
   // ── Master scorecard only (match cards live on the Nassau tab) ──
   html += renderMasterScorecard();
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v11.6</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v11.7</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2392,7 +2395,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.6</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.7</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3530,7 +3533,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.7</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -3636,7 +3639,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.6</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.7</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -3730,7 +3733,7 @@ function openHistoryDetail(i){
     G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v11.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v11.7</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4200,10 +4203,10 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v11.6';
+const CACHE='nassau-v11.7';
 self.addEventListener('install',e=>{
   e.waitUntil(
-    caches.open(CACHE).then(c=>c.addAll(['./']))
+    caches.open(CACHE).then(c=>c.addAll(['./','help.html']))
     .then(()=>self.skipWaiting())
   );
 });
