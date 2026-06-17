@@ -418,7 +418,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v10.4
+    Nassau Golf · Derrick GWC · v10.5
   </div>
 </div>
 </div>
@@ -1077,7 +1077,14 @@ function computeMatchGames(matchup){
 // Computes the games as they stand after exactly 17 holes (H18 treated as unplayed),
 // splitting front-nine presses into their settled leg9 and live leg18 portions.
 // Returns { guarantee, largePress, internationalee, games17 } or null if H17 isn't complete.
+
+// ── TEMPORARY: The International is disabled while its rules are being finalized. ──
+// Set INTERNATIONAL_ENABLED back to true to re-enable all International functionality
+// (offer banner, globe markers, bottom-nav badge, bundling, and settlement).
+const INTERNATIONAL_ENABLED = false;
+
 function computeInternational(matchup){
+  if(!INTERNATIONAL_ENABLED) return null;
   const base     = matchup.bet || G.bet || 2;
   const pressVal = base * 2;
 
@@ -1218,8 +1225,10 @@ function computeInternational(matchup){
   // No money to bundle — nothing to International
   if(largePress === 0) return null;
 
-  // Leader = the side currently up on the bundled games (gets 2x on an 18 win, 1x on a halve).
-  const leaderSign = leaderNetToA>0 ? 1 : leaderNetToA<0 ? -1 : 0;
+  // Leader of the International = the side UP money overall through 17 (the non-caller).
+  // This is always well-defined (the caller is the down-money side) and does not depend on
+  // the bundled subset, which can net to zero.
+  const leaderSign = netToA>0 ? 1 : netToA<0 ? -1 : 0;  // +1 = side A up money, -1 = side B up
 
   return {
     largePress,                 // the single double-or-nothing pot
@@ -1587,7 +1596,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v10.4</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v10.5</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -1748,7 +1757,7 @@ function renderCard(){
   // ── Master scorecard only (match cards live on the Nassau tab) ──
   html += renderMasterScorecard();
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v10.4</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v10.5</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2005,6 +2014,7 @@ function renderMatchScorecard(m){
 
 // Renders the "The International" button / status panel for a match
 function buildInternationalPanel(m){
+  if(!INTERNATIONAL_ENABLED) return '';
   const intl = computeInternational(m);
   const active = (G.internationals||{})[m.matchId];
 
@@ -2198,7 +2208,7 @@ function renderBets(){
   } else {
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v10.4</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v10.5</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -2528,7 +2538,7 @@ function renderOneMatchCard(m, mi){
   html+='</tr>';
 
   html+=`</tbody></table></div>`;
-  html+=`<div style="padding:6px 14px;font-size:10px;color:var(--inkl)">🔴 thin circle = 1 shot · double = 2 shots (off low player) · E = even · P = press · 🌍 = International-eligible</div>`;
+  html+=`<div style="padding:6px 14px;font-size:10px;color:var(--inkl)">🔴 thin circle = 1 shot · double = 2 shots (off low player) · E = even · P = press${INTERNATIONAL_ENABLED?' · 🌍 = International-eligible':''}</div>`;
   html+=`<div style="padding:0 14px 8px;font-size:10px;color:var(--inkl);font-weight:600">⏱️ ${paceOfPlayStr()}</div>`;
   html+=buildInternationalPanel(m);
   html+=`</div>`;
@@ -3299,7 +3309,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v10.4</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v10.5</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -3405,7 +3415,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v10.4</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v10.5</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -3489,7 +3499,7 @@ function openHistoryDetail(i){
   // 6-Point game cards (Derrick-styled) — computeSixPoint reads from the swapped-in G snapshot
   G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v10.4</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v10.5</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -3954,7 +3964,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v10.4';
+const CACHE='nassau-v10.5';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./']))
