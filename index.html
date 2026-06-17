@@ -442,7 +442,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v12.1
+    Nassau Golf · Derrick GWC · v12.2
   </div>
 </div>
 </div>
@@ -1279,10 +1279,9 @@ function computeMatchGames(matchup){
 // splitting front-nine presses into their settled leg9 and live leg18 portions.
 // Returns { guarantee, largePress, internationalee, games17 } or null if H17 isn't complete.
 
-// ── TEMPORARY: The International is disabled while its rules are being finalized. ──
-// Set INTERNATIONAL_ENABLED back to true to re-enable all International functionality
-// (offer banner, globe markers, bottom-nav badge, bundling, and settlement).
-const INTERNATIONAL_ENABLED = false;
+// ── The Big I (International) — re-enabled with the finalized rules. ──
+// Set INTERNATIONAL_ENABLED to false to hide all International functionality.
+const INTERNATIONAL_ENABLED = true;
 
 function computeInternational(matchup){
   if(!INTERNATIONAL_ENABLED) return null;
@@ -1371,77 +1370,61 @@ function computeInternational(matchup){
   // The losing side (down money) is the internationaler who may CALL it.
   const callerSide = netToA > 0 ? 'B' : 'A';   // side that is DOWN money
 
-  // ── Bucket games into the Large Press ──
-  // (1) OUT-OF-BAND games (settled by the back nine) — bundled if their through-17 margin
-  //     is outside the protected band:
-  //       1v1:  protected = -1, E, +1   -> consolidate if |margin| >= 2
-  //       2v2:  protected = -2..+2      -> consolidate if |margin| >= 3
-  //     Eligibility is symmetric — which side it favours does not matter.
-  // (2) FRONT-NINE-SETTLED games — the F9 Nassau and the leg-1 (front) half of any press that
-  //     started in the first nine. These ALWAYS go into the pot (by ABSOLUTE value) once the
-  //     International is called: a $2 F9 win by EITHER side adds $2 to the pot. They no longer
-  //     settle on their own (Option 2 — the winner's money goes back at risk).
+  // ── Bucket the NON-PROTECTED games into the Big I pot ──
+  // Uniform rule for EVERY game and EVERY press leg: it is non-protected (goes into the pot)
+  // only if ITS OWN margin is outside the protected band; otherwise it is protected and
+  // settles normally. Bands: 2v2 -2..+2 (bundle if |>=3|) ; 1v1 -1..+1 (bundle if |>=2|).
+  // A front-nine press is judged as two independent halves:
+  //   - front leg  (start..hole 9)  judged at its hole-9 standing
+  //   - back leg   (start..hole 17) judged at its through-17 standing
+  // The pot is the NET (Leaders vs Trailers) of everything bundled; each piece is worth one stake.
   const threshold = (matchup.type === '2v2-combined') ? 3 : 2;
 
-  let largePress = 0;               // the single double-or-nothing pot (no banking)
-  let leaderNetToA = 0;             // signed total of all bundled money (decides who leads)
-  let frontNetToA = 0;              // signed net of all FRONT-NINE-settled games (A perspective)
-  const bucketedLabels = new Set(); // labels (or 'label#leg9' / 'label#leg18') pulled into the pot
+  let nonProtectedNetToA = 0;       // signed net of every bundled game/leg (A perspective)
+  const bucketedLabels = new Set(); // labels (or 'label#leg9' / 'label#leg18') excluded from normal settlement
 
   games17.forEach(g=>{
     if(g.isFrontPress){
-      // Front-press LEG 1 (front nine portion) — netted with other front-nine games
-      if(g.leg9.score !== 0){
-        frontNetToA += g.leg9.score>0 ? base : -base;
+      // Front leg — bundled only if its hole-9 standing is out of band
+      if(Math.abs(g.leg9.score) >= threshold){
+        nonProtectedNetToA += g.leg9.score>0 ? base : -base;
         bucketedLabels.add(g.label+'#leg9');
       }
-      // Front-press LEG 2 (back nine portion) — bundled only if out of band, full stake
+      // Back leg — bundled only if its through-17 standing is out of band
       if(Math.abs(g.leg18.score) >= threshold){
-        largePress   += base;
-        leaderNetToA += g.leg18.score>0 ? base : -base;
+        nonProtectedNetToA += g.leg18.score>0 ? base : -base;
         bucketedLabels.add(g.label+'#leg18');
       }
-    } else if(g.label==='Front 9'){
-      // F9 Nassau — netted with other front-nine games
-      if(g.score !== 0){
-        frontNetToA += g.score>0 ? g.value : -g.value;
-        bucketedLabels.add(g.label);
-      }
     } else {
-      // Back 9, Full 18, back-nine presses — out-of-band only, full stake (gross)
+      // F9, B9, Full 18, back-nine presses — bundled only if their through-the-relevant-point
+      // margin is out of band. (F9's margin is its hole-9 standing; the rest are through 17.)
       if(Math.abs(g.score) >= threshold){
-        largePress   += g.value;
-        leaderNetToA += g.score>0 ? g.value : -g.value;
+        nonProtectedNetToA += g.score>0 ? g.value : -g.value;
         bucketedLabels.add(g.label);
       }
     }
   });
 
-  // Front-nine-settled games go into the ONE pot, NETTED between the teams:
-  // only the absolute net difference is added (as at-risk stake). The signed net also
-  // contributes to deciding who leads the pot.
-  largePress   += Math.abs(frontNetToA);
-  leaderNetToA += frontNetToA;
+  // The pot is the NET difference between the sides on the non-protected games.
+  const largePress = Math.abs(nonProtectedNetToA);
 
-  // No money to bundle — nothing to International
+  // No money outside the band (and no front-nine games) — nothing to International
   if(largePress === 0) return null;
 
-  // Leader of the International = the side UP money overall through 17 (the non-caller).
-  // This is always well-defined (the caller is the down-money side) and does not depend on
-  // the bundled subset, which can net to zero.
-  const leaderSign = netToA>0 ? 1 : netToA<0 ? -1 : 0;  // +1 = side A up money, -1 = side B up
+  // Leader of the Big I = the side UP money overall through 17 (always well-defined).
+  const leaderSign = netToA>0 ? 1 : netToA<0 ? -1 : 0;  // +1 = side A leads, -1 = side B leads
 
   return {
-    largePress,                 // the single double-or-nothing pot
-    leaderSign,                 // +1 = side A leads the pot, -1 = side B leads, 0 = tie
-    bankedToA: leaderNetToA,    // signed bundled net to A (legacy name; used only to read leader)
-    bucketedLabels,             // Set of labels (or 'label#leg18') excluded from normal settlement
-    callerSide,                 // 'A' or 'B' — the team DOWN money after 17 (who may call it)
-    internationaleeSide: callerSide,  // alias for existing settlement code
+    largePress,                 // the Big I pot = net of non-protected games
+    leaderSign,                 // +1 = side A leads, -1 = side B leads
+    nonProtectedNetToA,         // signed net of non-protected games (A perspective)
+    bucketedLabels,             // games excluded from normal settlement (their value is in the pot)
+    callerSide,                 // 'A' or 'B' — the team DOWN money after 17 (the Trailers)
+    internationaleeSide: callerSide,
     internationaleeIdx: callerSide==='A' ? matchup.sideA : matchup.sideB,
     internationalerIdx: callerSide==='A' ? matchup.sideB : matchup.sideA,
     games17,
-    netToA,                     // provisional money standing through 17 (A perspective)
+    netToA,                     // money standing through 17 (A perspective)
   };
 }
 
@@ -1708,21 +1691,30 @@ function computeMoney(){
 }
 function base_(m){ return m.bet || G.bet || 2; }
 
-// International net to side A given the current hole-18 result. ONE pot, double-or-nothing:
-//   Leader wins 18  -> 2x pot to leader
-//   Trailer wins 18 -> 0 (pot wiped)
-//   Halved 18       -> 1x pot to leader
-//   H18 unscored     -> provisional 1x pot to leader (the standing if 18 halves)
+// Big I net to side A given the hole-18 result. Settlement is based on the LEADERS'
+// net points on the 18th hole (holeResult gives +/-2/+/-1/0 for 2v2, +/-1/0 for 1v1):
+//   Leaders net POSITIVE on 18  -> Leaders win 2x pot
+//   Leaders net ZERO (draw)     -> Leaders win 1x pot
+//   Leaders net NEGATIVE        -> Trailers win 1x pot
+//   H18 unscored                -> provisional 1x pot to Leaders (the draw standing)
+// Returned signed to side A (positive = side A gains).
 function intlNetToA(m, intl){
   if(!intl) return 0;
-  const L = intl.leaderSign; // +1 A leads, -1 B leads
+  const L = intl.leaderSign;            // +1 = A leads, -1 = B leads
   if(L===0) return 0;
   const pot = intl.largePress;
-  const h18 = holeResult(m, 17);
-  if(h18===null) return L*pot;                       // provisional: leader holds 1x
-  if(h18===0)    return L*pot;                       // halve -> 1x to leader
-  if(Math.sign(h18)===L) return L*2*pot;             // leader wins 18 -> 2x
-  return 0;                                          // trailer wins 18 -> pot wiped
+  const h18 = holeResult(m, 17);        // net points on 18, A perspective (2v2: +/-2/+/-1/0)
+
+  // Leaders' net points on 18 (convert A-perspective result to the leader's perspective)
+  const leaderPts = (h18===null) ? 0 : (L>0 ? h18 : -h18);
+
+  let toLeader;
+  if(leaderPts > 0)      toLeader = 2*pot;   // Leaders won the hole on points -> 2x
+  else if(leaderPts < 0) toLeader = -pot;    // Trailers won the hole -> Trailers take 1x pot
+  else                   toLeader = pot;      // draw (or unscored) -> Leaders hold 1x
+
+  // Convert "to leader" into "to side A"
+  return L>0 ? toLeader : -toLeader;
 }
 
 function fmt(v){return v===0?'$0':(v>0?'+$':'-$')+Math.abs(v).toFixed(2).replace(/\.00$/,'');}
@@ -1930,7 +1922,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.2</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2099,7 +2091,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v12.1</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v12.2</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2453,23 +2445,23 @@ function buildInternationalPanel(m){
   const pot = intl.largePress;
 
   if(h18===null){
-    // International called, hole 18 not yet scored.
+    // The Big I called, hole 18 not yet scored.
     return `<div class="intl-panel intl-active">
-      <div class="intl-txt">🌍 <b>The International is ON.</b><br>
-        $${pot} pot, double-or-nothing on hole 18. If <b>${leaderLabel}</b> win 18 they take $${pot*2}; if hole 18 is halved they take $${pot}; if <b>${otherLabel}</b> win 18 the pot is wiped ($0).</div>
+      <div class="intl-txt">🌍 <b>The Big I is ON.</b><br>
+        $${pot} pot. If <b>${leaderLabel}</b> (Leaders) win a point on 18 they take $${pot*2}; if 18 is a draw they take $${pot}; if <b>${otherLabel}</b> (Trailers) win a point on 18 the Trailers take $${pot}. Protected games settle normally on top.</div>
       <button class="intl-undo" onclick="deactivateInternational('${m.matchId}')">Undo</button>
     </div>`;
   }
 
-  // H18 settled — describe the outcome relative to the leader
-  const leaderWon18 = intl.leaderSign!==0 && Math.sign(h18)===intl.leaderSign;
+  // H18 settled — describe the outcome relative to the leader, using NET points on 18.
+  const leaderPts = intl.leaderSign>0 ? h18 : -h18;  // Leaders' net points on the hole
   let resultTxt;
-  if(h18===0){
-    resultTxt = `Hole 18 halved — ${leaderLabel} take the pot once ($${pot})`;
-  } else if(leaderWon18){
-    resultTxt = `${leaderLabel} won hole 18 — double-or-nothing pays $${pot*2}`;
+  if(leaderPts > 0){
+    resultTxt = `${leaderLabel} (Leaders) won a point on 18 — the pot pays double ($${pot*2})`;
+  } else if(leaderPts < 0){
+    resultTxt = `${otherLabel} (Trailers) won a point on 18 — Trailers take the pot ($${pot})`;
   } else {
-    resultTxt = `${otherLabel} won hole 18 — the pot is wiped ($0)`;
+    resultTxt = `Hole 18 was a draw — ${leaderLabel} (Leaders) take the pot once ($${pot})`;
   }
 
   // Overall total for this match = normal (non-bucketed) settlement + bank + swing
@@ -2543,7 +2535,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.1</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.2</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3683,7 +3675,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.2</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -3789,7 +3781,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.1</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.2</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -3883,7 +3875,7 @@ function openHistoryDetail(i){
     G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v12.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v12.2</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4353,7 +4345,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v12.1';
+const CACHE='nassau-v12.2';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html']))
