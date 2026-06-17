@@ -342,6 +342,11 @@ input::placeholder{color:#bbb}
 .bnav{position:fixed;bottom:calc(31px + env(safe-area-inset-bottom));left:0;right:0;background:var(--gd);border-top:1px solid rgba(201,168,76,.3);display:flex;z-index:200}
 .help-bar{position:fixed;bottom:0;left:0;right:0;z-index:201;display:block;text-align:center;background:#13291d;color:var(--gold);text-decoration:none;font-size:12px;font-weight:700;letter-spacing:.5px;padding:7px 0 calc(7px + env(safe-area-inset-bottom));border-top:1px solid rgba(201,168,76,.25);-webkit-tap-highlight-color:transparent}
 .help-bar:active{background:#0d1f16}
+.wi-step{width:36px;height:36px;border-radius:18px;border:1.5px solid var(--gm);background:var(--gp);color:var(--gm);font-size:20px;font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.wi-match{background:var(--cream);border:1px solid var(--border);border-radius:10px;padding:11px 14px;margin-bottom:8px}
+.wi-vs{font-size:14px;color:#333;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.wi-vs span{color:var(--inkl);font-size:11px;font-style:italic}
+.wi-res{font-size:15px;font-weight:800;margin-top:5px}
 .ni{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 2px 6px;cursor:pointer;-webkit-tap-highlight-color:transparent;min-width:0}
 .ni-icon{font-size:20px;position:relative;display:inline-block}
 .ni-badge{position:absolute;top:-4px;right:-8px;background:var(--red);color:#fff;font-size:9px;font-weight:800;line-height:1;border-radius:8px;min-width:14px;height:14px;display:flex;align-items:center;justify-content:center;padding:0 3px}
@@ -437,7 +442,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v11.8
+    Nassau Golf · Derrick GWC · v12.0
   </div>
 </div>
 </div>
@@ -1542,6 +1547,115 @@ function buildMatchups(){
   return m;
 }
 
+/* ═══════════════════════════════════════════════
+   WHAT-IF NASSAU (scorecard-only mode, post-round)
+   Computes what a hypothetical Nassau matchup would have paid,
+   using the real scores and the full engine (F9/B9/18 + auto presses).
+═══════════════════════════════════════════════ */
+let _whatIfBet = 2; // global default $/side, user-adjustable
+
+// Net result to Side A for a hypothetical matchup (positive = Side A up). Includes presses.
+function whatIfNetToA(sideA, sideB, bet){
+  const type = sideA.length===2 ? '2v2-combined' : '1v1';
+  const m = { type, sideA, sideB,
+    labelA: sideA.map(i=>G.players[i].name).join(' & '),
+    labelB: sideB.map(i=>G.players[i].name).join(' & '),
+    bet, matchId:'whatif' };
+  let net=0;
+  computeMatchGames(m).forEach(g=>{
+    if(g.isFrontPress){
+      const pay9  = g.leg9.settled  ? (g.leg9.score>0?bet:g.leg9.score<0?-bet:0) : 0;
+      const pay18 = g.leg18.settled ? (g.leg18.score>0?bet:g.leg18.score<0?-bet:0) : 0;
+      net += pay9 + pay18;
+    } else if(g.settled && g.winner!=='tie'){
+      net += g.winner==='A' ? g.value : -g.value;
+    }
+  });
+  return net;
+}
+
+// All hypothetical matchups for the current players: every 1v1, plus every 2v2 split when n===4.
+function whatIfMatchups(){
+  const n = G.players.length;
+  const out = [];
+  // 1v1: all pairs
+  for(let i=0;i<n;i++) for(let j=i+1;j<n;j++){
+    out.push({ kind:'1v1', a:[i], b:[j] });
+  }
+  // 2v2: only clean with exactly 4 players → 3 distinct splits
+  if(n===4){
+    const splits=[ [[0,1],[2,3]], [[0,2],[1,3]], [[0,3],[1,2]] ];
+    splits.forEach(s=> out.push({ kind:'2v2', a:s[0], b:s[1] }));
+  }
+  return out;
+}
+
+function openWhatIf(){
+  const existing=document.getElementById('whatIfOverlay');
+  if(existing) existing.remove();
+  const overlay=document.createElement('div');
+  overlay.className='mm-overlay';
+  overlay.id='whatIfOverlay';
+  overlay.innerHTML=`
+    <div class="mm-sheet">
+      <div class="mm-hdr">
+        <div class="mm-title">🤔 What If — Nassau</div>
+        <button class="mm-close" onclick="document.getElementById('whatIfOverlay').remove()">Done</button>
+      </div>
+      <div style="font-size:12px;color:#666;margin:0 0 10px">Based on today's scores, here's what each matchup would have paid if you'd played a Nassau (Front 9 / Back 9 / Total 18, with automatic presses). Just for fun — no money changed hands!</div>
+      <div class="card" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="font-size:14px;font-weight:700;color:#222">$ per side</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <button class="wi-step" onclick="whatIfBet(-1)">−</button>
+          <div id="wiBetVal" style="font-size:18px;font-weight:800;color:var(--gm);min-width:42px;text-align:center">$${_whatIfBet}</div>
+          <button class="wi-step" onclick="whatIfBet(1)">+</button>
+        </div>
+      </div>
+      <div id="whatIfBody"></div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click',e=>{ if(e.target===overlay) overlay.remove(); });
+  renderWhatIfBody();
+}
+
+function whatIfBet(delta){
+  _whatIfBet = Math.max(1, _whatIfBet + delta);
+  const v=document.getElementById('wiBetVal'); if(v) v.textContent='$'+_whatIfBet;
+  renderWhatIfBody();
+}
+
+function renderWhatIfBody(){
+  const body=document.getElementById('whatIfBody');
+  if(!body) return;
+  const bet=_whatIfBet;
+  const mus=whatIfMatchups();
+  const twoV2 = mus.filter(x=>x.kind==='2v2');
+  const oneV1 = mus.filter(x=>x.kind==='1v1');
+
+  function card(x){
+    const net = whatIfNetToA(x.a, x.b, bet);
+    const aNames = x.a.map(i=>G.players[i].name).join(' & ');
+    const bNames = x.b.map(i=>G.players[i].name).join(' & ');
+    let line, col;
+    if(net>0){ line=`${aNames} win${x.kind==='2v2'?'':'s'} $${net}`; col='var(--gm)'; }
+    else if(net<0){ line=`${bNames} win${x.kind==='2v2'?'':'s'} $${Math.abs(net)}`; col='var(--gm)'; }
+    else { line='All square — $0'; col='var(--inkl)'; }
+    return `<div class="wi-match">
+      <div class="wi-vs"><b>${aNames}</b><span>vs</span><b>${bNames}</b></div>
+      <div class="wi-res" style="color:${col}">${line}</div>
+    </div>`;
+  }
+
+  let html='';
+  if(twoV2.length){
+    html+=`<div class="slabel">2v2 (High-Low)</div>`;
+    html+=twoV2.map(card).join('');
+  }
+  html+=`<div class="slabel" style="margin-top:16px">1v1</div>`;
+  html+=oneV1.map(card).join('');
+  body.innerHTML=html;
+}
+
 function computeMoney(){
   const money=G.players.map(()=>0);
   buildMatchups().forEach(m=>{
@@ -1626,6 +1740,23 @@ function adjustScore(pi, h, delta){
   checkBirdieJuice(pi,h,prev);
   saveG();
   renderCard();
+  maybeAutoAdvance();
+}
+
+// Auto-advance to the next hole once every player has a score on the current hole.
+// Never advances past the final hole of the round (holes 1–17 only; stays on 18).
+function maybeAutoAdvance(){
+  const curPlay = playOrderIdx(G.hole);
+  if(curPlay >= 17) return;                 // last hole of the round — never auto-advance
+  // All players must have a score on the current hole
+  if(G.players.some((_,pi)=>G.scores[pi][G.hole]===null)) return;
+  clearTimeout(maybeAutoAdvance._t);
+  maybeAutoAdvance._t = setTimeout(()=>{
+    // Re-check in case a score was edited back to empty during the delay
+    if(playOrderIdx(G.hole) >= 17) return;
+    if(G.players.some((_,pi)=>G.scores[pi][G.hole]===null)) return;
+    goH(1);
+  }, 550);
 }
 
 // Tap the centre when unset — sets score to par directly
@@ -1635,6 +1766,7 @@ function setParScore(pi, h){
   checkBirdieJuice(pi,h,null);
   saveG();
   renderCard();
+  maybeAutoAdvance();
 }/* ═══════════════════════════════════════════════
    BIRDIE JUICE
 ═══════════════════════════════════════════════ */
@@ -1792,7 +1924,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.8</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.0</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -1953,7 +2085,15 @@ function renderCard(){
   // ── Master scorecard only (match cards live on the Nassau tab) ──
   html += renderMasterScorecard();
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v11.8</div>';
+  // "What if you'd played Nassau?" banner — scorecard-only rounds, once all 18 are in
+  if(G.scorecardOnly && isRoundComplete()){
+    html += `<div onclick="openWhatIf()" style="margin:14px 10px 4px;padding:14px;background:linear-gradient(135deg,#2d6a4f,#1a3a2a);border:1.5px solid var(--gold);border-radius:12px;text-align:center;cursor:pointer">
+      <div style="font-size:15px;font-weight:800;color:var(--gold)">🤔 What if you'd played Nassau?</div>
+      <div style="font-size:12px;color:#cfe3d6;margin-top:3px">Tap to see what each matchup would have paid →</div>
+    </div>`;
+  }
+
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v12.0</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2397,7 +2537,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.8</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.0</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3535,7 +3675,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.8</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.0</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -3641,7 +3781,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.8</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.0</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -3735,7 +3875,7 @@ function openHistoryDetail(i){
     G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v11.8</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v12.0</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4205,7 +4345,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v11.8';
+const CACHE='nassau-v12.0';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html']))
