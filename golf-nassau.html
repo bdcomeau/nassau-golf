@@ -442,7 +442,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v12.2
+    Nassau Golf · Derrick GWC · v12.3
   </div>
 </div>
 </div>
@@ -1922,7 +1922,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.2</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.3</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2091,7 +2091,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v12.2</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v12.3</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2390,10 +2390,27 @@ function buildInternationalPanel(m){
       m.sideA.forEach((pi,k)=>{ G.scores[pi][h18idx] = par18 + aOffsets[k] + strokeOn18[pi]; });
       m.sideB.forEach((pi,k)=>{ G.scores[pi][h18idx] = par18 + bOffsets[k] + strokeOn18[pi]; });
     }
+    // Per-matchup total to Side A for the CURRENT hole-18 scores — mirrors the final-result
+    // banner exactly (this matchup's protected games + the Big I swing). We must NOT use
+    // computeMoney()[player], because that sums the player's winnings across EVERY game in
+    // the round (other matchups they're in), which over-counts this single matchup.
     function totalToA(){
-      G.internationals[m.matchId]=true;
-      const money=computeMoney();
-      return money[m.sideA[0]];
+      const intlNow = computeInternational(m);   // recompute with the synthetic hole 18 in place
+      const bucketedNow = intlNow ? intlNow.bucketedLabels : new Set();
+      let tA = 0;
+      computeMatchGames(m).forEach(g=>{
+        if(g.isFrontPress){
+          const pay9  = (!bucketedNow.has(g.label+'#leg9')  && g.leg9.settled  && g.leg9.score!==0)  ? (g.leg9.score>0?base_(m):-base_(m)) : 0;
+          const pay18 = (!bucketedNow.has(g.label+'#leg18') && g.leg18.settled && g.leg18.score!==0) ? (g.leg18.score>0?base_(m):-base_(m)) : 0;
+          tA += pay9 + pay18;
+        } else if(bucketedNow.has(g.label)){
+          // value moved into the pot
+        } else if(g.settled && g.winner!=='tie'){
+          tA += g.winner==='A' ? g.value : -g.value;
+        }
+      });
+      if(intlNow) tA += intlNetToA(m, intlNow);
+      return tA;
     }
     function fmtA(v){
       if(v>0) return `${m.labelA} win <b>$${Math.abs(v)}</b>`;
@@ -2535,7 +2552,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.2</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.3</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3675,7 +3692,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.2</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.3</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -3781,7 +3798,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.2</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v12.3</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -3875,7 +3892,7 @@ function openHistoryDetail(i){
     G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v12.2</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v12.3</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4345,7 +4362,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v12.2';
+const CACHE='nassau-v12.3';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html']))
