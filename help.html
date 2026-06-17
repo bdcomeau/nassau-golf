@@ -41,7 +41,7 @@
 <header>
   <a class="back" href="./">‹ Back</a>
   <h1>Help &amp; Guide</h1>
-  <span class="ver">v12.0</span>
+  <span class="ver">v12.2</span>
 </header>
 <div class="wrap" id="top">
 
@@ -54,7 +54,7 @@
   <a href="#scorecard">3 · Scoring — The Scorecard Screen</a>
   <a href="#wheel">4 · The Score Entry Wheel</a>
   <a href="#nassau">5 · The Nassau Tab</a>
-  <a href="#international">6 · The International</a>
+  <a href="#international">6 · The International ("The Big I")</a>
   <a href="#sixpoint">7 · The 6-Point Game</a>
   <a href="#birdie">8 · Birdie Juice</a>
   <a href="#history">9 · Round History &amp; Backup</a>
@@ -182,6 +182,7 @@
   <li>Player handicaps here are the ADJUSTED match handicaps — the lowest handicap in the match drops to scratch (0) and the others play off that.</li>
   <li>Stroke holes are pre-marked with red circles using those adjusted handicaps.</li>
   <li>Each bet column shows the running match state per hole: E (even), +1/−2 (holes up or down), or P where a press begins.</li>
+  <li>After the 17th hole, a 🌍 globe marks any bet eligible for The International (see Section 6).</li>
 </ul>
 
 <h3>Presses</h3>
@@ -195,14 +196,43 @@
 
 <h3>Result Banner &amp; WINS Row</h3>
 <p>Above the WINS row, a gold banner shows the match standing. While the round is in progress it reads "… is currently ahead by $X" (or "… are currently ahead by $X" for a 2v2) — nobody has won until the 18th hole is complete. Once all 18 holes are scored, it switches to the final result, e.g. "Greg Hines wins $38" or "Bruce &amp; Greg win $24," or "All square — $0."</p>
-<p>The WINS row below shows each bet column's settlement from the first listed side's (Player 1 / Side A) perspective: a win is a positive amount, a loss a red negative amount, a halved bet $0.</p>
+<p>The WINS row below shows each bet column's settlement from the first listed side's (Player 1 / Side A) perspective: a win is a positive amount, a loss a red negative amount, a halved bet $0, and a bet folded into the International as 🌍.</p>
 <a class="top" href="#top">↑ Back to top</a>
 
-<h2 id="international">6 · The International</h2>
-<p>The International is an optional side bet that bundles certain games into one pot, decided by the 18th hole.</p>
-<h3>Temporarily Unavailable</h3>
-<p>The International is turned off in this version while its rules are being finalized. You won't see any International prompts, globe (🌍) markers, or pot offers — every game simply settles on its own. The feature will return in a future update once the betting rules are locked down.</p>
-<div class="note">Nothing else is affected. All Nassau bets, presses, and 6-Point games settle normally without it.</div>
+<h2 id="international">6 · The International ("The Big I")</h2>
+<p>The International — <b>"The Big I"</b> — is an optional side bet available only after the 17th hole of an 18-hole Nassau is complete. The trailing side may ask for it; the leading side accepts or declines. It's agreed verbally at the tee, then the scorekeeper engages it in the app.</p>
+
+<h3>Leaders and Trailers</h3>
+<p>The side that is UP in total money after 17 holes are the <b>Leaders</b>; the other side are the <b>Trailers</b>. (Based on the overall money standing, so it's always clear-cut.)</p>
+
+<h3>Protected Games</h3>
+<p>Any game — Front 9, Back 9, Total 18, or any Press — whose standing is INSIDE the protected band is "protected": it's left out of the Big I and settles normally on the 18th as if the Big I never happened. The bands are:</p>
+<ul>
+  <li>2v2: −2, −1, even, +1, +2</li>
+  <li>1v1: −1, even, +1</li>
+</ul>
+<p>Each piece is judged on its OWN standing. A front-nine press is judged as two independent halves: the front half (through hole 9) and the back half (through hole 17). For example, if a press is +4 after nine holes but even after 17, the front half is out of band (goes into the pot) while the back half is protected and plays out normally.</p>
+
+<h3>The Pot</h3>
+<p>Every NON-protected game (and press half) — anything outside the band, i.e. 2v2 at ±3 or more, 1v1 at ±2 or more — is pulled out of normal settlement and consolidated into one pot. The pot is the NET difference between the two sides on those games.</p>
+<p>Example: if the non-protected games tallied $20 for the Leaders and $2 for the Trailers, the pot would be the $18 difference. Those games no longer settle on their own — their value lives entirely in the pot.</p>
+
+<h3>Settling on the 18th Hole</h3>
+<p>The 18th hole decides the pot, based on the Leaders' points on the hole (in a 2v2 the hole is the usual high-low, worth up to two points; in a 1v1 it's a single point). Protected games settle normally on top in every case:</p>
+<ul>
+  <li><b>Leaders win at least one point</b> on 18 (net ahead on the hole) → Leaders win <b>twice</b> the pot.</li>
+  <li><b>The 18th is a draw</b> — both balls halved, or a 1–1 split where each side wins one ball → Leaders win the pot <b>once</b>. Protected games pay out as they stood after 17.</li>
+  <li><b>Trailers win at least one point</b> on 18 (net ahead on the hole) → Trailers win the pot <b>once</b>.</li>
+</ul>
+<div class="note">Note the asymmetry that makes it a gamble for the Trailers to call: the Leaders double the pot by winning the 18th, but the Trailers only win a single pot by winning it.</div>
+
+<h3>In the App</h3>
+<ul>
+  <li>After the 17th hole, the Nassau match card shows the Big I offer for the trailing side, with the pot size and how each 18th-hole result would settle.</li>
+  <li>Tap <b>"🌍 Call The International"</b> to engage it (after both sides agree verbally). An Undo button reverses it before the round is saved.</li>
+  <li>Games in the pot are marked with a 🌍 globe; protected games show their normal running totals.</li>
+  <li>Once the 18th is scored, the card shows the final Big I result and the overall match total.</li>
+</ul>
 <a class="top" href="#top">↑ Back to top</a>
 
 <h2 id="sixpoint">7 · The 6-Point Game</h2>
@@ -249,7 +279,7 @@
 <p>Check the 10-digit Golf Canada Member ID and that your Golf Canada login is correct. You can always type a handicap in manually instead.</p>
 <a class="top" href="#top">↑ Back to top</a>
 
-<p style="text-align:center;color:rgba(255,255,255,.4);font-size:11px;margin-top:30px">Nassau Golf · Derrick GWC · v12.0</p>
+<p style="text-align:center;color:rgba(255,255,255,.4);font-size:11px;margin-top:30px">Nassau Golf · Derrick GWC · v12.2</p>
 
 </div>
 </body>
