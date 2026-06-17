@@ -31,7 +31,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 .screen{display:none}.screen.active{display:block}
 
 /* ── SETUP ── */
-.setup{padding:16px;padding-bottom:100px}
+.setup{padding:16px;padding-bottom:135px}
 .view-history-btn{background:var(--gp);color:var(--gm);border:1.5px solid var(--gm);border-radius:10px;padding:12px;font-size:13px;font-weight:700;width:100%;margin-bottom:14px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .slabel{font-size:11px;font-weight:700;color:var(--gl);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px;margin-top:20px}
 .card{background:#fff;border-radius:14px;padding:14px;box-shadow:var(--shadow);margin-bottom:12px}
@@ -119,7 +119,7 @@ input::placeholder{color:#bbb}
 .mm-player-del{background:none;border:none;color:var(--red);font-size:18px;cursor:pointer;width:28px;-webkit-tap-highlight-color:transparent}
 .ntab{flex:1;padding:6px;text-align:center;font-size:12px;font-weight:600;color:var(--gl);border-radius:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .ntab.active{background:var(--gold);color:var(--gd)}
-.sbody{padding:6px 10px;padding-bottom:80px}
+.sbody{padding:6px 10px;padding-bottom:115px}
 
 /* ── PLAYER SCORE CARD ── */
 .pcard{background:#fff;border-radius:10px;margin-bottom:6px;overflow:hidden;box-shadow:var(--shadow);border:2px solid transparent;transition:border-color .2s}
@@ -292,7 +292,7 @@ input::placeholder{color:#bbb}
 .mamt.pos{color:var(--gm)}.mamt.neg{color:var(--red)}.mamt.zero{color:var(--inkl)}
 
 /* ── TOTALS ── */
-.totbody{padding:16px;padding-bottom:100px}
+.totbody{padding:16px;padding-bottom:135px}
 .tottitle{font-size:22px;font-weight:800;color:var(--gold);font-family:Georgia,serif;text-align:center;padding:16px 0 10px}
 .scwrap{overflow-x:auto}
 .sct{width:100%;border-collapse:collapse;font-size:11px}
@@ -339,7 +339,9 @@ input::placeholder{color:#bbb}
 .nu{color:var(--gm);font-weight:700}.no{color:var(--red);font-weight:700}
 
 /* ── BOTTOM NAV ── */
-.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--gd);border-top:1px solid rgba(201,168,76,.3);display:flex;z-index:200;padding-bottom:env(safe-area-inset-bottom)}
+.bnav{position:fixed;bottom:calc(31px + env(safe-area-inset-bottom));left:0;right:0;background:var(--gd);border-top:1px solid rgba(201,168,76,.3);display:flex;z-index:200}
+.help-bar{position:fixed;bottom:0;left:0;right:0;z-index:201;display:block;text-align:center;background:#13291d;color:var(--gold);text-decoration:none;font-size:12px;font-weight:700;letter-spacing:.5px;padding:7px 0 calc(7px + env(safe-area-inset-bottom));border-top:1px solid rgba(201,168,76,.25);-webkit-tap-highlight-color:transparent}
+.help-bar:active{background:#0d1f16}
 .ni{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 2px 6px;cursor:pointer;-webkit-tap-highlight-color:transparent;min-width:0}
 .ni-icon{font-size:20px;position:relative;display:inline-block}
 .ni-badge{position:absolute;top:-4px;right:-8px;background:var(--red);color:#fff;font-size:9px;font-weight:800;line-height:1;border-radius:8px;min-width:14px;height:14px;display:flex;align-items:center;justify-content:center;padding:0 3px}
@@ -360,10 +362,7 @@ input::placeholder{color:#bbb}
 <div class="screen active" id="screen-setup">
 <div class="setup">
 
-  <div style="display:flex;gap:8px;margin-bottom:14px">
-    <button class="view-history-btn" style="margin-bottom:0;flex:1" onclick="showS('history')">📜 Round History</button>
-    <a class="view-history-btn" style="margin-bottom:0;flex:1;text-align:center;text-decoration:none;display:block" href="help.html" target="_blank" rel="noopener">❓ Help</a>
-  </div>
+  <button class="view-history-btn" onclick="showS('history')">📜 View Round History</button>
 
   <div class="slabel">Number of Players</div>
   <div class="card">
@@ -438,7 +437,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v11.7
+    Nassau Golf · Derrick GWC · v11.8
   </div>
 </div>
 </div>
@@ -507,6 +506,9 @@ input::placeholder{color:#bbb}
   <div class="ni"        id="ni-history" onclick="showS('history')"><div class="ni-icon">📜</div><div class="ni-lbl">History</div></div>
   <div class="ni"        id="ni-new"     onclick="newRound()"><div class="ni-icon">🔄</div><div class="ni-lbl">New Round</div></div>
 </div>
+
+<!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help</a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -1752,7 +1754,7 @@ function renderBirdieJuice(){
   const redeemed=G.birdieJuice.redeemed;
   const remaining=earned-redeemed;
 
-  let html='<div style="padding:12px 16px;padding-bottom:120px">';
+  let html='<div style="padding:12px 16px;padding-bottom:155px">';
   html+='<div class="tottitle" style="color:var(--gold)">🐦🥃 Birdie Juice</div>';
 
   html+=`<div class="msum" style="margin:10px 0;text-align:center">
@@ -1790,7 +1792,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.7</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.8</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -1951,7 +1953,7 @@ function renderCard(){
   // ── Master scorecard only (match cards live on the Nassau tab) ──
   html += renderMasterScorecard();
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v11.7</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v11.8</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2379,7 +2381,7 @@ function updateInternationalBadge(){
 
 function renderBets(){
   const money=computeMoney();
-  let html='<div style="padding:12px 16px;padding-bottom:120px">';
+  let html='<div style="padding:12px 16px;padding-bottom:155px">';
 
   // Save Round button — shown once all 18 holes are scored and not yet saved
   if(isRoundComplete() && !isCurrentRoundSaved()){
@@ -2395,7 +2397,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.7</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.8</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3525,7 +3527,7 @@ function render6PointCard(game){
 }
 
 function renderSixPoint(){
-  let html='<div style="padding:12px 16px;padding-bottom:120px">';
+  let html='<div style="padding:12px 16px;padding-bottom:155px">';
 
   if(!G.sixPointGames.length){
     html+=`<div style="text-align:center;color:rgba(255,255,255,.5);padding:40px 0">No 6-Point game configured</div>`;
@@ -3533,7 +3535,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.7</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.8</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -3604,7 +3606,7 @@ function showImportResult(msg, isError){
 
 function renderHistory(){
   const hist=loadHistory();
-  let html='<div style="padding:12px 16px;padding-bottom:120px">';
+  let html='<div style="padding:12px 16px;padding-bottom:155px">';
   html+='<div class="tottitle" style="color:var(--gold)">Round History</div>';
 
   // ── Backup / Restore ──
@@ -3639,7 +3641,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.7</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v11.8</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -3733,7 +3735,7 @@ function openHistoryDetail(i){
     G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v11.7</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v11.8</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4203,7 +4205,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v11.7';
+const CACHE='nassau-v11.8';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html']))
