@@ -58,6 +58,10 @@ input::placeholder{color:#bbb}
 .p-btnstack{display:flex;flex-direction:column;gap:2px;align-items:center}
 .p-btnlbl{font-size:9px;color:#999;line-height:1;margin-bottom:4px;white-space:nowrap;text-align:center}
 .hdcp-stamp{font-size:10px;color:var(--gm);font-weight:600;margin-top:3px;line-height:1.3;min-height:0}
+.deck-row{display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap}
+.deck-lbl{font-size:11px;color:#666;font-weight:700}
+.deck-select{font-size:12px;padding:3px 6px;border:1px solid #ccc;border-radius:6px;background:#fff}
+.deck-note{font-size:10px;color:var(--gold-d,#9a7a1e);font-weight:600;line-height:1.2}
 .save-btn{width:28px;height:36px;background:var(--gp);border:1.5px solid var(--gm);border-radius:8px;color:var(--gm);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;flex-shrink:0}
 .save-btn:active{background:var(--gm);color:#fff}
 .gc-fetch-btn{width:34px;height:36px;background:#fff;border:1.5px solid var(--bdr);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;flex-shrink:0;font-size:14px}
@@ -468,7 +472,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v14.3
+    Nassau Golf · Derrick GWC · v14.5
   </div>
 </div>
 </div>
@@ -706,6 +710,11 @@ function renderPlayers(){
   for(let i=0;i<5;i++){
     const act=i<G.n,nm=(G.players[i]&&G.players[i].name)||'',hx=(G.players[i]&&G.players[i].idx!==undefined)?G.players[i].idx:'';
     const gid=(G.players[i]&&G.players[i].golfId)||'';
+    const deck=(G.players[i]&&G.players[i].deck)||'DECK2';
+    const base=(G.players[i]&&G.players[i].hdcpBaseline);
+    const deckOpts=DECKS.map(d=>`<option value="${d}"${d===deck?' selected':''}>${d}</option>`).join('');
+    const adjNote=(base!==undefined && base!==null)
+      ? `${deck} · adjusted from ${base} (Golf Canada)` : '';
     h+=`<div class="p-row" id="prow${i}" style="${act?'':'opacity:.3;pointer-events:none'}">
       <div class="p-num" style="${act?'':'background:#ddd;color:#aaa'}">${i+1}</div>
       <div>
@@ -716,8 +725,13 @@ function renderPlayers(){
         <input type="text" id="gid${i}" placeholder="Golf Canada ID (10 digits)" value="${gid}" inputmode="numeric" pattern="[0-9]*" maxlength="10" class="golfid-input" oninput="highlightDuplicateRows()" ${act?'':'disabled'}>
         <div style="font-size:10px;color:#999;margin-top:2px;line-height:1.3">Optional — 10 Digit Golf Canada Member Number — to enable current Handicap Fetching</div>
         <div id="hdcpStamp${i}" class="hdcp-stamp">${G.players[i]&&G.players[i].hdcpFetchedAt?('🟢 Handicap current as of '+fmtFetchTime(G.players[i].hdcpFetchedAt)):''}</div>
+        <div class="deck-row">
+          <span class="deck-lbl">Tee</span>
+          <select id="deck${i}" class="deck-select" onchange="changeDeck(${i})" ${act?'':'disabled'}>${deckOpts}</select>
+          <span id="deckNote${i}" class="deck-note">${adjNote}</span>
+        </div>
       </div>
-      <div><input type="number" id="ph${i}" placeholder="0.0" step=".1" min="0" max="54" value="${hx}" style="width:64px" ${act?'':'disabled'}><div class="hlbl">Hdcp</div></div>
+      <div><input type="number" id="ph${i}" placeholder="0.0" step=".1" min="0" max="54" value="${hx}" style="width:64px" oninput="onHdcpTyped(${i})" ${act?'':'disabled'}><div class="hlbl">Hdcp</div></div>
       <div class="p-btnstack">
         <button class="gc-fetch-btn" id="gcbtn${i}" onclick="fetchHandicap(${i})" ${act?'':'disabled'} title="Fetch handicap from Golf Canada"><img src="${GC_LOGO}" alt="Golf Canada" class="gc-logo-img"></button>
         <div class="p-btnlbl">Fetch HCP</div>
@@ -898,6 +912,65 @@ function weatherSummaryLine(wStart, wEnd){
 // ── Auto-fetch handicaps (silent, freshness-windowed) ──
 const HDCP_FRESH_MS = 3 * 60 * 60 * 1000; // 3 hours — within this, skip re-fetching
 
+// ── Tee decks ──
+// Golf Canada returns a raw index; each deck computes a playing handicap from it:
+//   DECK1 = fetched × (121/113) + 0.9
+//   DECK2 = fetched × (119/113) − 0.4
+//   DECK3 = fetched × (117/113) − 2.9
+//   DECK4 = fetched × (109/113) − 5.9
+// Result is rounded to a whole number. Manually-typed handicaps are used as-is (no adjustment).
+const DECKS = ['DECK1','DECK2','DECK3','DECK4'];
+function deckAdjust(base, deck){
+  if(base===null || base===undefined || isNaN(base)) return base;
+  let v;
+  switch(deck){
+    case 'DECK1': v = base*(121/113) + 0.9; break;
+    case 'DECK3': v = base*(117/113) - 2.9; break;
+    case 'DECK4': v = base*(109/113) - 5.9; break;
+    default:      v = base*(119/113) - 0.4; break; // DECK2
+  }
+  return Math.round(v);
+}
+
+// Recompute and display the playing handicap for a row from its DECK2 baseline + selected deck.
+// Only applies when there's a fetched baseline; manually-typed handicaps are left untouched.
+function applyDeckToRow(i){
+  if(!G.players[i]) G.players[i]={};
+  const p=G.players[i];
+  const deckEl=document.getElementById('deck'+i);
+  const deck=deckEl?deckEl.value:(p.deck||'DECK2');
+  p.deck=deck;
+  const noteEl=document.getElementById('deckNote'+i);
+  const phEl=document.getElementById('ph'+i);
+  if(p.hdcpBaseline!==undefined && p.hdcpBaseline!==null && !isNaN(p.hdcpBaseline)){
+    const adj=deckAdjust(p.hdcpBaseline, deck);
+    p.idx=adj;
+    if(phEl) phEl.value=adj;
+    if(noteEl) noteEl.textContent = `${deck} · adjusted from ${p.hdcpBaseline} (Golf Canada)`;
+  } else {
+    // Manual handicap — no baseline, no adjustment. Clear any stale note.
+    if(noteEl) noteEl.textContent='';
+  }
+}
+
+// User changed the tee deck for a player.
+function changeDeck(i){
+  applyDeckToRow(i);
+}
+
+// User typed a handicap by hand — treat it as a literal playing handicap (no deck adjustment),
+// and drop any fetched baseline so deck changes won't override their manual number.
+function onHdcpTyped(i){
+  if(!G.players[i]) G.players[i]={};
+  const phEl=document.getElementById('ph'+i);
+  const v=phEl && phEl.value!=='' ? parseFloat(phEl.value) : undefined;
+  G.players[i].idx = (v!==undefined && !isNaN(v)) ? v : undefined;
+  G.players[i].hdcpBaseline = null;          // manual entry clears the fetched baseline
+  G.players[i].hdcpFetchedAt = null;         // and the "current as of" stamp no longer applies
+  const noteEl=document.getElementById('deckNote'+i); if(noteEl) noteEl.textContent='';
+  updateHdcpStamp(i, null);
+}
+
 function fmtFetchTime(iso){
   if(!iso) return '';
   const d = new Date(iso);
@@ -929,9 +1002,11 @@ async function silentFetchHandicap(i){
     const data = await res.json();
     const rec = Array.isArray(data.data) ? data.data[0] : data;
     if(!rec || rec.handicapValue===undefined) return false;
-    const phEl = document.getElementById('ph'+i);
-    if(phEl) phEl.value = rec.handicapValue;
-    autoSaveContact(i); // stamps hdcpFetchedAt + updates the display
+    // The fetched value is the DECK2 baseline; apply the player's deck to get the playing handicap.
+    if(!G.players[i]) G.players[i]={};
+    G.players[i].hdcpBaseline = rec.handicapValue;
+    applyDeckToRow(i);          // sets the adjusted value into the Hdcp field + G.players[i].idx
+    autoSaveContact(i);         // stamps hdcpFetchedAt + saves baseline + updates the display
     return true;
   }catch(e){ return false; }
 }
@@ -976,7 +1051,10 @@ async function fetchHandicap(i){
     const rec = Array.isArray(data.data) ? data.data[0] : data;
     if(!rec || rec.handicapValue===undefined) throw new Error('No handicap found for ID '+gid);
     const hv = rec.handicapValue;
-    document.getElementById(`ph${i}`).value = hv;
+    // The fetched value is the DECK2 baseline; apply the player's deck to get the playing handicap.
+    if(!G.players[i]) G.players[i]={};
+    G.players[i].hdcpBaseline = hv;
+    applyDeckToRow(i);
     autoSaveContact(i);   // lookup succeeded — save/update this player automatically
     btn.innerHTML='✓';
     setTimeout(()=>{ btn.innerHTML=`<img src="${GC_LOGO}" alt="Golf Canada" class="gc-logo-img">`; btn.disabled=false; }, 1200);
@@ -1226,7 +1304,10 @@ function startRound(){
     if(isNaN(idx)){err.textContent=`Enter handicap for ${name}.`;return;}
     const gidRaw=((document.getElementById(`gid${i}`)||{}).value||'').trim();
     if(gidRaw && !/^\d{10}$/.test(gidRaw)){err.textContent=`Golf Canada ID for ${name} must be 10 digits.`;return;}
-    G.players.push({name,idx,golfId:gidRaw,playHdcp:0,strokes:[]});
+    const deckEl=document.getElementById(`deck${i}`);
+    const deck=deckEl?deckEl.value:'DECK2';
+    const baseline=(G.players[i]&&G.players[i].hdcpBaseline!==undefined)?G.players[i].hdcpBaseline:null;
+    G.players.push({name,idx,golfId:gidRaw,deck,hdcpBaseline:baseline,playHdcp:0,strokes:[]});
   }
 
   // Block duplicate golfers — each player must be unique (by name or Golf Canada ID).
@@ -2084,7 +2165,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v14.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v14.5</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2255,7 +2336,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v14.3</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v14.5</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2748,7 +2829,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v14.3</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v14.5</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3897,7 +3978,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v14.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v14.5</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4003,7 +4084,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v14.3</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v14.5</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4099,7 +4180,7 @@ function openHistoryDetail(i){
     G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v14.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v14.5</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4500,7 +4581,19 @@ function autofillFavorites(onlyIfEmpty){
   }
   G.n = Math.min(MAX_FAVORITES, Math.max(2, favs.length));
   document.getElementById('cntVal').textContent=G.n;
-  G.players = favs.map(c=>({name:c.name, idx:c.idx, golfId:c.golfId||'', hdcpFetchedAt:c.hdcpFetchedAt||null}));
+  G.players = favs.map(c=>{
+    const hasGC = !!c.golfId;
+    return {
+      name:c.name,
+      golfId:c.golfId||'',
+      hdcpFetchedAt:c.hdcpFetchedAt||null,
+      deck:'DECK2',
+      // Fetched contacts: stored idx is the raw Golf Canada baseline — apply the deck (DECK2
+      // is itself a calculation now). Manual contacts: stored idx is the literal handicap.
+      hdcpBaseline: hasGC ? c.idx : null,
+      idx: hasGC ? deckAdjust(c.idx, 'DECK2') : c.idx
+    };
+  });
   renderPlayers();
   renderAllPairOptions();
   highlightDuplicateRows();
@@ -4542,8 +4635,13 @@ function saveContact(i){
 // Quietly save/update a contact after a successful Golf Canada lookup (no confirm dialogs).
 function autoSaveContact(i){
   const name = ((document.getElementById(`pn${i}`)||{}).value||'').trim();
-  const idx  = parseFloat((document.getElementById(`ph${i}`)||{}).value);
   const golfId = ((document.getElementById(`gid${i}`)||{}).value||'').trim();
+  const p = G.players[i] || {};
+  // Store the DECK2 baseline as the contact's index (deck-neutral). For fetched players that's
+  // the baseline; for manual players (no baseline) it's the typed value.
+  const idx = (p.hdcpBaseline!==undefined && p.hdcpBaseline!==null && !isNaN(p.hdcpBaseline))
+    ? p.hdcpBaseline
+    : parseFloat((document.getElementById(`ph${i}`)||{}).value);
   if(!name || isNaN(idx)) return; // need at least a name and handicap
   const now = new Date().toISOString();
   const contacts = loadContacts();
@@ -4648,12 +4746,25 @@ function selectContact(i){
   const c = contacts.find(c=>c.name===sel.value);
   if(!c) return;
   document.getElementById(`pn${i}`).value = c.name;
-  document.getElementById(`ph${i}`).value = c.idx;
   const gidEl = document.getElementById(`gid${i}`);
   if(gidEl) gidEl.value = c.golfId || '';
   if(!G.players[i]) G.players[i]={};
-  G.players[i].name=c.name; G.players[i].idx=c.idx; G.players[i].golfId=c.golfId||'';
+  G.players[i].name=c.name; G.players[i].golfId=c.golfId||'';
   G.players[i].hdcpFetchedAt=c.hdcpFetchedAt||null;
+  // Keep whatever deck is currently selected on the row (default DECK2).
+  const deckEl=document.getElementById('deck'+i);
+  G.players[i].deck = deckEl ? deckEl.value : (G.players[i].deck||'DECK2');
+  if(c.golfId){
+    // Fetched/Golf-Canada contact: stored idx is the DECK2 baseline — apply the deck.
+    G.players[i].hdcpBaseline = c.idx;
+    applyDeckToRow(i);
+  } else {
+    // Manual contact: use the stored handicap as-is, no deck adjustment.
+    G.players[i].hdcpBaseline = null;
+    G.players[i].idx = c.idx;
+    document.getElementById(`ph${i}`).value = c.idx;
+    const noteEl=document.getElementById('deckNote'+i); if(noteEl) noteEl.textContent='';
+  }
   updateHdcpStamp(i, c.hdcpFetchedAt||null);
   renderAllPairOptions();
   highlightDuplicateRows();
@@ -4698,7 +4809,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v14.3';
+const CACHE='nassau-v14.5';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
