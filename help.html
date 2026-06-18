@@ -41,7 +41,7 @@
 <header>
   <a class="back" href="./">‹ Back</a>
   <h1>Help &amp; Guide</h1>
-  <span class="ver">v13.9</span>
+  <span class="ver">v14.7</span>
 </header>
 <div class="wrap" id="top">
 
@@ -93,15 +93,16 @@
   <li>Tap the <b>⭐ Favorites</b> button at the top of the setup screen.</li>
   <li>Star (☆ → ★) up to five players you golf with regularly.</li>
   <li>Mark one of them as <b>"Me"</b> — that's you, the scorekeeper. You always go in slot 1. (Marking yourself also stars you automatically.)</li>
+  <li>Optionally, set each player's default tee deck using the Tee dropdown beside their name. When favorites load, each golfer comes in on their own default deck.</li>
 </ol>
-<p>From then on, your favorites pre-fill the player rows automatically — every time you start a New Round, and whenever you open the app fresh. "Me" lands in slot 1, then the other favorites follow.</p>
+<p>From then on, your favorites pre-fill the player rows automatically — every time you start a New Round, and whenever you open the app fresh. "Me" lands in slot 1, then the other favorites follow, each on their saved default tee deck with the handicap already adjusted.</p>
 <ul>
   <li>There is also a <b>⭐ Load My Favorites</b> button on the setup screen to pull them in on demand at any time.</li>
   <li>Auto-fill only happens when the rows are empty, so it never overwrites names you've already started typing.</li>
-  <li>Everything stays editable — favorites are just a starting point. Adjust the count, swap people in or out, or change handicaps as usual.</li>
+  <li>Everything stays editable — favorites are just a starting point. Adjust the count, swap people in or out, change a deck for a one-off round, or change handicaps as usual.</li>
   <li>You can have at most five favorites; to add another, unstar one first.</li>
 </ul>
-<div class="note">Favorites are stored with your saved players, so they're included in your backups.</div>
+<div class="note">Favorites — including each player's default tee deck — are stored with your saved players, so they're included in your backups.</div>
 
 <h3>Looking Up a Handicap from Golf Canada</h3>
 <p>If a player has a Golf Canada Member ID, you can pull their current handicap index automatically instead of typing it. Each player row has two stacked buttons on the right: the Golf Canada logo (lookup) on top, and the 💾 save disk below.</p>
@@ -116,6 +117,33 @@
 <p>On the Golf Canada website, do a Handicap Lookup for the golfer. Their 10-digit Golf Canada Member Number appears just under their name, as highlighted below:</p>
 <img src="gc_id.jpg" alt="Golf Canada member number shown under the golfer's name" style="width:100%;max-width:480px;border:1px solid rgba(201,168,76,.3);border-radius:8px;margin:8px 0;display:block">
 <p>Enter that number in the player's Golf Canada Member Number field on the setup screen, then tap the Golf Canada logo button to fetch the current handicap.</p>
+
+<h3>Automatic Handicap Refresh</h3>
+<p>Once a player has a Golf Canada Member Number saved, the app keeps their handicap current for you. Whenever players are loaded — favorites filling in on a new round, opening the app, or picking a saved player — the app quietly refreshes their handicap in the background.</p>
+<ul>
+  <li>A green line under the Member Number field shows when it was last refreshed, e.g. "🟢 Handicap current as of Jun 18, 1:45 PM."</li>
+  <li>To avoid unnecessary lookups, a handicap is only re-fetched if it's more than about three hours old. Recently-fetched handicaps are left as they are.</li>
+  <li>Auto-refresh is silent — if you're offline or haven't set up your Golf Canada login yet, it simply leaves the existing handicap in place with no error pop-ups.</li>
+  <li>You can always force a fresh lookup at any time by tapping the Golf Canada logo button.</li>
+</ul>
+<div class="note">The very first time on a new device you'll set up your Golf Canada login once (by tapping the logo button). After that, the automatic refresh reuses it.</div>
+
+<h3>Tee Decks &amp; Handicap Adjustment</h3>
+<p>Each golfer can select which tee deck they are playing — DECK1, DECK2, DECK3, or DECK4 — from the Tee dropdown on their player row. Because a handicap changes with the tees played, the app adjusts the fetched Golf Canada index for the chosen deck and rounds it to a whole number, which becomes that player's playing handicap for all match calculations.</p>
+<table>
+  <tr><th>Tee Deck</th><th>Playing handicap (from the fetched Golf Canada index)</th></tr>
+  <tr><td>DECK1</td><td>round( index × 121 ÷ 113 + 0.9 )</td></tr>
+  <tr><td>DECK2</td><td>round( index × 119 ÷ 113 − 0.4 )</td></tr>
+  <tr><td>DECK3</td><td>round( index × 117 ÷ 113 − 2.9 )</td></tr>
+  <tr><td>DECK4</td><td>round( index × 109 ÷ 113 − 5.9 )</td></tr>
+</table>
+<ul>
+  <li>Each player's handicap shows as two stacked boxes: the top box ("Index") is the Golf Canada index in decimals (e.g. 7.5), and the bottom box ("DECK adjusted") is the rounded whole-number playing handicap for the selected deck. The DECK adjusted number is what drives the matches.</li>
+  <li>A note beside the Tee dropdown shows how it was derived, e.g. "DECK1 · from index 7.5 (Golf Canada)."</li>
+  <li>Switching decks recalculates the DECK adjusted box instantly from the index, so you can change tees as many times as you like and the handicap always stays correct.</li>
+  <li>New players default to DECK2. If your whole group plays the same tees, just leave it.</li>
+</ul>
+<div class="warn">⚠️ A handicap you type in by hand is used exactly as entered — no deck adjustment is applied. (Typing a number also clears any fetched value, so the Tee selector won't change it.) Use the Golf Canada lookup if you want the automatic per-deck adjustment.</div>
 
 <h3>Choosing a Starting Hole</h3>
 <p>For shotgun-start tournaments, use the Starting Hole selector to choose which hole your group tees off on (1–18). All scoring, match calculations, and hole badges throughout the app adjust automatically.</p>
@@ -303,7 +331,7 @@
 <p>Check the 10-digit Golf Canada Member ID and that your Golf Canada login is correct. You can always type a handicap in manually instead.</p>
 <a class="top" href="#top">↑ Back to top</a>
 
-<p style="text-align:center;color:rgba(255,255,255,.4);font-size:11px;margin-top:30px">Nassau Golf · Derrick GWC · v13.9</p>
+<p style="text-align:center;color:rgba(255,255,255,.4);font-size:11px;margin-top:30px">Nassau Golf · Derrick GWC · v14.7</p>
 
 </div>
 </body>
