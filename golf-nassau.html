@@ -47,6 +47,13 @@ input::placeholder{color:#bbb}
 .hlbl{font-size:11px;color:var(--inkl);text-align:center;margin-top:2px}
 .p-row{display:grid;grid-template-columns:28px 1fr 72px 36px;gap:6px;align-items:start;margin-bottom:10px}
 .p-row.p-dup{outline:2px solid var(--red);outline-offset:3px;border-radius:8px}
+.fav-row{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid #eee}
+.fav-row:last-child{border-bottom:none}
+.fav-star{flex:none;width:38px;height:38px;border:none;background:none;font-size:24px;color:var(--gold);cursor:pointer;-webkit-tap-highlight-color:transparent;line-height:1}
+.fav-star.on{color:var(--gold)}
+.fav-name{flex:1;font-size:15px;font-weight:600;color:#222}
+.fav-me{flex:none;border:1.5px solid var(--gm);background:#fff;color:var(--gm);border-radius:14px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.fav-me.on{background:var(--gm);color:#fff}
 .p-row.p-dup input[type=text]{border-color:var(--red);background:#fff5f4}
 .p-btnstack{display:flex;flex-direction:column;gap:6px;align-items:center}
 .save-btn{width:28px;height:36px;background:var(--gp);border:1.5px solid var(--gm);border-radius:8px;color:var(--gm);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;flex-shrink:0}
@@ -380,7 +387,11 @@ input::placeholder{color:#bbb}
 <div class="screen active" id="screen-setup">
 <div class="setup">
 
-  <button class="view-history-btn" onclick="showS('history')">📜 View Round History</button>
+  <div style="display:flex;gap:8px;margin-bottom:14px">
+    <button class="view-history-btn" style="margin-bottom:0;flex:1" onclick="showS('history')">📜 History</button>
+    <button class="view-history-btn" style="margin-bottom:0;flex:1" onclick="openFavorites()">⭐ Favorites</button>
+  </div>
+  <button class="view-history-btn" onclick="autofillFavorites(false)" style="background:var(--gold);color:var(--gd);border-color:var(--gold)">⭐ Load My Favorites</button>
 
   <div class="slabel">Number of Players</div>
   <div class="card">
@@ -455,7 +466,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v13.2
+    Nassau Golf · Derrick GWC · v13.3
   </div>
 </div>
 </div>
@@ -2009,7 +2020,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.2</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.3</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2180,7 +2191,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v13.2</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v13.3</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2688,7 +2699,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.2</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.3</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3417,6 +3428,8 @@ function confirmNewRound(){
   renderPlayers();
   renderAllPairOptions();
   renderSingles();
+  // Auto-populate the new round with the player's favorites (Me first, then the rest).
+  autofillFavorites(true);
 }
 
 /* ═══════════════════════════════════════════════
@@ -3835,7 +3848,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.2</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.3</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -3941,7 +3954,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.2</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.3</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4037,7 +4050,7 @@ function openHistoryDetail(i){
     G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v13.2</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v13.3</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4334,6 +4347,108 @@ function loadContacts(){
 function saveContacts(contacts){
   try{ localStorage.setItem('nassau_contacts', JSON.stringify(contacts)); }catch(e){}
 }
+
+// ── Favorites ──
+// Up to 5 saved players can be marked as favorites; exactly one of them can be "Me"
+// (the scorekeeper), who always fills slot 1. Stored as fav:true / me:true on the contact.
+const MAX_FAVORITES = 5;
+
+function loadFavorites(){
+  // Returns favorites in fill order: "Me" first, then the rest alphabetically.
+  const favs = loadContacts().filter(c=>c.fav);
+  favs.sort((a,b)=>{
+    if(a.me && !b.me) return -1;
+    if(b.me && !a.me) return 1;
+    return a.name.localeCompare(b.name);
+  });
+  return favs.slice(0, MAX_FAVORITES);
+}
+
+function countFavorites(){ return loadContacts().filter(c=>c.fav).length; }
+
+// Toggle a contact's favorite flag (by name). Enforces the 5-favorite cap.
+function toggleFavorite(name){
+  const contacts = loadContacts();
+  const c = contacts.find(x=>x.name===name);
+  if(!c) return;
+  if(!c.fav){
+    if(contacts.filter(x=>x.fav).length >= MAX_FAVORITES){
+      alert(`You can have up to ${MAX_FAVORITES} favorites. Unstar one first.`);
+      return;
+    }
+    c.fav = true;
+  } else {
+    c.fav = false;
+    if(c.me) c.me = false; // un-favoriting also clears the "Me" flag
+  }
+  saveContacts(contacts);
+  renderFavoritesList();
+}
+
+// Mark a favorite as "Me" (the scorekeeper). Only one contact can be "Me".
+function setMe(name){
+  const contacts = loadContacts();
+  contacts.forEach(c=>{ c.me = (c.name===name); if(c.me) c.fav = true; });
+  saveContacts(contacts);
+  renderFavoritesList();
+}
+
+// ── Favorites manager overlay ──
+function openFavorites(){
+  const ex=document.getElementById('favOverlay'); if(ex) ex.remove();
+  const overlay=document.createElement('div');
+  overlay.className='mm-overlay'; overlay.id='favOverlay';
+  overlay.innerHTML=`
+    <div class="mm-sheet">
+      <div class="mm-hdr">
+        <div class="mm-title">⭐ Favorites</div>
+        <button class="mm-close" onclick="document.getElementById('favOverlay').remove()">Done</button>
+      </div>
+      <div style="font-size:12px;color:#666;margin:0 0 10px">Star up to ${MAX_FAVORITES} players you golf with regularly — they’ll auto-fill each new round. Mark one as <b>“Me”</b> (the scorekeeper); you always go in slot 1.</div>
+      <div class="card" id="favList"></div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click',e=>{ if(e.target===overlay) overlay.remove(); });
+  renderFavoritesList();
+}
+
+function renderFavoritesList(){
+  const box=document.getElementById('favList');
+  if(!box) return;
+  const contacts = loadContacts().slice().sort((a,b)=>a.name.localeCompare(b.name));
+  if(!contacts.length){
+    box.innerHTML=`<div style="font-size:13px;color:#888;text-align:center;padding:14px">No saved players yet. Save a player on the setup screen (💾) first, then come back to star your regulars.</div>`;
+    return;
+  }
+  const favCount = contacts.filter(c=>c.fav).length;
+  box.innerHTML = `<div style="font-size:11px;color:#888;margin:0 0 8px">${favCount} of ${MAX_FAVORITES} favorites selected</div>` +
+    contacts.map(c=>`
+    <div class="fav-row">
+      <button class="fav-star ${c.fav?'on':''}" onclick="toggleFavorite('${c.name.replace(/'/g,"\\'")}')" title="Toggle favorite">${c.fav?'★':'☆'}</button>
+      <div class="fav-name">${c.name} <span style="color:#999;font-weight:400">(${c.idx})</span></div>
+      <button class="fav-me ${c.me?'on':''}" onclick="setMe('${c.name.replace(/'/g,"\\'")}')" title="This is me (scorekeeper)">${c.me?'✓ Me':'Me'}</button>
+    </div>`).join('');
+}
+
+// Fill the setup player rows from favorites: "Me" in slot 1, then the rest.
+// onlyIfEmpty=true means don't overwrite rows that already have names typed.
+function autofillFavorites(onlyIfEmpty){
+  const favs = loadFavorites();
+  if(!favs.length) return false;
+  if(onlyIfEmpty){
+    const anyTyped = Array.from({length:5}, (_,i)=>document.getElementById('pn'+i))
+      .some(el=>el && el.value.trim()!=='');
+    if(anyTyped) return false;
+  }
+  G.n = Math.min(MAX_FAVORITES, Math.max(2, favs.length));
+  document.getElementById('cntVal').textContent=G.n;
+  G.players = favs.map(c=>({name:c.name, idx:c.idx, golfId:c.golfId||''}));
+  renderPlayers();
+  renderAllPairOptions();
+  highlightDuplicateRows();
+  return true;
+}
+
 function saveContact(i){
   const name = document.getElementById(`pn${i}`).value.trim();
   const idx  = parseFloat(document.getElementById(`ph${i}`).value);
@@ -4503,6 +4618,9 @@ renderAllPairOptions();initSetup();startNamesPoll();
     t.style.cssText='position:fixed;top:72px;left:50%;transform:translateX(-50%);background:var(--gm);color:#fff;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;z-index:999;pointer-events:none';
     document.body.appendChild(t);
     setTimeout(()=>t.remove(),2500);
+  } else {
+    // Fresh launch on the setup screen — pre-fill the player rows from favorites.
+    autofillFavorites(true);
   }
 })();
 </script>
@@ -4510,7 +4628,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v13.2';
+const CACHE='nassau-v13.3';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html']))
