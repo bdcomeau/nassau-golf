@@ -480,7 +480,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v15.6
+    Nassau Golf · Derrick GWC · v15.7
   </div>
 </div>
 </div>
@@ -936,20 +936,24 @@ const HDCP_FRESH_MS = 3 * 60 * 60 * 1000; // 3 hours — within this, skip re-fe
 
 // ── Tee decks ──
 // Golf Canada returns a raw index; each deck computes a playing handicap from it:
-//   DECK1 = fetched × (121/113) + 0.9
-//   DECK2 = fetched × (119/113) − 0.4
-//   DECK3 = fetched × (117/113) − 2.9
-//   DECK4 = fetched × (109/113) − 5.9
+//   DECK1   = fetched × (121/113) + 0.9
+//   DECK1/2 = fetched × (120/113) + 0.2
+//   DECK2   = fetched × (119/113) − 0.4
+//   DECK2/3 = fetched × (118/113) − 0.8
+//   DECK3   = fetched × (117/113) − 2.9
+//   DECK4   = fetched × (109/113) − 5.9
 // Result is rounded to a whole number. Manually-typed handicaps are used as-is (no adjustment).
-const DECKS = ['DECK1','DECK2','DECK3','DECK4'];
+const DECKS = ['DECK1','DECK1/2','DECK2','DECK2/3','DECK3','DECK4'];
 function deckAdjust(base, deck){
   if(base===null || base===undefined || isNaN(base)) return base;
   let v;
   switch(deck){
-    case 'DECK1': v = base*(121/113) + 0.9; break;
-    case 'DECK3': v = base*(117/113) - 2.9; break;
-    case 'DECK4': v = base*(109/113) - 5.9; break;
-    default:      v = base*(119/113) - 0.4; break; // DECK2
+    case 'DECK1':   v = base*(121/113) + 0.9; break;
+    case 'DECK1/2': v = base*(120/113) + 0.2; break;
+    case 'DECK2/3': v = base*(118/113) - 0.8; break;
+    case 'DECK3':   v = base*(117/113) - 2.9; break;
+    case 'DECK4':   v = base*(109/113) - 5.9; break;
+    default:        v = base*(119/113) - 0.4; break; // DECK2
   }
   return Math.round(v);
 }
@@ -2210,7 +2214,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v15.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v15.7</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2381,7 +2385,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v15.6</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v15.7</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2877,7 +2881,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v15.6</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v15.7</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4044,7 +4048,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v15.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v15.7</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4150,7 +4154,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v15.6</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v15.7</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4246,7 +4250,7 @@ function openHistoryDetail(i){
     G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v15.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v15.7</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4896,7 +4900,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v15.6';
+const CACHE='nassau-v15.7';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
