@@ -455,7 +455,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v13.1
+    Nassau Golf · Derrick GWC · v13.2
   </div>
 </div>
 </div>
@@ -691,8 +691,8 @@ function renderPlayers(){
     : `<option value="">No saved players</option>`;
   let h='';
   for(let i=0;i<5;i++){
-    const act=i<G.n,nm=G.players[i]?.name||'',hx=G.players[i]?.idx!==undefined?G.players[i].idx:'';
-    const gid=G.players[i]?.golfId||'';
+    const act=i<G.n,nm=(G.players[i]&&G.players[i].name)||'',hx=(G.players[i]&&G.players[i].idx!==undefined)?G.players[i].idx:'';
+    const gid=(G.players[i]&&G.players[i].golfId)||'';
     h+=`<div class="p-row" id="prow${i}" style="${act?'':'opacity:.3;pointer-events:none'}">
       <div class="p-num" style="${act?'':'background:#ddd;color:#aaa'}">${i+1}</div>
       <div>
@@ -879,7 +879,7 @@ function weatherSummaryLine(wStart, wEnd){
 }
 
 async function fetchHandicap(i){
-  const gid=(document.getElementById(`gid${i}`)?.value||'').trim();
+  const gid=((document.getElementById(`gid${i}`)||{}).value||'').trim();
   if(!/^\d{10}$/.test(gid)){ alert('Enter the 10-digit Golf Canada ID for this player first.'); return; }
 
   let cfg=gcConfig();
@@ -946,7 +946,7 @@ function allPairCombos(){
   return u;
 }
 
-function names(){return Array.from({length:G.n},(_,i)=>document.getElementById(`pn${i}`)?.value.trim()||`P${i+1}`);}
+function names(){return Array.from({length:G.n},(_,i)=>((document.getElementById(`pn${i}`)||{}).value||'').trim()||`P${i+1}`);}
 
 // Poll player name fields every 400ms while on setup screen — catches typing, paste,
 // autocomplete, and programmatic changes that don't fire oninput reliably on iOS PWA.
@@ -1149,7 +1149,7 @@ function startRound(){
     const name=document.getElementById(`pn${i}`).value.trim()||`Player ${i+1}`;
     const idx=parseFloat(document.getElementById(`ph${i}`).value);
     if(isNaN(idx)){err.textContent=`Enter handicap for ${name}.`;return;}
-    const gidRaw=(document.getElementById(`gid${i}`)?.value||'').trim();
+    const gidRaw=((document.getElementById(`gid${i}`)||{}).value||'').trim();
     if(gidRaw && !/^\d{10}$/.test(gidRaw)){err.textContent=`Golf Canada ID for ${name} must be 10 digits.`;return;}
     G.players.push({name,idx,golfId:gidRaw,playHdcp:0,strokes:[]});
   }
@@ -2009,7 +2009,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.2</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2058,6 +2058,8 @@ function internationalAvailableForAnyMatch(){
 function renderCard(){
   const h=G.hole; // actual hole array index (0-17)
   const playIdx=playOrderIdx(h); // 0-17: which hole-played-number this is (0 = 1st hole played)
+  // Clear any stale missing-score warning whenever the hole view (re)renders.
+  const _he=document.getElementById('holeErr'); if(_he) _he.style.display='none';
   document.getElementById('hnum').textContent=`Hole ${h+1}`;
   document.getElementById('hmeta').textContent = G.startHole>1
     ? `Par ${G.par[h]} · HCP ${G.si[h]} · ${ordinal(playIdx+1)} hole played`
@@ -2178,7 +2180,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v13.1</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v13.2</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2686,7 +2688,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.1</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.2</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3269,7 +3271,7 @@ function showS(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(`screen-${name}`).classList.add('active');
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
-  document.getElementById(`ni-${name}`)?.classList.add('active');
+  { const _ni=document.getElementById(`ni-${name}`); if(_ni) _ni.classList.add('active'); }
   if(name==='setup') startNamesPoll(); else stopNamesPoll();
   if(name==='bets')renderBets();
   if(name==='score')renderCard();
@@ -3833,7 +3835,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.2</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -3939,7 +3941,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.1</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.2</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4035,7 +4037,7 @@ function openHistoryDetail(i){
     G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v13.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v13.2</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4335,7 +4337,7 @@ function saveContacts(contacts){
 function saveContact(i){
   const name = document.getElementById(`pn${i}`).value.trim();
   const idx  = parseFloat(document.getElementById(`ph${i}`).value);
-  const golfId = (document.getElementById(`gid${i}`)?.value||'').trim();
+  const golfId = ((document.getElementById(`gid${i}`)||{}).value||'').trim();
   if(!name){ alert('Enter a name first'); return; }
   if(isNaN(idx)){ alert('Enter a handicap first'); return; }
   if(golfId && !/^\d{10}$/.test(golfId)){ alert('Golf Canada ID must be 10 digits'); return; }
@@ -4365,9 +4367,9 @@ function saveContact(i){
 
 // Quietly save/update a contact after a successful Golf Canada lookup (no confirm dialogs).
 function autoSaveContact(i){
-  const name = (document.getElementById(`pn${i}`)?.value||'').trim();
-  const idx  = parseFloat(document.getElementById(`ph${i}`)?.value);
-  const golfId = (document.getElementById(`gid${i}`)?.value||'').trim();
+  const name = ((document.getElementById(`pn${i}`)||{}).value||'').trim();
+  const idx  = parseFloat((document.getElementById(`ph${i}`)||{}).value);
+  const golfId = ((document.getElementById(`gid${i}`)||{}).value||'').trim();
   if(!name || isNaN(idx)) return; // need at least a name and handicap
   const contacts = loadContacts();
   const exact = contacts.findIndex(c=>c.name.toLowerCase()===name.toLowerCase());
@@ -4508,7 +4510,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v13.1';
+const CACHE='nassau-v13.2';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html']))
