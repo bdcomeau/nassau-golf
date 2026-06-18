@@ -57,6 +57,7 @@ input::placeholder{color:#bbb}
 .p-row.p-dup input[type=text]{border-color:var(--red);background:#fff5f4}
 .p-btnstack{display:flex;flex-direction:column;gap:2px;align-items:center}
 .p-btnlbl{font-size:9px;color:#999;line-height:1;margin-bottom:4px;white-space:nowrap;text-align:center}
+.hdcp-stamp{font-size:10px;color:var(--gm);font-weight:600;margin-top:3px;line-height:1.3;min-height:0}
 .save-btn{width:28px;height:36px;background:var(--gp);border:1.5px solid var(--gm);border-radius:8px;color:var(--gm);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;flex-shrink:0}
 .save-btn:active{background:var(--gm);color:#fff}
 .gc-fetch-btn{width:34px;height:36px;background:#fff;border:1.5px solid var(--bdr);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;flex-shrink:0;font-size:14px}
@@ -467,7 +468,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v14.2
+    Nassau Golf · Derrick GWC · v14.3
   </div>
 </div>
 </div>
@@ -714,6 +715,7 @@ function renderPlayers(){
         </select>
         <input type="text" id="gid${i}" placeholder="Golf Canada ID (10 digits)" value="${gid}" inputmode="numeric" pattern="[0-9]*" maxlength="10" class="golfid-input" oninput="highlightDuplicateRows()" ${act?'':'disabled'}>
         <div style="font-size:10px;color:#999;margin-top:2px;line-height:1.3">Optional — 10 Digit Golf Canada Member Number — to enable current Handicap Fetching</div>
+        <div id="hdcpStamp${i}" class="hdcp-stamp">${G.players[i]&&G.players[i].hdcpFetchedAt?('🟢 Handicap current as of '+fmtFetchTime(G.players[i].hdcpFetchedAt)):''}</div>
       </div>
       <div><input type="number" id="ph${i}" placeholder="0.0" step=".1" min="0" max="54" value="${hx}" style="width:64px" ${act?'':'disabled'}><div class="hlbl">Hdcp</div></div>
       <div class="p-btnstack">
@@ -891,6 +893,64 @@ function weatherSummaryLine(wStart, wEnd){
   if(s) out += `<b>Start:</b> ${s}`;
   if(e) out += `${s?'<br>':''}<b>Finish:</b> ${e}`;
   return out;
+}
+
+// ── Auto-fetch handicaps (silent, freshness-windowed) ──
+const HDCP_FRESH_MS = 3 * 60 * 60 * 1000; // 3 hours — within this, skip re-fetching
+
+function fmtFetchTime(iso){
+  if(!iso) return '';
+  const d = new Date(iso);
+  if(isNaN(d)) return '';
+  const date = d.toLocaleDateString(undefined, {month:'short', day:'numeric'});
+  const time = d.toLocaleTimeString(undefined, {hour:'numeric', minute:'2-digit'});
+  return `${date}, ${time}`;
+}
+
+// Update the "Handicap current as of…" line under a player's ID field.
+function updateHdcpStamp(i, iso){
+  const el = document.getElementById('hdcpStamp'+i);
+  if(!el) return;
+  el.textContent = iso ? ('🟢 Handicap current as of ' + fmtFetchTime(iso)) : '';
+}
+
+// Silent handicap fetch for one row — no alerts, no login prompts. Returns true on success.
+async function silentFetchHandicap(i){
+  const gid = ((document.getElementById('gid'+i)||{}).value||'').trim();
+  if(!/^\d{10}$/.test(gid)) return false;
+  const cfg = gcConfig();
+  if(!cfg.worker || !cfg.username || !cfg.password) return false; // not set up — stay silent
+  try{
+    const token = await gcGetToken(cfg);
+    const res = await fetch(cfg.worker.replace(/\/+$/,'')+'/handicap?cardId='+encodeURIComponent(gid), {
+      headers:{'Authorization':'Bearer '+token}
+    });
+    if(!res.ok) return false;
+    const data = await res.json();
+    const rec = Array.isArray(data.data) ? data.data[0] : data;
+    if(!rec || rec.handicapValue===undefined) return false;
+    const phEl = document.getElementById('ph'+i);
+    if(phEl) phEl.value = rec.handicapValue;
+    autoSaveContact(i); // stamps hdcpFetchedAt + updates the display
+    return true;
+  }catch(e){ return false; }
+}
+
+// Fetch a row's handicap only if it's missing or older than the freshness window.
+function autoFetchIfStale(i){
+  const gid = ((document.getElementById('gid'+i)||{}).value||'').trim();
+  if(!/^\d{10}$/.test(gid)) return;
+  const last = G.players[i] && G.players[i].hdcpFetchedAt ? new Date(G.players[i].hdcpFetchedAt).getTime() : 0;
+  if(last && (Date.now() - last) < HDCP_FRESH_MS) return; // still fresh — leave it
+  silentFetchHandicap(i);
+}
+
+// Auto-refresh every active player with a Golf Canada ID whose handicap is stale.
+// Silent and best-effort: offline or un-set-up just leaves existing values.
+function autoFetchAllStale(){
+  const cfg = gcConfig();
+  if(!cfg.worker || !cfg.username || !cfg.password) return; // not configured — do nothing
+  for(let i=0;i<G.n;i++) autoFetchIfStale(i);
 }
 
 async function fetchHandicap(i){
@@ -2024,7 +2084,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v14.2</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v14.3</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2195,7 +2255,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v14.2</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v14.3</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2688,7 +2748,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v14.2</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v14.3</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3837,7 +3897,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v14.2</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v14.3</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -3943,7 +4003,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v14.2</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v14.3</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4039,7 +4099,7 @@ function openHistoryDetail(i){
     G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v14.2</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v14.3</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4440,10 +4500,11 @@ function autofillFavorites(onlyIfEmpty){
   }
   G.n = Math.min(MAX_FAVORITES, Math.max(2, favs.length));
   document.getElementById('cntVal').textContent=G.n;
-  G.players = favs.map(c=>({name:c.name, idx:c.idx, golfId:c.golfId||''}));
+  G.players = favs.map(c=>({name:c.name, idx:c.idx, golfId:c.golfId||'', hdcpFetchedAt:c.hdcpFetchedAt||null}));
   renderPlayers();
   renderAllPairOptions();
   highlightDuplicateRows();
+  autoFetchAllStale(); // refresh any stale handicaps in the background (silent)
   return true;
 }
 
@@ -4484,17 +4545,22 @@ function autoSaveContact(i){
   const idx  = parseFloat((document.getElementById(`ph${i}`)||{}).value);
   const golfId = ((document.getElementById(`gid${i}`)||{}).value||'').trim();
   if(!name || isNaN(idx)) return; // need at least a name and handicap
+  const now = new Date().toISOString();
   const contacts = loadContacts();
   const exact = contacts.findIndex(c=>c.name.toLowerCase()===name.toLowerCase());
   if(exact>=0){
     contacts[exact].idx = idx;
     if(golfId) contacts[exact].golfId = golfId;
+    if(golfId) contacts[exact].hdcpFetchedAt = now; // this came from a Golf Canada fetch
   } else {
-    contacts.push({name, idx, golfId});
+    contacts.push({name, idx, golfId, hdcpFetchedAt: golfId?now:undefined});
     contacts.sort((a,b)=>a.name.localeCompare(b.name));
   }
   saveContacts(contacts);
+  // Stamp it on the in-memory player too, so the timestamp shows immediately.
+  if(G.players[i]) G.players[i].hdcpFetchedAt = now;
   refreshContactDropdown(i);
+  updateHdcpStamp(i, now);
 }
 
 function finishSaveContact(i, contacts){
@@ -4585,8 +4651,14 @@ function selectContact(i){
   document.getElementById(`ph${i}`).value = c.idx;
   const gidEl = document.getElementById(`gid${i}`);
   if(gidEl) gidEl.value = c.golfId || '';
+  if(!G.players[i]) G.players[i]={};
+  G.players[i].name=c.name; G.players[i].idx=c.idx; G.players[i].golfId=c.golfId||'';
+  G.players[i].hdcpFetchedAt=c.hdcpFetchedAt||null;
+  updateHdcpStamp(i, c.hdcpFetchedAt||null);
   renderAllPairOptions();
   highlightDuplicateRows();
+  // Refresh this player's handicap if it's stale (silent — no prompts/errors).
+  autoFetchIfStale(i);
 }
 function deleteContact(name){
   const contacts = loadContacts().filter(c=>c.name!==name);
@@ -4626,7 +4698,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v14.2';
+const CACHE='nassau-v14.3';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
