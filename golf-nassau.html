@@ -45,7 +45,7 @@ input[type=number]{text-align:center}
 input:focus{outline:none;border-color:var(--gm);background:#fff}
 input::placeholder{color:#bbb}
 .hlbl{font-size:11px;color:var(--inkl);text-align:center;margin-top:2px}
-.p-row{display:grid;grid-template-columns:28px 1fr 72px 36px;gap:6px;align-items:start;margin-bottom:10px}
+.p-row{display:grid;grid-template-columns:28px 1fr 64px 58px;gap:6px;align-items:start;margin-bottom:10px}
 .p-row.p-dup{outline:2px solid var(--red);outline-offset:3px;border-radius:8px}
 .fav-row{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid #eee}
 .fav-row:last-child{border-bottom:none}
@@ -55,7 +55,8 @@ input::placeholder{color:#bbb}
 .fav-me{flex:none;border:1.5px solid var(--gm);background:#fff;color:var(--gm);border-radius:14px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .fav-me.on{background:var(--gm);color:#fff}
 .p-row.p-dup input[type=text]{border-color:var(--red);background:#fff5f4}
-.p-btnstack{display:flex;flex-direction:column;gap:6px;align-items:center}
+.p-btnstack{display:flex;flex-direction:column;gap:2px;align-items:center}
+.p-btnlbl{font-size:9px;color:#999;line-height:1;margin-bottom:4px;white-space:nowrap;text-align:center}
 .save-btn{width:28px;height:36px;background:var(--gp);border:1.5px solid var(--gm);border-radius:8px;color:var(--gm);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;flex-shrink:0}
 .save-btn:active{background:var(--gm);color:#fff}
 .gc-fetch-btn{width:34px;height:36px;background:#fff;border:1.5px solid var(--bdr);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;flex-shrink:0;font-size:14px}
@@ -432,21 +433,21 @@ input::placeholder{color:#bbb}
   <div id="bettingSections">
   <div class="slabel">2v2 Nassau Games (High-Low)</div>
   <div class="card" id="teamGamesCard">
-    <div style="font-size:12px;color:#666;margin:0 0 8px">Tap a pairing to add it as a game, then set the bet amount.</div>
+    <div style="font-size:12px;color:#666;margin:0 0 8px">Select as many pairings as you wish — Nassau Golf will score all of them. Tap a pairing to add it, then set the bet amount.</div>
     <div id="pairGrid"></div>
     <div id="teamGamesList"></div>
   </div>
 
   <div class="slabel">1v1 Nassau Games</div>
   <div class="card" id="singlesCard">
-    <div style="font-size:12px;color:#666;margin:0 0 8px">Tap a matchup to add it, then set the bet amount.</div>
+    <div style="font-size:12px;color:#666;margin:0 0 8px">Select as many matchups as you wish — Nassau Golf will score all of them. Tap a matchup to add it, then set the bet amount.</div>
     <div id="singlesGrid"></div>
     <div id="singleGamesList"></div>
   </div>
 
   <div class="slabel">6-Point Game</div>
   <div class="card" id="sixPointCard">
-    <div style="font-size:12px;color:#666;margin:0 0 8px">Pick any 3 players for a separate 6-Point game (full handicap, net, no presses — 6 points up for grabs every hole).</div>
+    <div style="font-size:12px;color:#666;margin:0 0 8px">Pick any 3 players for a separate 6-Point game (lowest player dropped to 0, net, no presses — 6 points up for grabs every hole).</div>
     <div id="sixPointGrid"></div>
     <div id="sixPointGamesList"></div>
   </div>
@@ -466,7 +467,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v13.3
+    Nassau Golf · Derrick GWC · v13.6
   </div>
 </div>
 </div>
@@ -712,11 +713,14 @@ function renderPlayers(){
           ${contactOpts}
         </select>
         <input type="text" id="gid${i}" placeholder="Golf Canada ID (10 digits)" value="${gid}" inputmode="numeric" pattern="[0-9]*" maxlength="10" class="golfid-input" oninput="highlightDuplicateRows()" ${act?'':'disabled'}>
+        <div style="font-size:10px;color:#999;margin-top:2px;line-height:1.3">10-digit Golf Canada / Score Centre member number — used to auto-fetch the handicap. Find it on your Golf Canada profile.</div>
       </div>
       <div><input type="number" id="ph${i}" placeholder="0.0" step=".1" min="0" max="54" value="${hx}" style="width:64px" ${act?'':'disabled'}><div class="hlbl">Hdcp</div></div>
       <div class="p-btnstack">
         <button class="gc-fetch-btn" id="gcbtn${i}" onclick="fetchHandicap(${i})" ${act?'':'disabled'} title="Fetch handicap from Golf Canada"><img src="${GC_LOGO}" alt="Golf Canada" class="gc-logo-img"></button>
+        <div class="p-btnlbl">Fetch HCP</div>
         <button class="save-btn" id="savebtn${i}" onclick="saveContact(${i})" ${act?'':'disabled'} title="Save player">💾</button>
+        <div class="p-btnlbl">Save Player</div>
       </div>
     </div>`;
   }
@@ -2020,7 +2024,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.6</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2191,7 +2195,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v13.3</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v13.6</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2699,7 +2703,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.3</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.6</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3848,7 +3852,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.6</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -3954,7 +3958,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.3</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.6</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4050,7 +4054,7 @@ function openHistoryDetail(i){
     G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v13.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v13.6</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4628,7 +4632,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v13.3';
+const CACHE='nassau-v13.6';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html']))
