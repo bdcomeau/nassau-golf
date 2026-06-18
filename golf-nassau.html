@@ -392,7 +392,7 @@ input::placeholder{color:#bbb}
     <button class="view-history-btn" style="margin-bottom:0;flex:1" onclick="showS('history')">📜 History</button>
     <button class="view-history-btn" style="margin-bottom:0;flex:1" onclick="openFavorites()">⭐ Favorites</button>
   </div>
-  <button class="view-history-btn" onclick="autofillFavorites(false)" style="background:var(--gold);color:var(--gd);border-color:var(--gold)">⭐ Load My Favorites</button>
+  <button class="view-history-btn" onclick="loadFavoritesButton()" style="background:var(--gold);color:var(--gd);border-color:var(--gold)">⭐ Load My Favorites</button>
 
   <div class="slabel">Number of Players</div>
   <div class="card">
@@ -467,7 +467,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v13.9
+    Nassau Golf · Derrick GWC · v14.2
   </div>
 </div>
 </div>
@@ -2024,7 +2024,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.9</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v14.2</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2195,7 +2195,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v13.9</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v14.2</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2407,7 +2407,7 @@ function renderMatchScorecard(m){
 
     tbl+=`<tr style="border-top:3px solid var(--gold)">
       <td class="gtl" colspan="${colSpan}" style="font-size:11px;font-weight:800">
-        ${gtWinner?gtWinner+' wins':'All Square'}
+        ${gtWinner?gtWinner+' '+((m.type==='2v2-combined')?'win':'wins'):'All Square'}
         <span style="color:var(--gold);margin-left:8px;font-size:13px">${gtAmtDisplay}</span>
       </td>`;
 
@@ -2473,7 +2473,7 @@ function buildInternationalPanel(m){
     if(intl.largePress<=0){
       // H17 complete, one side is down money, but nothing is out-of-band to bundle yet
       const callerLbl0 = intl.internationaleeSide==='A' ? m.labelA : m.labelB;
-      return `<div class="intl-panel"><div class="intl-txt" style="opacity:.7">${callerLbl0} is down after 17, but every game is still close — nothing to press yet.</div></div>`;
+      return `<div class="intl-panel"><div class="intl-txt" style="opacity:.7">${callerLbl0} ${(m.type==='2v2-combined')?'are':'is'} down after 17, but every game is still close — nothing to press yet.</div></div>`;
     }
     // Show the offer — available to the losing team after H17, with full payout scenarios.
     const callerLbl = intl.internationaleeSide==='A' ? m.labelA : m.labelB;
@@ -2522,11 +2522,6 @@ function buildInternationalPanel(m){
       if(intlNow) tA += intlNetToA(m, intlNow);
       return tA;
     }
-    function fmtA(v){
-      if(v>0) return `${m.labelA} win <b>$${Math.abs(v)}</b>`;
-      if(v<0) return `${m.labelB} win <b>$${Math.abs(v)}</b>`;
-      return `<b>all square</b>`;
-    }
 
     // Per-matchup total to Side A with NO International — every game (and press leg) settles
     // normally on the synthetic hole-18 scores. Lets the trailers see what they'd get if they
@@ -2557,9 +2552,9 @@ function buildInternationalPanel(m){
       pushScen(`${m.labelB} take one point (\u22121)`, [3,3],[0,3]); // B low wins, high tied
       pushScen(`${m.labelB} take both points (\u22122)`, [3,3],[0,0]);
     } else {
-      pushScen(`${m.labelA} win hole 18`, [0],[2]);
+      pushScen(`${m.labelA} wins hole 18`, [0],[2]);
       pushScen(`Hole 18 halved`,          [0],[0]);
-      pushScen(`${m.labelB} win hole 18`, [2],[0]);
+      pushScen(`${m.labelB} wins hole 18`, [2],[0]);
     }
 
     // Restore original hole-18 scores and flag
@@ -2595,7 +2590,7 @@ function buildInternationalPanel(m){
     return `<div class="intl-panel">
       <div class="intl-offer">
         <div class="intl-txt">The amount eligible for <b>The International</b> is <b>$${pot}</b>. Those games are marked with the 🌍 globe above — the remaining games play out normally.<br><br>
-          <b>${callerLbl}</b> is down money after 17 and may call it. Here is how the match settles for each hole-18 result:</div>
+          <b>${callerLbl}</b> ${(m.type==='2v2-combined')?'are':'is'} down money after 17 and may call it. Here is how the match settles for each hole-18 result:</div>
         ${scenHtml}
         <button class="intl-btn" onclick="activateInternational('${m.matchId}')">🌍 Call The International</button>
       </div>
@@ -2621,18 +2616,7 @@ function buildInternationalPanel(m){
     </div>`;
   }
 
-  // H18 settled — describe the outcome relative to the leader, using NET points on 18.
-  const leaderPts = intl.leaderSign>0 ? h18 : -h18;  // Leaders' net points on the hole
-  let resultTxt;
-  if(leaderPts > 0){
-    resultTxt = `${leaderLabel} (Leaders) won a point on 18 — the pot pays double ($${pot*2})`;
-  } else if(leaderPts < 0){
-    resultTxt = `${otherLabel} (Trailers) won a point on 18 — Trailers take the pot ($${pot})`;
-  } else {
-    resultTxt = `Hole 18 was a draw — ${leaderLabel} (Leaders) take the pot once ($${pot})`;
-  }
-
-  // Overall total for this match = normal (non-bucketed) settlement + bank + swing
+  // H18 settled — overall total for this match = normal (non-bucketed) settlement + swing
   const bucketed = intl.bucketedLabels;
   let totalA = 0;
   computeMatchGames(m).forEach(g=>{
@@ -2650,13 +2634,14 @@ function buildInternationalPanel(m){
 
   const overallWinner = totalA>0?m.labelA:totalA<0?m.labelB:null;
   const overallAmt = Math.abs(totalA);
+  // "wins" for a single player (1v1), "win" for a pair (2v2)
+  const winVerb = (m.type==='2v2-combined') ? 'win' : 'wins';
   const resultLine = overallWinner
-    ? `<b>${overallWinner}</b> wins <span style="font-size:16px">$${overallAmt}</span>`
-    : `All square — $0`;
+    ? `🌍 <b>The International Final</b> — ${overallWinner} ${winVerb} <span style="font-size:16px">$${overallAmt}</span>`
+    : `🌍 <b>The International Final</b> — All square ($0)`;
 
   return `<div class="intl-panel intl-active">
-    <div class="intl-txt">🌍 <b>The International — Final</b><br>${resultTxt}</div>
-    <div class="intl-owes">${resultLine}</div>
+    <div class="intl-txt" style="text-align:center">${resultLine}</div>
     <button class="intl-undo" onclick="deactivateInternational('${m.matchId}')">Undo</button>
   </div>`;
 }
@@ -2703,7 +2688,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.9</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v14.2</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3432,8 +3417,8 @@ function confirmNewRound(){
   renderPlayers();
   renderAllPairOptions();
   renderSingles();
-  // Auto-populate the new round with the player's favorites (Me first, then the rest).
-  autofillFavorites(true);
+  // A new round always starts pre-populated with the player's favorites (Me first, then the rest).
+  autofillFavorites(false);
 }
 
 /* ═══════════════════════════════════════════════
@@ -3852,7 +3837,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.9</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v14.2</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -3958,7 +3943,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v13.9</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v14.2</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4054,7 +4039,7 @@ function openHistoryDetail(i){
     G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v13.9</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v14.2</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4434,6 +4419,15 @@ function renderFavoritesList(){
     </div>`).join('');
 }
 
+// Triggered by the "⭐ Load My Favorites" button — gives feedback if none are set.
+function loadFavoritesButton(){
+  if(!loadFavorites().length){
+    alert('No favorites set yet. Tap ⭐ Favorites to star your regular players first.');
+    return;
+  }
+  autofillFavorites(false);
+}
+
 // Fill the setup player rows from favorites: "Me" in slot 1, then the rest.
 // onlyIfEmpty=true means don't overwrite rows that already have names typed.
 function autofillFavorites(onlyIfEmpty){
@@ -4632,7 +4626,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v13.9';
+const CACHE='nassau-v14.2';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
