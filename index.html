@@ -479,7 +479,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v15.1
+    Nassau Golf · Derrick GWC · v15.2
   </div>
 </div>
 </div>
@@ -2203,7 +2203,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v15.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v15.2</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2374,7 +2374,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v15.1</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v15.2</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2867,7 +2867,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v15.1</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v15.2</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3170,21 +3170,19 @@ function renderOneMatchCard(m, mi){
   const totalCols = 3 + allIdxs.length + cols.length;
   const done = isRoundComplete();
   const winVerb = (m.type==='2v2-combined') ? 'win' : 'wins';
-  // Phrasing: only say "win(s)" once the round is over; otherwise it's a running standing.
-  const aheadPhrase = (label, amt) => done
-    ? `${label} ${winVerb} $${amt}`
-    : `${label} ${(m.type==='2v2-combined')?'are':'is'} currently ahead by $${amt}`;
-  let resultLine;
+  // The result banner only appears once the round is complete (the final, accurate total).
+  // Mid-round we don't show a "currently ahead" figure — per-game standings are in the WINS row.
+  let resultLine = null;
   if(intlActive && intl17 && holeResult(m,17)===null){
     resultLine = `🌍 International ON — $${intl17.largePress} pot, double-or-nothing on hole 18`;
-  } else if(grandTotalA>0){
-    resultLine = aheadPhrase(m.labelA, Math.abs(grandTotalA));
-  } else if(grandTotalA<0){
-    resultLine = aheadPhrase(m.labelB, Math.abs(grandTotalA));
-  } else {
-    resultLine = done ? 'All square — $0' : 'All square so far — $0';
+  } else if(done){
+    if(grandTotalA>0)      resultLine = `${m.labelA} ${winVerb} $${Math.abs(grandTotalA)}`;
+    else if(grandTotalA<0) resultLine = `${m.labelB} ${winVerb} $${Math.abs(grandTotalA)}`;
+    else                   resultLine = 'All square — $0';
   }
-  html+=`<tr><td colspan="${totalCols}" style="background:var(--gd);color:var(--gold);font-weight:800;font-size:12px;text-align:center;padding:7px 4px">${resultLine}</td></tr>`;
+  if(resultLine!==null){
+    html+=`<tr><td colspan="${totalCols}" style="background:var(--gd);color:var(--gold);font-weight:800;font-size:12px;text-align:center;padding:7px 4px">${resultLine}</td></tr>`;
+  }
 
   // WINS row — settlement per game column, signed from the first side's (Player 1 / Side A) perspective.
   // A loss for Side A shows as a red -$ amount.
@@ -4016,7 +4014,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v15.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v15.2</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4122,7 +4120,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v15.1</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v15.2</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4218,7 +4216,7 @@ function openHistoryDetail(i){
     G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v15.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v15.2</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4868,7 +4866,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v15.1';
+const CACHE='nassau-v15.2';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
