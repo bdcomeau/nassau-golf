@@ -511,7 +511,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v16.17
+    Nassau Golf · Derrick GWC · v16.18
   </div>
 </div>
 </div>
@@ -775,8 +775,11 @@ function renderPlayers(){
         <select class="contact-select" id="contact${i}" onchange="selectContact(${i})" ${act?'':'disabled'}>
           ${contactOpts}
         </select>
-        <input type="text" id="gid${i}" placeholder="Golf Canada ID (10 digits)" value="${gid}" inputmode="numeric" pattern="[0-9]*" maxlength="10" class="golfid-input" oninput="highlightDuplicateRows()" ${act?'':'disabled'}>
-        <div style="font-size:10px;color:#999;margin-top:2px;line-height:1.3">10 Digit Golf Canada Member ID</div>
+        <div style="position:relative">
+          <input type="text" id="gid${i}" placeholder="Golf Canada ID (10 digits)" value="${gid}" inputmode="numeric" pattern="[0-9]*" maxlength="10" class="golfid-input" oninput="highlightDuplicateRows()" ${act?'':'disabled'} ${act&&gid?'readonly style="background:#e8e4d8;color:#888;padding-right:28px"':''}>
+          ${act&&gid?`<span style="position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:13px;cursor:pointer;opacity:.6" onclick="unlockGid(${i})" title="Tap to edit Golf Canada ID">🔒</span>`:''}
+        </div>
+        <div style="font-size:10px;color:#999;margin-top:2px;line-height:1.3">${act&&gid?'Golf Canada ID (locked — tap 🔒 to edit)':'10 Digit Golf Canada Member ID'}</div>
         <div id="hdcpStamp${i}" class="hdcp-stamp">${G.players[i]&&G.players[i].hdcpFetchedAt?('🟢 Handicap current as of '+fmtFetchTime(G.players[i].hdcpFetchedAt)):''}</div>
         <div class="deck-row">
           <span class="deck-lbl">Tee</span>
@@ -2234,7 +2237,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.17</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.18</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2410,7 +2413,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.17</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.18</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2946,7 +2949,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.17</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.18</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4183,7 +4186,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.17</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.18</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4289,7 +4292,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.17</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.18</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4411,7 +4414,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.17</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.18</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4519,7 +4522,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v16.17');
+  lines.push('— Nassau Golf · Derrick GWC · v16.18');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -4694,7 +4697,7 @@ ${moneySection}<div class="sec">Master Scorecard</div>${sc}
 <div style="font-size:9px;color:#777;margin-top:3px">🔴 thin circle = 1 stroke · double circle = 2 strokes · NET = gross − full handicap index</div>
 ${matchSections}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v16.17 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v16.18 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -5255,6 +5258,18 @@ function removeSaveDialogs(i){
   const box=document.getElementById(`saveConfirm${i}`);
   if(box) box.remove();
 }
+function unlockGid(i){
+  const gidEl=document.getElementById('gid'+i);
+  if(!gidEl) return;
+  gidEl.removeAttribute('readonly');
+  gidEl.style.background=''; gidEl.style.color=''; gidEl.style.paddingRight='';
+  const wrap=gidEl.parentElement;
+  if(wrap){ const lock=wrap.querySelector('span'); if(lock) lock.style.display='none'; }
+  const hint=wrap?wrap.nextElementSibling:null;
+  if(hint) hint.textContent='10 Digit Golf Canada Member ID';
+  gidEl.focus();
+}
+
 function selectContact(i){
   const sel = document.getElementById(`contact${i}`);
   if(!sel||!sel.value) return;
@@ -5263,7 +5278,16 @@ function selectContact(i){
   if(!c) return;
   document.getElementById(`pn${i}`).value = c.name;
   const gidEl = document.getElementById(`gid${i}`);
-  if(gidEl) gidEl.value = c.golfId || '';
+  if(gidEl){
+    gidEl.value = c.golfId || '';
+    if(c.golfId){
+      gidEl.setAttribute('readonly','');
+      gidEl.style.background='#e8e4d8'; gidEl.style.color='#888'; gidEl.style.paddingRight='28px';
+    } else {
+      gidEl.removeAttribute('readonly');
+      gidEl.style.background=''; gidEl.style.color=''; gidEl.style.paddingRight='';
+    }
+  }
   if(!G.players[i]) G.players[i]={};
   G.players[i].name=c.name; G.players[i].golfId=c.golfId||'';
   G.players[i].hdcpFetchedAt=c.hdcpFetchedAt||null;
@@ -5348,7 +5372,7 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v16.17';
+const CACHE='nassau-v16.18';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
