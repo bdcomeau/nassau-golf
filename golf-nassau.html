@@ -438,7 +438,7 @@ input::placeholder{color:#bbb}
 
   <div style="display:flex;gap:8px;margin-bottom:14px">
     <button class="view-history-btn" style="margin-bottom:0;flex:1" onclick="showS('history')">📜 History</button>
-    <button class="view-history-btn" style="margin-bottom:0;flex:1" onclick="openFavorites()">⭐ Favorites</button>
+    <button class="view-history-btn" style="margin-bottom:0;flex:1" onclick="openFavorites()">⭐ Manage Favorites &amp; Players</button>
   </div>
   <button class="view-history-btn" onclick="loadFavoritesButton()" style="background:var(--gold);color:var(--gd);border-color:var(--gold)">⭐ Load My Favorites</button>
 
@@ -515,7 +515,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v16.8
+    Nassau Golf · Derrick GWC · v16.9
   </div>
 </div>
 </div>
@@ -2252,7 +2252,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.8</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.9</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2423,7 +2423,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.8</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.9</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2919,7 +2919,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.8</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.9</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4086,7 +4086,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.8</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.9</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4192,7 +4192,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.8</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.9</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4289,7 +4289,7 @@ function openHistoryDetail(i){
     G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.8</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.9</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4688,10 +4688,10 @@ function openFavorites(){
   overlay.innerHTML=`
     <div class="mm-sheet">
       <div class="mm-hdr">
-        <div class="mm-title">⭐ Favorites</div>
+        <div class="mm-title">⭐ Manage Favorites &amp; Players</div>
         <button class="mm-close" onclick="document.getElementById('favOverlay').remove()">Done</button>
       </div>
-      <div style="font-size:12px;color:#666;margin:0 0 10px">Star up to ${MAX_FAVORITES} players you golf with regularly — they’ll auto-fill each new round. Mark one as <b>“Me”</b> (the scorekeeper); you always go in slot 1.</div>
+      <div style="font-size:12px;color:#666;margin:0 0 10px">Star up to ${MAX_FAVORITES} players as favorites — they’ll auto-fill each new round. Mark one as <b>“Me”</b> (scorekeeper). Tap ✕ to remove a player entirely.</div>
       <div class="card" id="favList"></div>
     </div>`;
   document.body.appendChild(overlay);
@@ -4721,8 +4721,19 @@ function renderFavoritesList(){
           <select class="fav-deck-select" onchange="setFavoriteDeck('${safe}', this.value)">${opts}</select></div>
       </div>
       <button class="fav-me ${c.me?'on':''}" onclick="setMe('${safe}')" title="This is me (scorekeeper)">${c.me?'✓ Me':'Me'}</button>
+      <button class="mm-player-del" onclick="deleteFavPlayer('${safe}')" title="Remove player">✕</button>
     </div>`;
     }).join('');
+}
+
+// Remove a player from the contacts list entirely, then re-render.
+function deleteFavPlayer(name){
+  const contacts = loadContacts();
+  if(!contacts.find(c=>c.name===name)) return;
+  if(!confirm(`Remove "${name}" from your player list?`)) return;
+  saveContacts(contacts.filter(c=>c.name!==name));
+  renderFavoritesList();
+  renderPlayers(); // refresh setup screen dropdowns
 }
 
 // Triggered by the "⭐ Load My Favorites" button — gives feedback if none are set.
@@ -4947,35 +4958,10 @@ function deleteContact(name){
   renderPlayers();
 }
 
-
-/* ═══════════════════════════════════════════════
-   PRE-SEEDED CONTACTS
-   On first install (empty contact list) these players are loaded
-   automatically. Existing user data is never overwritten.
-═══════════════════════════════════════════════ */
-const SEEDED_CONTACTS = [{"name":"Al Comeau","idx":0,"golfId":"6103000874","hdcpBaseline":null,"hdcpFetchedAt":null,"fav":false,"me":false,"defaultDeck":"DECK2"},{"name":"Ben Toma","idx":0,"golfId":"6101079896","hdcpBaseline":null,"hdcpFetchedAt":null,"fav":false,"me":false,"defaultDeck":"DECK2"},{"name":"Bill Burch","idx":0,"golfId":"6100116204","hdcpBaseline":null,"hdcpFetchedAt":null,"fav":false,"me":false,"defaultDeck":"DECK2"},{"name":"Brent Buchanan","idx":0,"golfId":"5130031302","hdcpBaseline":null,"hdcpFetchedAt":null,"fav":false,"me":false,"defaultDeck":"DECK2"},{"name":"Bruce Comeau","idx":0,"golfId":"5130031968","hdcpBaseline":null,"hdcpFetchedAt":null,"fav":false,"me":false,"defaultDeck":"DECK2"},{"name":"Chris Comeau","idx":0,"golfId":"5130035961","hdcpBaseline":null,"hdcpFetchedAt":null,"fav":false,"me":false,"defaultDeck":"DECK2"},{"name":"Conroy Ip","idx":0,"golfId":"6101783283","hdcpBaseline":null,"hdcpFetchedAt":null,"fav":false,"me":false,"defaultDeck":"DECK2"},{"name":"Craig McElroy","idx":0,"golfId":"5130030922","hdcpBaseline":null,"hdcpFetchedAt":null,"fav":false,"me":false,"defaultDeck":"DECK2"},{"name":"Darryl Maxwell","idx":0,"golfId":"5130030914","hdcpBaseline":null,"hdcpFetchedAt":null,"fav":false,"me":false,"defaultDeck":"DECK2"},{"name":"Dave Reynolds","idx":0,"golfId":"5130033158","hdcpBaseline":null,"hdcpFetchedAt":null,"fav":false,"me":false,"defaultDeck":"DECK2"},{"name":"Doug Boyer","idx":0,"golfId":"5130032834","hdcpBaseline":null,"hdcpFetchedAt":null,"fav":false,"me":false,"defaultDeck":"DECK2"},{"name":"Doug Comeau","idx":0,"golfId":"6102500131","hdcpBaseline":null,"hdcpFetchedAt":null,"fav":false,"me":false,"defaultDeck":"DECK2"},{"name":"Goplin","idx":0,"golfId":"5130031813","hdcpBaseline":null,"hdcpFetchedAt":null,"fav":false,"me":false,"defaultDeck":"DECK2"},{"name":"Gord Taylor","idx":0,"golfId":"5130037005","hdcpBaseline":null,"hdcpFetchedAt":null,"fav":false,"me":false,"defaultDeck":"DECK2"},{"name":"Greg Hines","idx":0,"golfId":"5130031505","hdcpBaseline":null,"hdcpFetchedAt":null,"fav":false,"me":false,"defaultDeck":"DECK2"},{"name":"John Coulter","idx":0,"golfId":"5130031221","hdcpBaseline":null,"hdcpFetchedAt":null,"fav":false,"me":false,"defaultDeck":"DECK2"},{"name":"Josh Comeau","idx":0,"golfId":"5130035167","hdcpBaseline":null,"hdcpFetchedAt":null,"fav":false,"me":false,"defaultDeck":"DECK2"},{"name":"Mark Comeau","idx":0,"golfId":"5130033636","hdcpBaseline":null,"hdcpFetchedAt":null,"fav":false,"me":false,"defaultDeck":"DECK2"},{"name":"Phil McAvoy","idx":0,"golfId":"5130036803","hdcpBaseline":null,"hdcpFetchedAt":null,"fav":false,"me":false,"defaultDeck":"DECK2"},{"name":"Rob Daniels","idx":0,"golfId":"5130034121","hdcpBaseline":null,"hdcpFetchedAt":null,"fav":false,"me":false,"defaultDeck":"DECK2"},{"name":"Rob Miller","idx":0,"golfId":"5130030622","hdcpBaseline":null,"hdcpFetchedAt":null,"fav":false,"me":false,"defaultDeck":"DECK2"},{"name":"Stu Curley","idx":0,"golfId":"5130037110","hdcpBaseline":null,"hdcpFetchedAt":null,"fav":false,"me":false,"defaultDeck":"DECK2"},{"name":"Tom Richards","idx":0,"golfId":"5130033190","hdcpBaseline":null,"hdcpFetchedAt":null,"fav":false,"me":false,"defaultDeck":"DECK2"},{"name":"Wayne Buskas","idx":0,"golfId":"5130031838","hdcpBaseline":null,"hdcpFetchedAt":null,"fav":false,"me":false,"defaultDeck":"DECK2"}];
-
-function seedContactsIfEmpty(){
-  try{
-    const existing = JSON.parse(localStorage.getItem('nassau_contacts')||'[]');
-    // Build a set of Golf Canada IDs already in the list — never add a duplicate.
-    const existingGids = new Set(existing.map(c=>c.golfId).filter(Boolean));
-    let added = 0;
-    SEEDED_CONTACTS.forEach(seed=>{
-      if(!existingGids.has(seed.golfId)){
-        existing.push(seed);
-        existingGids.add(seed.golfId);
-        added++;
-      }
-    });
-    if(added > 0) localStorage.setItem('nassau_contacts', JSON.stringify(existing));
-  }catch(e){}
-}
-
 /* ═══════════════════════════════════════════════
    BOOT
 ═══════════════════════════════════════════════ */
-seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
+renderAllPairOptions();initSetup();startNamesPoll();
 
 // ── Restore saved round on launch ──
 (function(){
@@ -5003,7 +4989,7 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v16.8';
+const CACHE='nassau-v16.9';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
