@@ -41,7 +41,7 @@
 <header>
   <a class="back" href="./">‹ Back</a>
   <h1>Help &amp; Guide</h1>
-  <span class="ver">v15.9</span>
+  <span class="ver">v16.26</span>
 </header>
 <div class="wrap" id="top">
 
@@ -59,7 +59,8 @@
   <a href="#birdie">8 · Birdie Juice</a>
   <a href="#history">9 · Round History &amp; Backup</a>
   <a href="#newround">10 · Starting a New Round</a>
-  <a href="#trouble">11 · Troubleshooting</a>
+  <a href="#snake">11 · The Snake 3-Putt Game</a>
+  <a href="#trouble">12 · Troubleshooting</a>
 </div>
 
 <h2 id="install">1 · Installing on Your iPhone</h2>
@@ -114,8 +115,8 @@
   <li>Enter the player's name and their 10-digit Golf Canada Member ID in the ID field.</li>
   <li>Tap the Golf Canada logo button. The handicap fills in automatically, and the player is saved to your contacts at the same time.</li>
 </ul>
-<p>The first time you use the lookup, the app asks once for your Golf Canada username and password; these are saved on your device so you only enter them once.</p>
-<div class="warn">⚠️ Your Golf Canada password is stored on your device so you don't have to re-enter it each round. It is only ever sent to the lookup service to fetch handicaps. If you'd rather not store it, simply type handicaps in manually instead.</div>
+<p>Tap the Golf Canada logo button. The handicap fills in automatically, and the player is saved to your contacts at the same time.</p>
+<div class="warn"></div>
 
 <h3>Where to Find the Member Number</h3>
 <p>On the Golf Canada website, do a Handicap Lookup for the golfer. Their 10-digit Golf Canada Member Number appears just under their name, as highlighted below:</p>
@@ -130,7 +131,7 @@
   <li>Auto-refresh is silent — if you're offline or haven't set up your Golf Canada login yet, it simply leaves the existing handicap in place with no error pop-ups.</li>
   <li>You can always force a fresh lookup at any time by tapping the Golf Canada logo button.</li>
 </ul>
-<div class="note">The very first time on a new device you'll set up your Golf Canada login once (by tapping the logo button). After that, the automatic refresh reuses it.</div>
+<div class="note"></div>
 
 <h3>Tee Decks &amp; Handicap Adjustment</h3>
 <p>Each golfer can select which tee deck they are playing from the Tee dropdown on their player row — DECK1, DECK1/2, DECK2, DECK2/3, DECK3, DECK3/4, or DECK4, listed longest to shortest with the combined decks slotted between. Because a handicap changes with the tees played, the app adjusts the fetched Golf Canada index for the chosen deck and rounds it to a whole number, which becomes that player's playing handicap for all match calculations.</p>
@@ -149,7 +150,7 @@
   <li>Switching decks recalculates the DECK adjusted box instantly from the index, so you can change tees as many times as you like and the handicap always stays correct.</li>
   <li>New players default to DECK2. If your whole group plays the same tees, just leave it.</li>
 </ul>
-<div class="warn">⚠️ A handicap you type in by hand is used exactly as entered — no deck adjustment is applied. (Typing a number also clears any fetched value, so the Tee selector won't change it.) Use the Golf Canada lookup if you want the automatic per-deck adjustment.</div>
+<div class="warn">A handicap you type in by hand has the deck formula applied automatically — the same formula used for fetched Golf Canada indexes. So if you type 12.3 and select DECK4, the DECK adjusted box shows the correct adjusted value. Typing a new number always recalculates the adjusted box for the current deck.</div>
 
 <h3>Choosing a Starting Hole</h3>
 <p>For shotgun-start tournaments, use the Starting Hole selector to choose which hole your group tees off on (1–18). All scoring, match calculations, and hole badges throughout the app adjust automatically.</p>
@@ -198,7 +199,7 @@
 </ul>
 
 <h3>Player Cards</h3>
-<p>Each player card shows their name, handicap index (tap the Idx value and ✏️ to edit mid-round), and their current money total for the round (green = winning, red = losing, gold = even). Once a score is entered for a player on the current hole, their card gains a gold border — a quick visual confirmation that their score is recorded.</p>
+<p>Each player card shows the player's name and a live combined money total covering all active games — Nassau (1v1 and 2v2) and 6-Point — in real time (green = winning, red = losing, gold = even). The handicap index and ✏️ edit button sit on the right side of the header beside the money amount, away from the score entry area — tap it to edit the handicap mid-round. Once a score is entered on the current hole, the card gains a gold border as a quick confirmation.</p>
 
 <h3>The Master Scorecard</h3>
 <p>Below the player cards, the master scorecard shows all players' gross scores in the authentic Derrick Golf &amp; Winter Club card style — charcoal hole column, olive par row, and the Derrick logo in the corner. Stroke holes are pre-marked with red circles:</p>
@@ -219,7 +220,7 @@
   <li>Rainfall: the day's total always shows; when it's actively raining, the current rate is added too (e.g. "🌧️ 3 mm/h (today 7.9 mm)").</li>
 </ul>
 <p>The conditions at the start and finish of the round are saved with it. In Round History, a "🌦️ Conditions" card shows the Start and Finish readings.</p>
-<div class="note">The first time the weather strip loads, it asks once for the WeatherLink connection details (Worker URL, API Key, API Secret, and Station ID). These save on your device — you only enter them once. Tap the strip any time to re-enter them.</div>
+<div class="note">Weather is pre-configured — live conditions appear automatically with no setup required. Tap the strip any time to refresh manually.</div>
 
 <h3>Money Summary</h3>
 <p>Once all 18 holes are scored, three money rows appear at the bottom of the master scorecard (each player's amount in their own column, green for up, red for down): <b>Nassau $</b>, <b>6-Point $</b> (only if there are 6-Point games), and <b>Total $ Today</b> in bold. These don't appear in scorecard-only rounds.</p>
@@ -313,7 +314,9 @@
 
 <h2 id="history">9 · Round History &amp; Backup</h2>
 <h3>Viewing Past Rounds</h3>
-<p>Tap the 📜 History icon to see all saved rounds. Tap any round for a detailed read-only view showing the Final Totals, a "🌦️ Conditions" card with the start and finish weather (when captured), the full scorecard, Nassau match cards, and 6-Point results. (Money and game cards are skipped for scorecard-only rounds.)</p>
+<p>Tap the 📜 History icon to see all saved rounds. Tap any round for a detailed read-only view showing the Final Totals, a "🌦️ Conditions" card, the full scorecard, Nassau match cards, 6-Point results, and (if played) the Snake 3-Putt Game hole-by-hole log at the bottom. (Money and game cards are skipped for scorecard-only rounds.)
+
+<p>Two share buttons sit in the header:</p><ul><li><b>📋 Text</b> — formats the round as plain text and opens the native iOS share sheet (iMessage, Mail, etc.).</li><li><b>📄 PDF</b> — builds a clean print-ready version and opens the iOS print dialog so you can save as PDF or AirPrint.</li></ul></p>
 <h3>Backup &amp; Restore</h3>
 <p>At the top of the History screen, a Backup &amp; Restore card provides two buttons:</p>
 <ul>
@@ -329,12 +332,27 @@
 <p>Tap the 🔄 New Round icon. Because this erases the current round, it asks you to confirm with a swipe-to-erase slider. After confirming, you're returned to a clean Setup screen. Tip: export a backup or make sure the current round is saved to History first.</p>
 <a class="top" href="#top">↑ Back to top</a>
 
-<h2 id="trouble">11 · Troubleshooting</h2>
+<h2 id="snake">11 · The Snake 3-Putt Game</h2>
+<p>An optional side game you can enable on the Setup screen. Whoever last 3-putted holds the snake; at the end of the round, whoever is holding it loses.</p>
+<h3>Enabling</h3>
+<p>On the Setup screen, below the Round Type toggle and above the 2v2 Nassau section, check <b>Enable Snake Game</b>. It can be combined with any other game type.</p>
+<h3>Tracking During the Round</h3>
+<p>When Snake is enabled, a compact bar appears at the top of each hole's score entry screen — above the player score cards — showing a dropdown for that hole and the current holder. Tap the dropdown and select whoever last 3-putted on the current hole, or "No 3-putt" if nobody did. The holder updates immediately and persists until someone else 3-putts.</p>
+<ul>
+  <li>You can navigate back to any past hole and change the 3-putt entry — the holder is recalculated by replaying the history in hole order.</li>
+  <li>If nobody selects a 3-putt on a hole, the snake stays with whoever held it before that hole.</li>
+</ul>
+<h3>End of Round</h3>
+<p>Once all 18 holes are scored, the snake bar shows a final result — either the player who holds it, or "No 3-putts this round — game void" if nobody 3-putted at all.</p>
+<h3>In History</h3>
+<p>The Snake result and a full hole-by-hole log (which hole each 3-putt happened on) appear at the bottom of the History Detail view for that round, and are included in the 📋 Text share.</p>
+
+<h2 id="trouble">12 · Troubleshooting</h2>
 <h3>A player has quit, been injured, or left the round</h3>
 <p>Tap ⚙️ Matches (or ⚙️ Players in a scorecard-only round) at the top of the Scorecard screen to open the manage screen. Remove them there; in a betting round this also drops them from any active Nassau and 6-Point games. Their scorecard column remains (with scores already entered) but they'll no longer block the group from advancing holes or settling bets.</p>
 <div class="note">The missing-score warning banner is also tappable — it opens the manage screen directly.</div>
 <h3>The weather strip says "unavailable"</h3>
-<p>Tap the strip to re-enter the WeatherLink connection details. A connection is required for live weather; the rest of the app works offline.</p>
+<p>Weather requires an active internet connection. The station data feeds automatically — if the strip shows unavailable, check your connection and try again. The rest of the app works fully offline.</p>
 <h3>A handicap lookup failed</h3>
 <p>Check the 10-digit Golf Canada Member ID and that your Golf Canada login is correct. You can always type a handicap in manually instead.</p>
 <a class="top" href="#top">↑ Back to top</a>
