@@ -361,6 +361,11 @@ input::placeholder{color:#bbb}
 .dck .d-gap{background:#cfd4d9;border-top:1px solid #4a4a4a;border-bottom:1px solid #4a4a4a;border-left:2px solid #3a3a3a;border-right:2px solid #3a3a3a;min-width:8px;padding:0}
 .dck .d-vert{writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);white-space:nowrap;padding:4px 0;height:auto;min-height:62px;vertical-align:middle;text-align:center;line-height:1;font-size:9px;font-weight:800}
 .dck .d-vert .d-sub2{font-size:7px;font-weight:600;opacity:.85}
+/* During PDF capture, render the vertical column headers horizontally — html2canvas
+   does not handle writing-mode + rotate (it flips the text), and a PDF has room for
+   upright text anyway. Constrain width so columns don't balloon. */
+.pdf-capture .dck .d-vert{writing-mode:horizontal-tb !important;text-orientation:mixed;transform:none !important;min-height:0;height:auto;padding:6px 2px;font-size:8.5px;line-height:1.1;white-space:normal;word-break:break-word;vertical-align:bottom}
+.pdf-capture .dck .d-vert .d-sub2{display:inline}
 .dck .d-press{background:#fff3cd;font-weight:700;color:#8a6d00}
 .dck .d-nassaucell{background:#eef5ef}
 .dck .cell-globe{font-size:9px;margin-right:1px;vertical-align:middle}
@@ -483,7 +488,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v16.0
+    Nassau Golf · Derrick GWC · v16.1
   </div>
 </div>
 </div>
@@ -2220,7 +2225,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.1</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2391,7 +2396,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.0</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.1</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2887,7 +2892,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.0</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.1</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4054,7 +4059,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.1</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4160,7 +4165,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.0</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.1</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4257,7 +4262,7 @@ function openHistoryDetail(i){
     G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.1</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4303,11 +4308,19 @@ function exportHistoryPDF(){
   }
   if(btn){ btn.disabled=true; btn._old=btn.textContent; btn.textContent='…'; }
 
-  // The detail body scrolls; capture its full height on a white background.
+  // Measure the layout WITH the capture styles applied (headers become horizontal, which
+  // widens columns). We add the class, read the size in the same synchronous frame, then
+  // remove it — the browser doesn't paint in between, so there's no visible flash.
+  body.classList.add('pdf-capture');
   const fullW = body.scrollWidth;
   const fullH = body.scrollHeight;
+  body.classList.remove('pdf-capture');
   html2canvas(body, { backgroundColor:'#ffffff', scale:2, useCORS:true, logging:false,
-                      width:fullW, height:fullH, windowWidth:fullW, scrollX:0, scrollY:0 })
+                      width:fullW, height:fullH, windowWidth:fullW, scrollX:0, scrollY:0,
+                      onclone:(doc)=>{
+                        // Make vertical headers horizontal in the captured copy only.
+                        if(doc && doc.body) doc.body.classList.add('pdf-capture');
+                      } })
     .then(canvas=>{
       const pdf = new jsPDFlib({ orientation:'portrait', unit:'pt', format:'a4' });
       const pageW = pdf.internal.pageSize.getWidth();
@@ -4959,7 +4972,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v16.0';
+const CACHE='nassau-v16.1';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
