@@ -10,6 +10,7 @@
 <link rel="manifest" href="data:application/json,{\"name\":\"Nassau Golf\",\"short_name\":\"Nassau\",\"start_url\":\"./\",\"display\":\"standalone\",\"background_color\":\"#1a3a2a\",\"theme_color\":\"#1a3a2a\"}">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%231a3a2a'/%3E%3Ctext x='256' y='340' font-size='280' text-anchor='middle' fill='%23c9a84c'%3E%E2%9B%B3%3C/text%3E%3C/svg%3E">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <title>Nassau Golf · Derrick GWC</title>
 <style>
 :root {
@@ -121,6 +122,8 @@ input::placeholder{color:#bbb}
 .shdr{background:var(--gd);padding:10px 16px;border-bottom:1px solid rgba(201,168,76,.2)}
 .hnav{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .hnav-btn{width:32px;height:32px;background:rgba(255,255,255,.1);border:none;border-radius:50%;color:var(--gold);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+.hpdf-btn{background:var(--gold);color:var(--gd);border:none;border-radius:16px;padding:7px 14px;font-size:13px;font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent;white-space:nowrap}
+.hpdf-btn:disabled{opacity:.5}
 .hnav-btn:disabled{opacity:.3}
 .hinfo{text-align:center;flex:1}
 .hnum{font-size:18px;font-weight:800;color:var(--gold);font-family:Georgia,serif}
@@ -480,7 +483,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v15.9
+    Nassau Golf · Derrick GWC · v16.0
   </div>
 </div>
 </div>
@@ -535,7 +538,8 @@ input::placeholder{color:#bbb}
 <div class="screen" id="screen-history-detail">
   <div class="shdr" style="display:flex;align-items:center;gap:10px;padding:10px 14px">
     <button class="hnav-btn" onclick="closeHistoryDetail()">‹</button>
-    <div class="hnum" id="historyDetailTitle" style="font-size:16px">Round</div>
+    <div class="hnum" id="historyDetailTitle" style="font-size:16px;flex:1">Round</div>
+    <button class="hpdf-btn" id="historyPdfBtn" onclick="exportHistoryPDF()" title="Export this round as a PDF">📄 PDF</button>
   </div>
   <div class="sbody" id="historyDetailBody"></div>
 </div>
@@ -2216,7 +2220,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v15.9</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.0</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2387,7 +2391,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v15.9</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.0</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2883,7 +2887,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v15.9</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.0</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4050,7 +4054,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v15.9</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.0</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4156,7 +4160,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v15.9</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.0</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4209,6 +4213,7 @@ function openHistoryDetail(i){
   const d=new Date(r.roundDate);
   const dateStr=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
   document.getElementById('historyDetailTitle').textContent=dateStr;
+  _historyDateStr=dateStr;
 
   // Temporarily swap G to the snapshot so existing render functions work unmodified
   _liveGBackup=JSON.parse(JSON.stringify(G));
@@ -4252,7 +4257,7 @@ function openHistoryDetail(i){
     G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v15.9</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.0</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4281,6 +4286,58 @@ function openHistoryDetail(i){
 function closeHistoryDetail(){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-history').classList.add('active');
+}
+
+let _historyDateStr='Round';
+
+// Export the open history round as a multi-page PDF. Captures the whole detail body with
+// html2canvas, then slices the tall image across A4 pages so nothing is awkwardly cut.
+function exportHistoryPDF(){
+  const body=document.getElementById('historyDetailBody');
+  if(!body) return;
+  const btn=document.getElementById('historyPdfBtn');
+  const jsPDFlib = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
+  if(!jsPDFlib || typeof html2canvas==='undefined'){
+    alert('PDF export needs an internet connection the first time. Please reconnect and try again.');
+    return;
+  }
+  if(btn){ btn.disabled=true; btn._old=btn.textContent; btn.textContent='…'; }
+
+  // The detail body scrolls; capture its full height on a white background.
+  const fullW = body.scrollWidth;
+  const fullH = body.scrollHeight;
+  html2canvas(body, { backgroundColor:'#ffffff', scale:2, useCORS:true, logging:false,
+                      width:fullW, height:fullH, windowWidth:fullW, scrollX:0, scrollY:0 })
+    .then(canvas=>{
+      const pdf = new jsPDFlib({ orientation:'portrait', unit:'pt', format:'a4' });
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      const margin = 18;
+      const usableW = pageW - margin*2;
+      // Scale the canvas to the usable page width; figure out how many vertical slices we need.
+      const pxPerPt = canvas.width / usableW;            // canvas px per PDF point
+      const sliceHpx = Math.floor((pageH - margin*2) * pxPerPt); // canvas px that fit on one page
+      let y = 0, first = true;
+      while(y < canvas.height){
+        const hpx = Math.min(sliceHpx, canvas.height - y);
+        // Copy this slice to a temp canvas
+        const slice = document.createElement('canvas');
+        slice.width = canvas.width; slice.height = hpx;
+        const sctx = slice.getContext('2d');
+        sctx.fillStyle = '#ffffff'; sctx.fillRect(0,0,slice.width,slice.height);
+        sctx.drawImage(canvas, 0, y, canvas.width, hpx, 0, 0, canvas.width, hpx);
+        const img = slice.toDataURL('image/jpeg', 0.92);
+        const hpt = hpx / pxPerPt;
+        if(!first) pdf.addPage();
+        pdf.addImage(img, 'JPEG', margin, margin, usableW, hpt);
+        first = false;
+        y += hpx;
+      }
+      const safe = (_historyDateStr||'Round').replace(/[^\w]+/g,'-');
+      pdf.save(`Nassau-Round-${safe}.pdf`);
+    })
+    .catch(err=>{ alert('Sorry — could not build the PDF. '+(err&&err.message?err.message:'')); })
+    .finally(()=>{ if(btn){ btn.disabled=false; btn.textContent=btn._old||'📄 PDF'; } });
 }
 
 /* ═══════════════════════════════════════════════
@@ -4902,7 +4959,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v15.9';
+const CACHE='nassau-v16.0';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
