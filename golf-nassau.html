@@ -489,6 +489,15 @@ input::placeholder{color:#bbb}
     </label>
   </div>
 
+  <div class="slabel">⚙️ Score Entry Options</div>
+  <div class="card">
+    <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer">
+      <div><div style="font-size:14px;font-weight:700;color:#222">Auto-advance holes</div>
+      <div style="font-size:12px;color:#666;margin-top:2px">Automatically move to next hole when all scores are entered. Turn off to require a manual tap.</div></div>
+      <input type="checkbox" id="autoAdvanceEnabled" checked style="width:22px;height:22px;flex:none">
+    </label>
+  </div>
+
   <div class="slabel" style="color:#9b59b6">🐍 Snake 3-Putt Game</div>
   <div class="card" style="background:#1a1a2e;border:1.5px solid #6c3483">
     <div style="font-size:12px;color:#ccc;margin:0 0 10px">Optional side game — whoever last 3-putted holds the snake. At round end, whoever holds it loses.</div>
@@ -531,7 +540,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v16.33
+    Nassau Golf · Derrick GWC · v16.36
   </div>
 </div>
 </div>
@@ -636,6 +645,7 @@ const G = {
   sixPointGames:[], // [{players:[i,i,i], perPoint:1}]
   birdieJuice:{ earned:[], redeemed:0 }, // earned:[{pi,h,actualHole,playerName}], redeemed:int
   snake:{ enabled:false, holder:null, history:[] },
+  autoAdvance: true,
 };
 
 // Translate a "play order" index (0-17, i.e. 1st-18th hole played) to the
@@ -686,6 +696,7 @@ function loadG(){
     if(G.weatherEnd===undefined) G.weatherEnd=null;
     if(G.scorecardOnly===undefined) G.scorecardOnly=false;
     if(!G.snake || typeof G.snake !== 'object') G.snake={enabled:false,holder:null,history:[]};
+    if(G.autoAdvance===undefined) G.autoAdvance=true;
     if(Array.isArray(G.players)) G.players.forEach(p=>{ if(p.golfId===undefined) p.golfId=''; });
     return true;
   }catch(e){ return false; }
@@ -1446,6 +1457,8 @@ function startRound(){
   G.internationals={}; // reset any leftover International state from a previous round
   const snakeBox=document.getElementById('snakeEnabled');
   G.snake={ enabled: !!(snakeBox && snakeBox.checked), holder:null, history:[] };
+  const aaBox=document.getElementById('autoAdvanceEnabled');
+  G.autoAdvance = aaBox ? aaBox.checked : true;
   saveG();
   document.getElementById('bnav').style.display='flex';
   applyScorecardOnlyNav();
@@ -2097,22 +2110,30 @@ function adjustScore(pi, h, delta){
 // Never advances past the final hole of the round (holes 1–17 only; stays on 18).
 function maybeAutoAdvance(){
   const curPlay = playOrderIdx(G.hole);
-  if(curPlay >= 17) return;                 // last hole of the round — never auto-advance
-  // All players must have a score on the current hole
+  if(curPlay >= 17) return;
   if(G.players.some((_,pi)=>G.scores[pi][G.hole]===null)) return;
   clearTimeout(maybeAutoAdvance._t);
-  maybeAutoAdvance._t = setTimeout(()=>{
-    const cp = playOrderIdx(G.hole);
-    if(cp >= 17) return;                     // re-check: last hole
-    // Re-check all scores present in case one was edited back to empty during the delay
-    if(G.players.some((_,pi)=>G.scores[pi][G.hole]===null)) return;
-    // Move directly to the next hole. We've already confirmed every score is in,
-    // so skip the manual missing-score guard (avoids a false warning if a manual
-    // tap races with this timer). Also clear any stale warning banner.
-    const err=document.getElementById('holeErr'); if(err) err.style.display='none';
-    G.hole = actualHoleIdx(cp + 1);
-    saveG(); renderCard();
-  }, 550);
+  if(G.autoAdvance){
+    maybeAutoAdvance._t = setTimeout(()=>{
+      const cp = playOrderIdx(G.hole);
+      if(cp >= 17) return;
+      if(G.players.some((_,pi)=>G.scores[pi][G.hole]===null)) return;
+      const err=document.getElementById('holeErr'); if(err) err.style.display='none';
+      G.hole = actualHoleIdx(cp + 1);
+      saveG(); renderCard();
+    }, 550);
+  } else {
+    renderCard();
+  }
+}
+
+function confirmNextHole(){
+  const cp = playOrderIdx(G.hole);
+  if(cp >= 17) return;
+  if(G.players.some((_,pi)=>G.scores[pi][G.hole]===null)) return;
+  const err=document.getElementById('holeErr'); if(err) err.style.display='none';
+  G.hole = actualHoleIdx(cp + 1);
+  saveG(); renderCard();
 }
 
 // Tap the centre when unset — sets score to par directly
@@ -2280,7 +2301,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.33</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.36</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2379,6 +2400,16 @@ function renderCard(){
     html += `<div class="save-round-done">✓ Round saved to History</div>`;
   }
 
+  // ── Manual-advance confirm button ──
+  if(!G.autoAdvance && !isRoundComplete()){
+    const allIn=!G.players.some((_,pi)=>G.scores[pi][G.hole]===null);
+    if(allIn && playOrderIdx(G.hole)<17){
+      html+='<button onclick="confirmNextHole()" style="width:100%;padding:14px;'
+        +'margin-bottom:8px;background:#c9a84c;color:#1a3a2a;font-size:16px;'
+        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">Next Hole &#8594;</button>';
+    }
+  }
+
   // ── Snake 3-Putt panel ──
   if(G.snake && G.snake.enabled){
     html += isRoundComplete() ? renderSnakeResult() : renderSnakePanel();
@@ -2456,7 +2487,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.33</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.36</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2992,7 +3023,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.33</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.36</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3037,7 +3068,8 @@ function renderMasterScorecard(){
     <th class="d-hdr d-vert">M HCP</th>
     <th class="d-hdr">PAR</th>`;
   G.players.forEach(p=>{
-    html += `<th class="d-hdr d-vert">${p.name.trim()} <span class="d-sub2">${p.idx.toFixed(1)}</span></th>`;
+    const dk=(p.deck||'DECK2').replace('DECK','D');
+    html += `<th class="d-hdr d-vert">${p.name.trim()} <span class="d-sub2">${p.idx.toFixed(1)}</span> <span class="d-sub2" style="opacity:.7">${dk}</span></th>`;
   });
   html += `</tr></thead><tbody>`;
 
@@ -3051,7 +3083,17 @@ function renderMasterScorecard(){
       <td class="d-deck4">${Y.d4[h]}</td>
       <td class="d-hcp">${G.si[h]}</td>
       <td class="d-par">${G.par[h]}</td>`;
-    // ── Snake 3-Putt panel ──
+    // ── Manual-advance confirm button ──
+  if(!G.autoAdvance && !isRoundComplete()){
+    const allIn=!G.players.some((_,pi)=>G.scores[pi][G.hole]===null);
+    if(allIn && playOrderIdx(G.hole)<17){
+      html+='<button onclick="confirmNextHole()" style="width:100%;padding:14px;'
+        +'margin-bottom:8px;background:#c9a84c;color:#1a3a2a;font-size:16px;'
+        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">Next Hole &#8594;</button>';
+    }
+  }
+
+  // ── Snake 3-Putt panel ──
   if(G.snake && G.snake.enabled){
     html += isRoundComplete() ? renderSnakeResult() : renderSnakePanel();
   }
@@ -3110,7 +3152,17 @@ function renderMasterScorecard(){
       <td class="d-sub d-decknum">${yTot('d1')}</td><td class="d-sub d-decknum">${yTot('d2')}</td>
       <td class="d-sub d-decknum">${yTot('d3')}</td><td class="d-sub d-decknum">${yTot('d4')}</td>
       <td class="d-sub"></td><td class="d-subpar">${parTot}</td>`;
-    // ── Snake 3-Putt panel ──
+    // ── Manual-advance confirm button ──
+  if(!G.autoAdvance && !isRoundComplete()){
+    const allIn=!G.players.some((_,pi)=>G.scores[pi][G.hole]===null);
+    if(allIn && playOrderIdx(G.hole)<17){
+      html+='<button onclick="confirmNextHole()" style="width:100%;padding:14px;'
+        +'margin-bottom:8px;background:#c9a84c;color:#1a3a2a;font-size:16px;'
+        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">Next Hole &#8594;</button>';
+    }
+  }
+
+  // ── Snake 3-Putt panel ──
   if(G.snake && G.snake.enabled){
     html += isRoundComplete() ? renderSnakeResult() : renderSnakePanel();
   }
@@ -3128,7 +3180,17 @@ function renderMasterScorecard(){
       <td class="d-subpar d-decknum">${yT('d1')}</td><td class="d-subpar d-decknum">${yT('d2')}</td>
       <td class="d-subpar d-decknum">${yT('d3')}</td><td class="d-subpar d-decknum">${yT('d4')}</td>
       <td class="d-subpar"></td><td class="d-subpar">${G.par.reduce((a,b)=>a+b,0)}</td>`;
-    // ── Snake 3-Putt panel ──
+    // ── Manual-advance confirm button ──
+  if(!G.autoAdvance && !isRoundComplete()){
+    const allIn=!G.players.some((_,pi)=>G.scores[pi][G.hole]===null);
+    if(allIn && playOrderIdx(G.hole)<17){
+      html+='<button onclick="confirmNextHole()" style="width:100%;padding:14px;'
+        +'margin-bottom:8px;background:#c9a84c;color:#1a3a2a;font-size:16px;'
+        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">Next Hole &#8594;</button>';
+    }
+  }
+
+  // ── Snake 3-Putt panel ──
   if(G.snake && G.snake.enabled){
     html += isRoundComplete() ? renderSnakeResult() : renderSnakePanel();
   }
@@ -3143,7 +3205,17 @@ function renderMasterScorecard(){
   function netRow(){
     let r=`<tr><td class="d-sub" style="background:var(--gm)">NET</td>
       <td class="d-sub" style="background:var(--gm)" colspan="6"></td>`;
-    // ── Snake 3-Putt panel ──
+    // ── Manual-advance confirm button ──
+  if(!G.autoAdvance && !isRoundComplete()){
+    const allIn=!G.players.some((_,pi)=>G.scores[pi][G.hole]===null);
+    if(allIn && playOrderIdx(G.hole)<17){
+      html+='<button onclick="confirmNextHole()" style="width:100%;padding:14px;'
+        +'margin-bottom:8px;background:#c9a84c;color:#1a3a2a;font-size:16px;'
+        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">Next Hole &#8594;</button>';
+    }
+  }
+
+  // ── Snake 3-Putt panel ──
   if(G.snake && G.snake.enabled){
     html += isRoundComplete() ? renderSnakeResult() : renderSnakePanel();
   }
@@ -3160,7 +3232,17 @@ function renderMasterScorecard(){
     const fw = bold ? 800 : 700;
     let r=`<tr><td class="d-sub" style="background:${bg};font-weight:${fw};font-size:9px">${label}</td>
       <td class="d-sub" style="background:${bg}" colspan="6"></td>`;
-    // ── Snake 3-Putt panel ──
+    // ── Manual-advance confirm button ──
+  if(!G.autoAdvance && !isRoundComplete()){
+    const allIn=!G.players.some((_,pi)=>G.scores[pi][G.hole]===null);
+    if(allIn && playOrderIdx(G.hole)<17){
+      html+='<button onclick="confirmNextHole()" style="width:100%;padding:14px;'
+        +'margin-bottom:8px;background:#c9a84c;color:#1a3a2a;font-size:16px;'
+        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">Next Hole &#8594;</button>';
+    }
+  }
+
+  // ── Snake 3-Putt panel ──
   if(G.snake && G.snake.enabled){
     html += isRoundComplete() ? renderSnakeResult() : renderSnakePanel();
   }
@@ -3268,7 +3350,8 @@ function renderOneMatchCard(m, mi){
   html+=`<div class="dck-wrap"><table class="dck"><thead><tr>
     <th class="d-hdr">H</th><th class="d-hdr">HCP</th><th class="d-hdr">PAR</th>`;
   allIdxs.forEach((pi,ii)=>{
-    html+=`<th class="d-hdr d-vert">${G.players[pi].name.trim()} <span class="d-sub2">${playHdcps[ii]>0?'+'+playHdcps[ii]:'0'}</span></th>`;
+    const dk=(G.players[pi].deck||'DECK2').replace('DECK','D');
+    html+=`<th class="d-hdr d-vert">${G.players[pi].name.trim()} <span class="d-sub2">${playHdcps[ii]>0?'+'+playHdcps[ii]:'0'}</span> <span class="d-sub2" style="opacity:.7">${dk}</span></th>`;
   });
   cols.forEach(c=>{
     const isNassau = !c.game.isPress; // F9, B9, 18 are the three base Nassau bets
@@ -3411,7 +3494,7 @@ function renderSixPointCard(game, gi){
   html+=`<div class="dck-wrap"><table class="dck"><thead><tr>
     <th class="d-hdr">H</th><th class="d-hdr">HCP</th><th class="d-hdr">PAR</th>`;
   // Score columns — full player name + adjusted handicap
-  idxs.forEach((pi,ii)=>html+=`<th class="d-hdr d-vert">${G.players[pi].name.trim()} <span class="d-sub2">${playHdcps[ii]>0?'+'+playHdcps[ii]:'0'}</span></th>`);
+  idxs.forEach((pi,ii)=>{ const dk=(G.players[pi].deck||'DECK2').replace('DECK','D'); html+=`<th class="d-hdr d-vert">${G.players[pi].name.trim()} <span class="d-sub2">${playHdcps[ii]>0?'+'+playHdcps[ii]:'0'}</span> <span class="d-sub2" style="opacity:.7">${dk}</span></th>`; });
   // Spacer
   html+=`<th class="d-gap"></th>`;
   // Points columns — full player name + "pts"
@@ -3510,7 +3593,17 @@ function renderVerticalScorecard(){
     const h=actualHoleIdx(playIdx);
     fPar+=G.par[h];
     html+=`<tr><td class="pnm">${h+1}</td><td class="ns">${G.par[h]}</td><td class="ns">${G.si[h]}</td>`;
-    // ── Snake 3-Putt panel ──
+    // ── Manual-advance confirm button ──
+  if(!G.autoAdvance && !isRoundComplete()){
+    const allIn=!G.players.some((_,pi)=>G.scores[pi][G.hole]===null);
+    if(allIn && playOrderIdx(G.hole)<17){
+      html+='<button onclick="confirmNextHole()" style="width:100%;padding:14px;'
+        +'margin-bottom:8px;background:#c9a84c;color:#1a3a2a;font-size:16px;'
+        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">Next Hole &#8594;</button>';
+    }
+  }
+
+  // ── Snake 3-Putt panel ──
   if(G.snake && G.snake.enabled){
     html += isRoundComplete() ? renderSnakeResult() : renderSnakePanel();
   }
@@ -3535,7 +3628,17 @@ function renderVerticalScorecard(){
     const h=actualHoleIdx(playIdx);
     bPar+=G.par[h];
     html+=`<tr><td class="pnm">${h+1}</td><td class="ns">${G.par[h]}</td><td class="ns">${G.si[h]}</td>`;
-    // ── Snake 3-Putt panel ──
+    // ── Manual-advance confirm button ──
+  if(!G.autoAdvance && !isRoundComplete()){
+    const allIn=!G.players.some((_,pi)=>G.scores[pi][G.hole]===null);
+    if(allIn && playOrderIdx(G.hole)<17){
+      html+='<button onclick="confirmNextHole()" style="width:100%;padding:14px;'
+        +'margin-bottom:8px;background:#c9a84c;color:#1a3a2a;font-size:16px;'
+        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">Next Hole &#8594;</button>';
+    }
+  }
+
+  // ── Snake 3-Putt panel ──
   if(G.snake && G.snake.enabled){
     html += isRoundComplete() ? renderSnakeResult() : renderSnakePanel();
   }
@@ -3555,6 +3658,16 @@ function renderVerticalScorecard(){
 
   // TOT row
   html+=`<tr style="background:var(--gp);font-weight:800"><td class="pnm">TOT</td><td class="ns">${fPar+bPar}</td><td class="ns"></td>`;
+  // ── Manual-advance confirm button ──
+  if(!G.autoAdvance && !isRoundComplete()){
+    const allIn=!G.players.some((_,pi)=>G.scores[pi][G.hole]===null);
+    if(allIn && playOrderIdx(G.hole)<17){
+      html+='<button onclick="confirmNextHole()" style="width:100%;padding:14px;'
+        +'margin-bottom:8px;background:#c9a84c;color:#1a3a2a;font-size:16px;'
+        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">Next Hole &#8594;</button>';
+    }
+  }
+
   // ── Snake 3-Putt panel ──
   if(G.snake && G.snake.enabled){
     html += isRoundComplete() ? renderSnakeResult() : renderSnakePanel();
@@ -3573,6 +3686,16 @@ function renderVerticalScorecard(){
 
   // NET row — gross total minus full handicap index (rounded)
   html+=`<tr style="background:#e8f5e9;font-weight:800;color:var(--gm)"><td class="pnm">NET</td><td class="ns"></td><td class="ns"></td>`;
+  // ── Manual-advance confirm button ──
+  if(!G.autoAdvance && !isRoundComplete()){
+    const allIn=!G.players.some((_,pi)=>G.scores[pi][G.hole]===null);
+    if(allIn && playOrderIdx(G.hole)<17){
+      html+='<button onclick="confirmNextHole()" style="width:100%;padding:14px;'
+        +'margin-bottom:8px;background:#c9a84c;color:#1a3a2a;font-size:16px;'
+        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">Next Hole &#8594;</button>';
+    }
+  }
+
   // ── Snake 3-Putt panel ──
   if(G.snake && G.snake.enabled){
     html += isRoundComplete() ? renderSnakeResult() : renderSnakePanel();
@@ -3767,6 +3890,7 @@ function confirmNewRound(){
   G.scorecardOnly=false;
   G.startHole=1;
   G.snake={enabled:false,holder:null,history:[]};
+  G.autoAdvance=true;
 
   const overlay=document.getElementById('newRoundConfirm');
   if(overlay) overlay.remove();
@@ -4229,7 +4353,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.33</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.36</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4335,7 +4459,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.33</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.36</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4457,7 +4581,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.33</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.36</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4565,7 +4689,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v16.33');
+  lines.push('— Nassau Golf · Derrick GWC · v16.36');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -4740,7 +4864,7 @@ ${moneySection}<div class="sec">Master Scorecard</div>${sc}
 <div style="font-size:9px;color:#777;margin-top:3px">🔴 thin circle = 1 stroke · double circle = 2 strokes · NET = gross − full handicap index</div>
 ${matchSections}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v16.33 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v16.36 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -5510,7 +5634,7 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v16.33';
+const CACHE='nassau-v16.36';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
@@ -5567,7 +5691,7 @@ self.addEventListener('fetch',e=>{
   // Blob-URL service workers on iOS Safari don't reliably fire updatefound/waiting.
   // Instead, fetch the live page every 90s and compare the version string.
   // If a newer version is found, show the update banner.
-  const CURRENT_VERSION = 'nassau-v16.33';
+  const CURRENT_VERSION = 'nassau-v16.36';
   const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 
   function showUpdateBanner(){
