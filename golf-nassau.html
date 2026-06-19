@@ -10,7 +10,6 @@
 <link rel="manifest" href="data:application/json,{\"name\":\"Nassau Golf\",\"short_name\":\"Nassau\",\"start_url\":\"./\",\"display\":\"standalone\",\"background_color\":\"#1a3a2a\",\"theme_color\":\"#1a3a2a\"}">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%231a3a2a'/%3E%3Ctext x='256' y='340' font-size='280' text-anchor='middle' fill='%23c9a84c'%3E%E2%9B%B3%3C/text%3E%3C/svg%3E">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <title>Nassau Golf · Derrick GWC</title>
 <style>
 :root {
@@ -361,11 +360,6 @@ input::placeholder{color:#bbb}
 .dck .d-gap{background:#cfd4d9;border-top:1px solid #4a4a4a;border-bottom:1px solid #4a4a4a;border-left:2px solid #3a3a3a;border-right:2px solid #3a3a3a;min-width:8px;padding:0}
 .dck .d-vert{writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);white-space:nowrap;padding:4px 0;height:auto;min-height:62px;vertical-align:middle;text-align:center;line-height:1;font-size:9px;font-weight:800}
 .dck .d-vert .d-sub2{font-size:7px;font-weight:600;opacity:.85}
-/* During PDF capture, render the vertical column headers horizontally — html2canvas
-   does not handle writing-mode + rotate (it flips the text), and a PDF has room for
-   upright text anyway. Constrain width so columns don't balloon. */
-.pdf-capture .dck .d-vert{writing-mode:horizontal-tb !important;text-orientation:mixed;transform:none !important;min-height:0;height:auto;padding:6px 2px;font-size:8.5px;line-height:1.1;white-space:normal;word-break:break-word;vertical-align:bottom}
-.pdf-capture .dck .d-vert .d-sub2{display:inline}
 .dck .d-press{background:#fff3cd;font-weight:700;color:#8a6d00}
 .dck .d-nassaucell{background:#eef5ef}
 .dck .cell-globe{font-size:9px;margin-right:1px;vertical-align:middle}
@@ -396,7 +390,39 @@ input::placeholder{color:#bbb}
 .ni-badge.ni-badge-globe{background:transparent;font-size:13px;min-width:0;height:auto;padding:0;top:-6px;right:-10px}
 .ni-lbl{font-size:8.5px;color:var(--gl);margin-top:2px;white-space:nowrap;text-align:center}
 .ni.active .ni-lbl{color:var(--gold)}
-</style>
+/* ── Print / Share as PDF (history round) ──
+   When printing, show ONLY the open round detail, upright and on a white page.
+   iOS turns this into a clean PDF via the system print renderer (Share → Save to Files). */
+@media print {
+  @page { margin: 10mm; }
+  body.printing-round { background:#fff !important; }
+  /* Hide everything by default while printing a round… */
+  body.printing-round > * { display:none !important; }
+  /* …except the history-detail screen, shown as normal flow (not a fixed overlay). */
+  body.printing-round #screen-history-detail{
+    display:block !important; position:static !important; height:auto !important;
+    overflow:visible !important; background:#fff !important;
+  }
+  /* Hide the in-app header bar (back arrow + Share button); we add a clean title instead. */
+  body.printing-round #screen-history-detail .shdr{ display:none !important; }
+  body.printing-round #historyDetailBody{
+    display:block !important; height:auto !important; max-height:none !important;
+    overflow:visible !important; padding:0 !important;
+  }
+  /* The printed-title block we inject at print time. */
+  #printRoundTitle{ display:none; }
+  body.printing-round #printRoundTitle{
+    display:block !important; text-align:center; font-weight:800; color:#13291d;
+    font-size:16px; margin:0 0 10px; padding:0;
+  }
+  body.printing-round #printRoundTitle .pr-sub{ font-size:11px; font-weight:600; color:#555; margin-top:2px; }
+  /* Don't slice cards across pages where avoidable. */
+  body.printing-round .dck, body.printing-round .msum, body.printing-round .intl-panel{
+    break-inside:avoid; page-break-inside:avoid;
+  }
+  /* Hide any leftover interactive bits. */
+  body.printing-round .export-btn, body.printing-round .intl-btn, body.printing-round .intl-undo{ display:none !important; }
+}
 </head>
 <body>
 
@@ -488,7 +514,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v16.1
+    Nassau Golf · Derrick GWC · v16.2
   </div>
 </div>
 </div>
@@ -544,7 +570,7 @@ input::placeholder{color:#bbb}
   <div class="shdr" style="display:flex;align-items:center;gap:10px;padding:10px 14px">
     <button class="hnav-btn" onclick="closeHistoryDetail()">‹</button>
     <div class="hnum" id="historyDetailTitle" style="font-size:16px;flex:1">Round</div>
-    <button class="hpdf-btn" id="historyPdfBtn" onclick="exportHistoryPDF()" title="Export this round as a PDF">📄 PDF</button>
+    <button class="hpdf-btn" id="historyPdfBtn" onclick="printHistoryRound()" title="Print or share this round as a PDF">📄 Share</button>
   </div>
   <div class="sbody" id="historyDetailBody"></div>
 </div>
@@ -2225,7 +2251,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.2</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2396,7 +2422,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.1</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.2</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2892,7 +2918,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.1</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.2</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4059,7 +4085,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.2</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4165,7 +4191,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.1</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.2</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4262,7 +4288,7 @@ function openHistoryDetail(i){
     G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.2</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4289,68 +4315,47 @@ function openHistoryDetail(i){
 }
 
 function closeHistoryDetail(){
+  const t=document.getElementById('printRoundTitle'); if(t) t.remove();
+  document.body.classList.remove('printing-round');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-history').classList.add('active');
 }
 
 let _historyDateStr='Round';
 
-// Export the open history round as a multi-page PDF. Captures the whole detail body with
-// html2canvas, then slices the tall image across A4 pages so nothing is awkwardly cut.
-function exportHistoryPDF(){
+// Share the open history round via the iOS/desktop system print engine. This renders the
+// scorecard exactly as it looks on screen (rotated headers and all) — no html2canvas — so on
+// iPhone you tap Share → Save to Files / Mail to get a clean PDF. Reliable and glitch-free.
+function printHistoryRound(){
   const body=document.getElementById('historyDetailBody');
   if(!body) return;
-  const btn=document.getElementById('historyPdfBtn');
-  const jsPDFlib = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : null;
-  if(!jsPDFlib || typeof html2canvas==='undefined'){
-    alert('PDF export needs an internet connection the first time. Please reconnect and try again.');
-    return;
-  }
-  if(btn){ btn.disabled=true; btn._old=btn.textContent; btn.textContent='…'; }
 
-  // Measure the layout WITH the capture styles applied (headers become horizontal, which
-  // widens columns). We add the class, read the size in the same synchronous frame, then
-  // remove it — the browser doesn't paint in between, so there's no visible flash.
-  body.classList.add('pdf-capture');
-  const fullW = body.scrollWidth;
-  const fullH = body.scrollHeight;
-  body.classList.remove('pdf-capture');
-  html2canvas(body, { backgroundColor:'#ffffff', scale:2, useCORS:true, logging:false,
-                      width:fullW, height:fullH, windowWidth:fullW, scrollX:0, scrollY:0,
-                      onclone:(doc)=>{
-                        // Make vertical headers horizontal in the captured copy only.
-                        if(doc && doc.body) doc.body.classList.add('pdf-capture');
-                      } })
-    .then(canvas=>{
-      const pdf = new jsPDFlib({ orientation:'portrait', unit:'pt', format:'a4' });
-      const pageW = pdf.internal.pageSize.getWidth();
-      const pageH = pdf.internal.pageSize.getHeight();
-      const margin = 18;
-      const usableW = pageW - margin*2;
-      // Scale the canvas to the usable page width; figure out how many vertical slices we need.
-      const pxPerPt = canvas.width / usableW;            // canvas px per PDF point
-      const sliceHpx = Math.floor((pageH - margin*2) * pxPerPt); // canvas px that fit on one page
-      let y = 0, first = true;
-      while(y < canvas.height){
-        const hpx = Math.min(sliceHpx, canvas.height - y);
-        // Copy this slice to a temp canvas
-        const slice = document.createElement('canvas');
-        slice.width = canvas.width; slice.height = hpx;
-        const sctx = slice.getContext('2d');
-        sctx.fillStyle = '#ffffff'; sctx.fillRect(0,0,slice.width,slice.height);
-        sctx.drawImage(canvas, 0, y, canvas.width, hpx, 0, 0, canvas.width, hpx);
-        const img = slice.toDataURL('image/jpeg', 0.92);
-        const hpt = hpx / pxPerPt;
-        if(!first) pdf.addPage();
-        pdf.addImage(img, 'JPEG', margin, margin, usableW, hpt);
-        first = false;
-        y += hpx;
-      }
-      const safe = (_historyDateStr||'Round').replace(/[^\w]+/g,'-');
-      pdf.save(`Nassau-Round-${safe}.pdf`);
-    })
-    .catch(err=>{ alert('Sorry — could not build the PDF. '+(err&&err.message?err.message:'')); })
-    .finally(()=>{ if(btn){ btn.disabled=false; btn.textContent=btn._old||'📄 PDF'; } });
+  // Inject a clean printed title (course · date · players) at the top of the round, just for print.
+  let titleEl=document.getElementById('printRoundTitle');
+  if(!titleEl){
+    titleEl=document.createElement('div');
+    titleEl.id='printRoundTitle';
+    body.insertBefore(titleEl, body.firstChild);
+  }
+  let playerLine='';
+  try{
+    const snap=_historySnapshot;
+    if(snap && Array.isArray(snap.players)) playerLine = snap.players.map(p=>p.name).join(' · ');
+  }catch(e){}
+  titleEl.innerHTML = `Nassau Golf · Derrick GWC`
+    + `<div class="pr-sub">${_historyDateStr||''}${playerLine?(' — '+playerLine):''}</div>`;
+
+  // Flip into print mode, print, then clean up after the dialog closes.
+  document.body.classList.add('printing-round');
+  const cleanup=()=>{
+    document.body.classList.remove('printing-round');
+    window.removeEventListener('afterprint', cleanup);
+  };
+  window.addEventListener('afterprint', cleanup);
+  // Fallback cleanup in case afterprint doesn't fire on some browsers.
+  setTimeout(()=>{ if(document.body.classList.contains('printing-round')) cleanup(); }, 60000);
+
+  setTimeout(()=>{ window.print(); }, 60);
 }
 
 /* ═══════════════════════════════════════════════
@@ -4972,7 +4977,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v16.1';
+const CACHE='nassau-v16.2';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
