@@ -423,6 +423,7 @@ input::placeholder{color:#bbb}
   /* Hide any leftover interactive bits. */
   body.printing-round .export-btn, body.printing-round .intl-btn, body.printing-round .intl-undo{ display:none !important; }
 }
+</style>
 </head>
 <body>
 
@@ -514,7 +515,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v16.2
+    Nassau Golf · Derrick GWC · v16.4
   </div>
 </div>
 </div>
@@ -2251,7 +2252,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.2</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.4</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2422,7 +2423,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.2</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.4</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2918,7 +2919,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.2</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.4</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4085,7 +4086,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.2</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.4</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4191,7 +4192,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.2</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.4</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4288,7 +4289,7 @@ function openHistoryDetail(i){
     G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.2</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.4</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4977,7 +4978,7 @@ renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v16.2';
+const CACHE='nassau-v16.4';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
@@ -4985,13 +4986,37 @@ self.addEventListener('install',e=>{
   );
 });
 self.addEventListener('activate',e=>{
-  e.waitUntil(clients.claim());
+  e.waitUntil(
+    // Remove every old cache version, then take control of open pages.
+    caches.keys().then(keys=>Promise.all(
+      keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))
+    )).then(()=>clients.claim())
+  );
 });
 self.addEventListener('fetch',e=>{
+  const req=e.request;
+  // Only handle GET; let everything else (POST etc.) pass straight through.
+  if(req.method!=='GET'){ return; }
+  const isNavigation = req.mode==='navigate' ||
+    (req.destination==='document') ||
+    (req.headers.get('accept')||'').includes('text/html');
+  if(isNavigation){
+    // NETWORK-FIRST for the app page itself, so a freshly deployed version always wins
+    // when online. Fall back to cache only when the network is unavailable (offline play).
+    e.respondWith(
+      fetch(req).then(res=>{
+        const clone=res.clone();
+        caches.open(CACHE).then(c=>c.put(req,clone));
+        return res;
+      }).catch(()=>caches.match(req).then(r=>r||caches.match('./')))
+    );
+    return;
+  }
+  // CACHE-FIRST for other assets (icons, help page, etc.) for speed/offline.
   e.respondWith(
-    caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{
+    caches.match(req).then(r=>r||fetch(req).then(res=>{
       const clone=res.clone();
-      caches.open(CACHE).then(c=>c.put(e.request,clone));
+      caches.open(CACHE).then(c=>c.put(req,clone));
       return res;
     }))
   );
