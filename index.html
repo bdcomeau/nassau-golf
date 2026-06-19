@@ -374,6 +374,17 @@ input::placeholder{color:#bbb}
 .dot2{background:#8e0000}
 .nu{color:var(--gm);font-weight:700}.no{color:var(--red);font-weight:700}
 
+/* ── UPDATE BANNER ── */
+#updateBanner{
+  display:none;position:fixed;bottom:60px;left:50%;transform:translateX(-50%);
+  z-index:9999;background:#1a3a2a;border:2px solid #c9a84c;border-radius:12px;
+  padding:10px 16px;box-shadow:0 4px 20px rgba(0,0,0,.5);
+  display:none;align-items:center;gap:12px;white-space:nowrap;
+}
+#updateBanner .ub-msg{font-size:13px;font-weight:600;color:#f5f0e8}
+#updateBanner .ub-btn{background:#c9a84c;color:#1a3a2a;border:none;border-radius:8px;
+  padding:7px 14px;font-size:13px;font-weight:800;cursor:pointer;flex-shrink:0}
+
 /* ── SNAKE 3-PUTT GAME ── */
 .snake-panel{background:#1a1a2e;border-radius:10px;padding:10px 12px;margin-bottom:6px}
 .snake-title{font-size:11px;font-weight:700;color:#f0c040;letter-spacing:.5px;margin-bottom:6px}
@@ -511,7 +522,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v16.26
+    Nassau Golf · Derrick GWC · v16.27
   </div>
 </div>
 </div>
@@ -2260,7 +2271,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.26</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.27</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2436,7 +2447,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.26</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.27</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2972,7 +2983,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.26</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.27</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4209,7 +4220,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.26</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.27</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4315,7 +4326,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.26</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.27</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4437,7 +4448,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.26</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.27</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4545,7 +4556,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v16.26');
+  lines.push('— Nassau Golf · Derrick GWC · v16.27');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -4720,7 +4731,7 @@ ${moneySection}<div class="sec">Master Scorecard</div>${sc}
 <div style="font-size:9px;color:#777;margin-top:3px">🔴 thin circle = 1 stroke · double circle = 2 strokes · NET = gross − full handicap index</div>
 ${matchSections}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v16.26 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v16.27 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -5440,19 +5451,25 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
   }
 })();
 </script>
+<div id="updateBanner" role="alert" aria-live="polite">
+  <span class="ub-msg">🆕 Update available</span>
+  <button class="ub-btn" onclick="applyUpdate()">Update Now</button>
+</div>
+
 <iframe id="printFrame" src="about:blank" aria-hidden="true" tabindex="-1"></iframe>
 
 <script>
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v16.26';
+const CACHE='nassau-v16.27';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
-    .then(()=>self.skipWaiting())
   );
 });
+// Note: no skipWaiting() here — we wait for the page to send SKIP_WAITING
+// so the user gets the update banner before the new SW takes over.
 self.addEventListener('activate',e=>{
   e.waitUntil(
     // Remove every old cache version, then take control of open pages.
@@ -5460,6 +5477,9 @@ self.addEventListener('activate',e=>{
       keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))
     )).then(()=>clients.claim())
   );
+});
+self.addEventListener('message',e=>{
+  if(e.data && e.data.type==='SKIP_WAITING') self.skipWaiting();
 });
 self.addEventListener('fetch',e=>{
   const req=e.request;
@@ -5492,11 +5512,48 @@ self.addEventListener('fetch',e=>{
 `;
   const blob=new Blob([swCode],{type:'application/javascript'});
   const swUrl=URL.createObjectURL(blob);
+  let _swReg=null;
+
+  function showUpdateBanner(){
+    const b=document.getElementById('updateBanner');
+    if(b){ b.style.display='flex'; }
+  }
+
+  window.applyUpdate=function(){
+    const b=document.getElementById('updateBanner');
+    if(b) b.style.display='none';
+    if(_swReg && _swReg.waiting){
+      _swReg.waiting.postMessage({type:'SKIP_WAITING'});
+    }
+    window.location.reload();
+  };
+
   window.addEventListener('load',()=>{
-    navigator.serviceWorker.register(swUrl)
-      .then(()=>console.log('SW ready'))
-      .catch(e=>console.log('SW failed',e));
+    navigator.serviceWorker.register(swUrl).then(reg=>{
+      _swReg=reg;
+      // Already waiting (e.g. user had old version open, new one downloaded)
+      if(reg.waiting){ showUpdateBanner(); return; }
+      // New SW found and installing
+      reg.addEventListener('updatefound',()=>{
+        const newSW=reg.installing;
+        newSW.addEventListener('statechange',()=>{
+          if(newSW.state==='installed' && navigator.serviceWorker.controller){
+            showUpdateBanner();
+          }
+        });
+      });
+    }).catch(e=>console.log('SW failed',e));
+
+    // When SW activates (after SKIP_WAITING), reload to pick up new version
+    navigator.serviceWorker.addEventListener('controllerchange',()=>{
+      window.location.reload();
+    });
   });
+
+  // Also check for updates periodically while app is open (every 60s)
+  setInterval(()=>{
+    if(_swReg) _swReg.update().catch(()=>{});
+  }, 60000);
 }
 </script>
 </body>
