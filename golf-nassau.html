@@ -511,7 +511,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v16.24
+    Nassau Golf · Derrick GWC · v16.25
   </div>
 </div>
 </div>
@@ -2260,7 +2260,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.24</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.25</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2436,7 +2436,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.24</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.25</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2972,7 +2972,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.24</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.25</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4209,7 +4209,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.24</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.25</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4315,7 +4315,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.24</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.25</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4437,7 +4437,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.24</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.25</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4545,7 +4545,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v16.24');
+  lines.push('— Nassau Golf · Derrick GWC · v16.25');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -4720,7 +4720,7 @@ ${moneySection}<div class="sec">Master Scorecard</div>${sc}
 <div style="font-size:9px;color:#777;margin-top:3px">🔴 thin circle = 1 stroke · double circle = 2 strokes · NET = gross − full handicap index</div>
 ${matchSections}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v16.24 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v16.25 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -5095,10 +5095,31 @@ function renderFavoritesList(){
 function deleteFavPlayer(name){
   const contacts = loadContacts();
   if(!contacts.find(c=>c.name===name)) return;
-  if(!confirm(`Remove "${name}" from your player list?`)) return;
+  // confirm() is blocked in iOS PWA standalone mode — use inline confirm UI instead
+  const existing = document.getElementById('favDelConfirm');
+  if(existing) existing.remove();
+  const box = document.createElement('div');
+  box.id = 'favDelConfirm';
+  box.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px';
+  box.innerHTML = `
+    <div style="background:#fff;border-radius:14px;padding:20px;max-width:300px;width:100%;text-align:center">
+      <div style="font-size:16px;font-weight:700;color:#c0392b;margin-bottom:8px">⚠️ Remove Player</div>
+      <div style="font-size:14px;color:#333;margin-bottom:18px">Remove <b>${name}</b> from your player list?</div>
+      <div style="display:flex;gap:10px">
+        <button onclick="document.getElementById('favDelConfirm').remove()" style="flex:1;padding:11px;border-radius:10px;border:1.5px solid #ccc;background:#f5f5f5;font-size:14px;font-weight:600;cursor:pointer">Cancel</button>
+        <button onclick="confirmDeleteFavPlayer('${name.replace(/'/g,"\'")}')" style="flex:1;padding:11px;border-radius:10px;border:none;background:#c0392b;color:#fff;font-size:14px;font-weight:700;cursor:pointer">Remove</button>
+      </div>
+    </div>`;
+  document.body.appendChild(box);
+}
+
+function confirmDeleteFavPlayer(name){
+  const box = document.getElementById('favDelConfirm');
+  if(box) box.remove();
+  const contacts = loadContacts();
   saveContacts(contacts.filter(c=>c.name!==name));
   renderFavoritesList();
-  renderPlayers(); // refresh setup screen dropdowns
+  renderPlayers();
 }
 
 // Triggered by the "⭐ Load My Favorites" button — gives feedback if none are set.
@@ -5425,7 +5446,7 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v16.24';
+const CACHE='nassau-v16.25';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
