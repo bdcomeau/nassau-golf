@@ -522,7 +522,7 @@ input::placeholder{color:#bbb}
 
   <div class="slabel" style="color:#9b59b6">🐍 Snake 3-Putt Game</div>
   <div class="card" style="background:#1a1a2e;border:1.5px solid #6c3483">
-    <div style="font-size:12px;color:#ccc;margin:0 0 10px">Optional money game — whoever holds the 3-putt snake at holes 3, 6, 9, 12, 15 & 18 pays each other participant. Snake resets after each settlement.</div>
+    <div style="font-size:12px;color:#ccc;margin:0 0 10px">Whoever holds the 3-putt snake after your 3rd, 6th, 9th, 12th, 15th and 18th holes pays each other participant the selected wager. The Snake resets after each settlement hole.</div>
     <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:10px">
       <div><div style="font-size:14px;font-weight:700;color:#f0c040">Enable Snake Game</div>
       <div style="font-size:12px;color:#aaa;margin-top:2px">Track 3-putts hole by hole on the scorecard.</div></div>
@@ -573,7 +573,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v20.2
+    Nassau Golf · Derrick GWC · v20.3
   </div>
 </div>
 </div>
@@ -657,7 +657,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v20.2</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v20.3</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2410,7 +2410,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v20.2</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v20.3</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2611,7 +2611,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v20.2</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v20.3</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3163,7 +3163,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v20.2</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v20.3</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4745,7 +4745,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v20.2</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v20.3</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4854,7 +4854,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v20.2</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v20.3</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4976,7 +4976,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v20.2</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v20.3</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5084,7 +5084,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v20.2');
+  lines.push('— Nassau Golf · Derrick GWC · v20.3');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -5262,7 +5262,7 @@ ${moneySection}<div class="sec">Master Scorecard</div>${sc}
 <div style="font-size:9px;color:#777;margin-top:3px">🔴 thin circle = 1 stroke · double circle = 2 strokes · NET = gross − full handicap index</div>
 ${matchSections}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v20.2 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v20.3 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -6311,9 +6311,10 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v20.2';
+const CURRENT_VERSION = 'nassau-v20.3';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v20.3 — Setup: Snake game description updated with correct wording',
   'v20.2 — Master scorecard: scores now marked by gross result — red circle (birdie), double red circle (eagle), green diamond (hole-in-one), black square (bogey), double black square (double+)',
   'v20.1 — Setup: Load My Favorites button colour matches Manage Favorites green',
   'v20.0 — Major release: Games hub navigation, Snake money game, Typical Score wheel, hole wheel picker, setup screen redesign, and many more improvements since v16',
@@ -6469,7 +6470,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode=`
-const CACHE='nassau-v20.2';
+const CACHE='nassau-v20.3';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
