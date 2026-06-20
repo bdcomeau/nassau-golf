@@ -418,6 +418,8 @@ input::placeholder{color:#bbb}
 .ni-icon{font-size:20px;position:relative;display:inline-block}
 .ni-badge{position:absolute;top:-4px;right:-8px;background:var(--red);color:#fff;font-size:9px;font-weight:800;line-height:1;border-radius:8px;min-width:14px;height:14px;display:flex;align-items:center;justify-content:center;padding:0 3px}
 .ni-badge.ni-badge-gold{background:var(--gold);color:var(--gd)}
+.ni-badge.ni-badge-inprogress{background:#e67e22;animation:pulse-dot 1.5s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
 .ni-badge.ni-badge-globe{background:transparent;font-size:13px;min-width:0;height:auto;padding:0;top:-6px;right:-10px}
 .ni-lbl{font-size:8.5px;color:var(--gl);margin-top:2px;white-space:nowrap;text-align:center}
 .ni.active .ni-lbl{color:var(--gold)}
@@ -556,7 +558,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v16.58
+    Nassau Golf · Derrick GWC · v16.59
   </div>
 </div>
 </div>
@@ -625,7 +627,7 @@ input::placeholder{color:#bbb}
 
 <!-- ══════════ BOTTOM NAV ══════════ -->
 <div class="bnav" id="bnav" style="display:none">
-  <div class="ni active" id="ni-score"   onclick="showS('score')"><div class="ni-icon">⛳<span class="ni-badge ni-badge-gold" id="holeBadge" style="display:none">1</span></div><div class="ni-lbl">Scorecard</div></div>
+  <div class="ni active" id="ni-score"   onclick="showS('score')"><div class="ni-icon">⛳<span class="ni-badge ni-badge-gold" id="holeBadge" style="display:none">1</span><span class="ni-badge ni-badge-inprogress" id="inProgressDot" style="display:none;width:8px;min-width:8px;height:8px;padding:0;top:-2px;right:-4px"></span></div><div class="ni-lbl">Scorecard</div></div>
   <div class="ni"        id="ni-bets"    onclick="showS('bets')"><div class="ni-icon">💰<span class="ni-badge ni-badge-globe" id="intlBadge" style="display:none">🌍</span></div><div class="ni-lbl">Nassau</div></div>
   <div class="ni"        id="ni-sixpoint" onclick="showS('sixpoint')" style="display:none"><div class="ni-icon">6️⃣</div><div class="ni-lbl">6-Point</div></div>
   <div class="ni"        id="ni-snake" onclick="showS(&quot;snake&quot;)" style="display:none"><div class="ni-icon">🐍</div><div class="ni-lbl">Snake</div></div>
@@ -635,7 +637,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v16.58</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v16.59</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2365,7 +2367,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.58</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.59</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2429,6 +2431,12 @@ function renderCard(){
   if(holeBadge){
     holeBadge.textContent=playIdx+1;
     holeBadge.style.display='flex';
+  }
+  const inProgressDot=document.getElementById('inProgressDot');
+  if(inProgressDot){
+    const anyIn=G.players.some((_,pi)=>G.scores[pi][G.hole]!==null);
+    const allIn=!G.players.some((_,pi)=>G.scores[pi][G.hole]===null);
+    inProgressDot.style.display=(anyIn&&!allIn)?'flex':'none';
   }
   // Navigation steps through ACTUAL holes in PLAY ORDER (wraps for shotgun starts)
   document.getElementById('btnPrev').disabled=playIdx===0;
@@ -2551,7 +2559,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.58</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.59</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3103,7 +3111,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.58</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.59</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4540,7 +4548,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.58</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.59</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4649,7 +4657,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.58</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.59</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4771,7 +4779,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.58</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.59</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4879,7 +4887,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v16.58');
+  lines.push('— Nassau Golf · Derrick GWC · v16.59');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -5057,7 +5065,7 @@ ${moneySection}<div class="sec">Master Scorecard</div>${sc}
 <div style="font-size:9px;color:#777;margin-top:3px">🔴 thin circle = 1 stroke · double circle = 2 strokes · NET = gross − full handicap index</div>
 ${matchSections}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v16.58 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v16.59 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -5796,12 +5804,11 @@ function getEmergencyBackup(){
 }
 function emergencyBannerHTML(){
   const b=getEmergencyBackup(); if(!b) return '';
-  if(Date.now()-b.savedAt>86400000){ clearEmergencyBackup(); return ''; }
   const d=new Date(b.savedAt);
-  const ts=d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+' on '+d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  const ts=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+' at '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
   return '<div style="background:#fff3cd;border:1.5px solid #c9a84c;border-radius:10px;padding:12px 14px;margin-bottom:14px">'
     +'<div style="font-size:13px;font-weight:700;color:#7a5c00;margin-bottom:4px">⚠️ Accidental New Round?</div>'
-    +`<div style="font-size:12px;color:#5a4500;margin-bottom:10px">A round was cleared at ${ts}. You can restore it — this will replace your current setup.</div>`
+    +`<div style="font-size:12px;color:#5a4500;margin-bottom:10px">A round was cleared on ${ts}. Tap Restore to get it back.</div>`
     +'<div style="display:flex;gap:8px">'
     +'<button onclick="showRestoreConfirm()" style="flex:1;padding:9px;border-radius:8px;border:none;background:#c9a84c;color:#1a3a2a;font-size:13px;font-weight:700;cursor:pointer">↩ Restore Round</button>'
     +'<button onclick="dismissEmergencyBackup()" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid #ccc;background:#fff;font-size:13px;color:#666;cursor:pointer">Dismiss</button>'
@@ -5976,7 +5983,7 @@ showEmergencyBanners();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v16.58';
+const CACHE='nassau-v16.59';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
@@ -6033,9 +6040,242 @@ self.addEventListener('fetch',e=>{
   // Blob-URL service workers on iOS Safari don't reliably fire updatefound/waiting.
   // Instead, fetch the live page every 90s and compare the version string.
   // If a newer version is found, show the update banner.
-  const CURRENT_VERSION = 'nassau-v16.58';
+  const CURRENT_VERSION = 'nassau-v16.59';
   const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
   const RELEASE_NOTES = [
+    'v16.59 — Emergency backup persists until next round; pulsing dot on scorecard tab when hole partially scored; snake tab shows 3-putt log',
+    'v16.58 — Setup: Round Setup header moved to the very top of the screen',
+    'v16.57 — Fixed: What\'s New page now renders emoji and special characters correctly',
+    'v16.56 — Master scorecard: 🐍 + holder name shown on settlement holes (3,6,9,12,15,18)',
+    'v16.55 — Fixed: What\'s New opens as a full scrollable page instead of a stuck modal',
+    'v16.54 — Fixed: update notes modal now scrollable on iOS',
+    'v16.53 — Snake tab: current holder hidden after round is complete',
+    'v16.52 — Snake: after hole 18 scorecard shows a tap-to-view pointer instead of full results box',
+    'v16.51 — Master scorecard: Snake $ row added to money totals alongside Nassau and 6-Point',
+    'v16.50 — Snake: scorecard panel now shows stretch holder (resets after each settlement); hole 18 shows 6-stretch summary',
+    'v16.49 — Version number now shown beside Help button on every screen',
+    'v16.48 — Snake: resets every 3 holes (not continuous); participant selection added to setup',
+    'v16.47 — Snake 3-Putt is now a full money game with its own tab, settlement holes, and bet amount',
+    'v16.46 — Setup screen: Round Setup header added to clarify the screen purpose',
+    'v16.45 — Fixed: ℹ️ release notes button now correctly parses the notes list',
+    'v16.44 — New Round blocked if on hole 18 with missing scores',
+    'v16.43 — New Round dialog is now context-aware: completed rounds show a green confirmation, not a scary warning',
+    'v16.42 — Solo mode: set players to 1 for scorecard-only with no matches or betting',
+    'v16.41 — Fixed: ℹ️ update info button now appears correctly',
+    'v16.40 — Update banner now shows a ℹ️ button with release notes for what changed',
+    'v16.39 — Rounds now auto-save to History the moment the last score on hole 18 is entered',
+    'v16.38 — Fixed: Restore Emergency Backup now reloads correctly on iOS',
+    'v16.37 — Emergency backup: if you accidentally start a new round, a restore option appears on the Setup and History screens',
+    'v16.36 — Setup: Auto-advance holes toggle (turn off to require manual Next Hole tap)',
+    'v16.35 — Scorecard headers: space added between handicap index and deck label',
+    'v16.34 — Scorecard headers: tee deck (D1, D2, etc.) now shown under each player name in all cards',
+    'v16.33 — Fixed: all-time money in Manage Players now correctly includes 6-Point',
+    'v16.32 — Manage Players: shows GC member ID, last round date & score, all-time money per player',
+    'v16.31 — Setup: History button renamed to Round History & Backup / Restore',
+    'v16.30 — Setup: Reset confirm dialog now appears inline below the Reset button',
+    'v16.29 — Auto-update: app now checks for new versions every 90s and shows a banner',
+  ];
+  let _pendingReleaseNotes = null;
+
+  function showUpdateBanner(notes){
+    _pendingReleaseNotes = notes || null;
+    const b=document.getElementById('updateBanner');
+    if(!b) return;
+    // Show info button only if we have notes to show
+    const infoBtn=b.querySelector('.ub-info');
+    if(infoBtn) infoBtn.style.display = notes ? 'inline-block' : 'none';
+    b.style.display='flex';
+  }
+
+  window.showUpdateNotes=function(){
+    if(!_pendingReleaseNotes || !_pendingReleaseNotes.length) return;
+    const items=_pendingReleaseNotes.map(n=>{
+      // Clean up version prefix and em dash for display
+      const m=n.match(/^(v[\d.]+)\s*\u2014\s*(.+)$/);
+      return m
+        ? '<li><span style="font-weight:700;color:#c9a84c">'+m[1]+'</span> — '+m[2]+'</li>'
+        : '<li>'+n+'</li>';
+    }).join('');
+    const page='<!DOCTYPE html>'
+      +'<html><head>'
+      +'<meta charset="utf-8">'
+      +'<meta name="viewport" content="width=device-width,initial-scale=1">'
+      +'<style>'
+      +'body{font-family:-apple-system,sans-serif;margin:0;padding:0;background:#f5f0e8;color:#222}'
+      +'.hdr{background:#1a3a2a;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0}'
+      +'.title{font-size:18px;font-weight:700;color:#c9a84c}'
+      +'.done{background:rgba(201,168,76,.2);border:1.5px solid #c9a84c;color:#c9a84c;border-radius:8px;padding:7px 16px;font-size:14px;font-weight:700}'
+      +'ul{list-style:disc;padding:16px 20px 40px 32px;margin:0}'
+      +'li{margin:10px 0;font-size:15px;line-height:1.5}'
+      +'</style></head><body>'
+      +'<div class="hdr"><span class="title">What\'s New</span><button class="done" onclick="window.close()">Done</button></div>'
+      +'<ul>'+items+'</ul>'
+      +'</body></html>';
+    // Use blob with explicit UTF-8 type — most reliable on iOS Safari
+    const blob=new Blob([page],{type:'text/html;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    window.open(url,'_blank');
+  };
+
+  window.applyUpdate=function(){
+    const b=document.getElementById('updateBanner');
+    if(b) b.style.display='none';
+    // Force bypass cache so we get the new version
+    window.location.href = LIVE_URL + '?v=' + Date.now();
+  };
+
+  async function checkForUpdate(){
+    try{
+      const res = await fetch(LIVE_URL, {cache:'no-store'});
+      if(!res.ok) return;
+      const text = await res.text();
+      // Extract version from the cache constant in the fetched page
+      const m = text.match(/const CACHE='(nassau-v[\d.]+)'/);
+      if(m && m[1] !== CURRENT_VERSION){
+        // Extract release notes from the fetched page
+        let notes = null;
+        try{
+          const rnStart = text.indexOf('const RELEASE_NOTES = [');
+          if(rnStart >= 0){
+            const rnEnd = text.indexOf('];', rnStart) + 2;
+            const rnSrc = text.slice(rnStart + 'const RELEASE_NOTES = '.length, rnEnd);
+            // Use Function() not JSON.parse — array uses JS single quotes not JSON
+            notes = (new Function('return ' + rnSrc))();
+          }
+        }catch(_){}
+        showUpdateBanner(notes);
+      }
+    }catch(e){ /* offline — silently skip */ }
+  }
+
+  // First check after 30s (gives the app time to settle), then every 90s
+  setTimeout(checkForUpdate, 30000);
+  setInterval(checkForUpdate, 90000);
+}
+</script>
+</body>
+</html>  // Only show current holder if round is not yet complete
+  if(!isRoundComplete()){
+    html+=`<div style="background:#1a1a2e;border-radius:10px;padding:12px 14px;text-align:center;margin-bottom:12px"><div style="font-size:12px;color:#aaa;margin-bottom:4px">Currently holding the snake</div><div style="font-size:18px;font-weight:800;color:#f0c040">${holder||'\u2014 Nobody yet \u2014'}</div></div>`;
+  }
+  // Hole-by-hole 3-putt log
+  const sortedLog=[...(G.snake.history||[])].filter(e=>e.name).sort((a,b)=>playOrderIdx(a.hole)-playOrderIdx(b.hole));
+  if(sortedLog.length>0){
+    html+='<div style="background:#fff;border-radius:10px;overflow:hidden;margin-bottom:12px">'
+        +'<div style="background:#2a1a3e;padding:8px 12px;font-size:11px;font-weight:700;color:#c9a84c;letter-spacing:.5px;text-transform:uppercase">3-Putt Log</div>';
+    sortedLog.forEach((e,i)=>{
+      const border=i<sortedLog.length-1?'1px solid #f0ebe0':'none';
+      html+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:${border}">`
+          +`<span style="font-size:13px;font-weight:600;color:#333">${e.name}</span>`
+          +`<span style="font-size:12px;color:#888">Hole ${e.hole+1}</span>`
+          +'</div>';
+    });
+    html+='</div>';
+  }
+  html+='</div>';
+  el.innerHTML=html;
+}
+/* ═══════════════════════════════════════════════
+   BOOT
+═══════════════════════════════════════════════ */
+seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
+showEmergencyBanners();
+
+// ── Restore saved round on launch ──
+(function(){
+  if(loadG()){
+    document.getElementById('bnav').style.display='flex';
+    applyScorecardOnlyNav();
+    document.getElementById('badge').textContent='HOLE '+(G.hole+1);
+    document.getElementById('cntVal').textContent=G.n;
+    showS('score'); renderCard();
+    updateBirdieJuiceBadge();
+    updateInternationalBadge();
+    startWeatherAutoRefresh();
+    const t=document.createElement('div');
+    t.textContent='Round restored ✓';
+    t.style.cssText='position:fixed;top:72px;left:50%;transform:translateX(-50%);background:var(--gm);color:#fff;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;z-index:999;pointer-events:none';
+    document.body.appendChild(t);
+    setTimeout(()=>t.remove(),2500);
+  } else {
+    // Fresh launch on the setup screen — pre-fill the player rows from favorites.
+    autofillFavorites(true);
+  }
+})();
+</script>
+<div id="updateBanner" role="alert" aria-live="polite">
+  <span class="ub-msg">🆕 Update available</span>
+  <button class="ub-btn ub-info" onclick="showUpdateNotes()" style="display:none;background:rgba(201,168,76,.2);color:#c9a84c;margin-right:-4px" title="What's new">ℹ️</button>
+  <button class="ub-btn" onclick="applyUpdate()">Update Now</button>
+</div>
+
+<iframe id="printFrame" src="about:blank" aria-hidden="true" tabindex="-1"></iframe>
+
+<script>
+// Inline service worker for PWA offline support
+if('serviceWorker' in navigator){
+  const swCode = `
+const CACHE='nassau-v16.59';
+self.addEventListener('install',e=>{
+  e.waitUntil(
+    caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
+    .then(()=>self.skipWaiting())
+  );
+});
+self.addEventListener('activate',e=>{
+  e.waitUntil(
+    // Remove every old cache version, then take control of open pages.
+    caches.keys().then(keys=>Promise.all(
+      keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))
+    )).then(()=>clients.claim())
+  );
+});
+self.addEventListener('fetch',e=>{
+  const req=e.request;
+  // Only handle GET; let everything else (POST etc.) pass straight through.
+  if(req.method!=='GET'){ return; }
+  const isNavigation = req.mode==='navigate' ||
+    (req.destination==='document') ||
+    (req.headers.get('accept')||'').includes('text/html');
+  if(isNavigation){
+    // NETWORK-FIRST for the app page itself, so a freshly deployed version always wins
+    // when online. Fall back to cache only when the network is unavailable (offline play).
+    e.respondWith(
+      fetch(req).then(res=>{
+        const clone=res.clone();
+        caches.open(CACHE).then(c=>c.put(req,clone));
+        return res;
+      }).catch(()=>caches.match(req).then(r=>r||caches.match('./')))
+    );
+    return;
+  }
+  // CACHE-FIRST for other assets (icons, help page, etc.) for speed/offline.
+  e.respondWith(
+    caches.match(req).then(r=>r||fetch(req).then(res=>{
+      const clone=res.clone();
+      caches.open(CACHE).then(c=>c.put(req,clone));
+      return res;
+    }))
+  );
+});
+`;
+  const blob=new Blob([swCode],{type:'application/javascript'});
+  const swUrl=URL.createObjectURL(blob);
+
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register(swUrl)
+      .then(()=>console.log('SW ready'))
+      .catch(e=>console.log('SW failed',e));
+  });
+
+  // ── Version-polling update check ──
+  // Blob-URL service workers on iOS Safari don't reliably fire updatefound/waiting.
+  // Instead, fetch the live page every 90s and compare the version string.
+  // If a newer version is found, show the update banner.
+  const CURRENT_VERSION = 'nassau-v16.59';
+  const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
+  const RELEASE_NOTES = [
+    'v16.59 — Emergency backup persists until next round; pulsing dot on scorecard tab when hole partially scored; snake tab shows 3-putt log',
     'v16.58 — Setup: Round Setup header moved to the very top of the screen',
     'v16.57 — Fixed: What\'s New page now renders emoji and special characters correctly',
     'v16.56 — Master scorecard: 🐍 + holder name shown on settlement holes (3,6,9,12,15,18)',
