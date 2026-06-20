@@ -5906,42 +5906,64 @@ function computeSnakeMoney(){
 }
 function renderSnakeTab(){
   const el=document.getElementById('snakeTabBody'); if(!el) return;
-  if(!G.snake||!G.snake.enabled){ el.innerHTML='<div style="padding:20px;text-align:center;color:#888">Snake game not enabled for this round.</div>'; return; }
+  if(!G.snake||!G.snake.enabled){
+    el.innerHTML='<div style="padding:20px;text-align:center;color:#888">Snake game not enabled for this round.</div>'; return;
+  }
   const n=G.players.length,bet=G.snake.bet;
   const settlements=computeSnakeSettlements(),money=computeSnakeMoney(),holder=G.snake.holder;
-  let html='<div style="padding:12px 14px 170px">';
   const parts=G.snake.participants&&G.snake.participants.length>=2?G.snake.participants:G.players.map((_,i)=>i);
+  let html='<div style="padding:12px 14px 170px">';
   html+='<div style="background:var(--gd);border-radius:10px;padding:12px 14px;margin-bottom:12px">'
       +'<div style="font-size:16px;font-weight:800;color:var(--gold);margin-bottom:4px">🐍 Snake 3-Putt Game</div>'
-      +`<div style="font-size:12px;color:var(--gl)">$${bet}/player · Settles holes 3,6,9,12,15,18 · resets each stretch</div>`
-      +`<div style="font-size:11px;color:var(--gl);margin-top:2px">Participants: ${parts.map(pi=>G.players[pi]?G.players[pi].name:'').filter(Boolean).join(', ')}</div>`
+      +'<div style="font-size:12px;color:var(--gl)">$'+bet+'/player · Settles holes 3,6,9,12,15,18 · resets each stretch</div>'
+      +'<div style="font-size:11px;color:var(--gl);margin-top:2px">Participants: '+parts.map(pi=>G.players[pi]?G.players[pi].name:'').filter(Boolean).join(', ')+'</div>'
       +'</div>';
-  html+='<div style="background:#fff;border-radius:10px;overflow:hidden;margin-bottom:12px"><div style="background:#2a1a3e;padding:8px 12px;font-size:11px;font-weight:700;color:#c9a84c;letter-spacing:.5px;text-transform:uppercase">Settlement Holes</div>';
+  html+='<div style="background:#fff;border-radius:10px;overflow:hidden;margin-bottom:12px">'
+      +'<div style="background:#2a1a3e;padding:8px 12px;font-size:11px;font-weight:700;color:#c9a84c;letter-spacing:.5px;text-transform:uppercase">Settlement Holes</div>';
   SNAKE_SETTLE_HOLES.forEach((playIdx,i)=>{
     const actualH=actualHoleIdx(playIdx),hNum=actualH+1;
     const scored=G.scores[0]&&G.scores[0][actualH]!==null;
     const s=settlements.find(s=>s.playIdx===playIdx);
     const border=i<SNAKE_SETTLE_HOLES.length-1?'1px solid #f0ebe0':'none';
-    html+=`<div style="display:flex;align-items:center;padding:10px 12px;border-bottom:${border};gap:10px">`;
-    html+=`<div style="width:36px;height:36px;border-radius:50%;background:${s?'#c0392b':scored?'#27ae60':'#e0e0e0'};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0">${hNum}</div>`;
+    html+='<div style="display:flex;align-items:center;padding:10px 12px;border-bottom:'+border+';gap:10px">';
+    html+='<div style="width:36px;height:36px;border-radius:50%;background:'+(s?'#c0392b':scored?'#27ae60':'#e0e0e0')+';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0">'+hNum+'</div>';
     if(!scored) html+='<div style="flex:1;font-size:13px;color:#aaa">Not yet played</div>';
-    else if(!s) html+=`<div style="flex:1"><div style="font-size:13px;font-weight:600;color:#27ae60">Skipped — no holder</div><div style="font-size:11px;color:#888">Nobody held snake at hole ${hNum}</div></div>`;
-    else html+=`<div style="flex:1"><div style="font-size:13px;font-weight:700;color:#c0392b">${s.loser} pays $${s.total}</div><div style="font-size:11px;color:#666">$${s.perPlayer} × ${s.recipients.length} → ${s.recipients.join(', ')}</div></div>`;
+    else if(!s) html+='<div style="flex:1"><div style="font-size:13px;font-weight:600;color:#27ae60">Skipped — no holder</div><div style="font-size:11px;color:#888">Nobody held snake at hole '+hNum+'</div></div>';
+    else html+='<div style="flex:1"><div style="font-size:13px;font-weight:700;color:#c0392b">'+s.loser+' pays $'+s.total+'</div><div style="font-size:11px;color:#666">$'+s.perPlayer+' × '+s.recipients.length+' → '+s.recipients.join(', ')+'</div></div>';
     html+='</div>';
   });
   html+='</div>';
-  html+='<div style="background:#fff;border-radius:10px;overflow:hidden;margin-bottom:12px"><div style="background:#1a3a2a;padding:8px 12px;font-size:11px;font-weight:700;color:#c9a84c;letter-spacing:.5px;text-transform:uppercase">Running Totals</div>';
+  html+='<div style="background:#fff;border-radius:10px;overflow:hidden;margin-bottom:12px">'
+      +'<div style="background:#1a3a2a;padding:8px 12px;font-size:11px;font-weight:700;color:#c9a84c;letter-spacing:.5px;text-transform:uppercase">Running Totals</div>';
   G.players.forEach((p,pi)=>{
     const v=money[pi],col=v>0?'#27ae60':v<0?'#c0392b':'#888',vs=v>0?'+$'+v:v<0?'-$'+Math.abs(v):'$0';
-    html+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid #f0ebe0"><span style="font-size:14px;font-weight:600">${p.name}</span><span style="font-size:16px;font-weight:800;color:${col}">${vs}</span></div>`;
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid #f0ebe0">'
+        +'<span style="font-size:14px;font-weight:600">'+p.name+'</span>'
+        +'<span style="font-size:16px;font-weight:800;color:'+col+'">'+vs+'</span></div>';
   });
   html+='</div>';
   if(!isRoundComplete()){
-  html+=`<div style="background:#1a1a2e;border-radius:10px;padding:12px 14px;text-align:center"><div style="font-size:12px;color:#aaa;margin-bottom:4px">Currently holding the snake</div><div style="font-size:18px;font-weight:800;color:#f0c040">${holder||'— Nobody yet —'}</div></div>`;
+    html+='<div style="background:#1a1a2e;border-radius:10px;padding:12px 14px;text-align:center;margin-bottom:12px">'
+        +'<div style="font-size:12px;color:#aaa;margin-bottom:4px">Currently holding the snake</div>'
+        +'<div style="font-size:18px;font-weight:800;color:#f0c040">'+(holder||'— Nobody yet —')+'</div></div>';
+  }
+  const sortedLog=[...(G.snake.history||[])].filter(e=>e.name).sort((a,b)=>playOrderIdx(a.hole)-playOrderIdx(b.hole));
+  if(sortedLog.length>0){
+    html+='<div style="background:#fff;border-radius:10px;overflow:hidden;margin-bottom:12px">'
+        +'<div style="background:#2a1a3e;padding:8px 12px;font-size:11px;font-weight:700;color:#c9a84c;letter-spacing:.5px;text-transform:uppercase">3-Putt Log</div>';
+    sortedLog.forEach((e,i)=>{
+      const border=i<sortedLog.length-1?'1px solid #f0ebe0':'none';
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:'+border+'">'
+          +'<span style="font-size:13px;font-weight:600;color:#333">'+e.name+'</span>'
+          +'<span style="font-size:12px;color:#888">Hole '+(e.hole+1)+'</span>'
+          +'</div>';
+    });
+    html+='</div>';
   }
   html+='</div>';
   el.innerHTML=html;
 }
+
 
 /* ═══════════════════════════════════════════════
    BOOT
@@ -6154,27 +6176,7 @@ self.addEventListener('fetch',e=>{
 }
 </script>
 </body>
-</html>  // Only show current holder if round is not yet complete
-  if(!isRoundComplete()){
-    html+=`<div style="background:#1a1a2e;border-radius:10px;padding:12px 14px;text-align:center;margin-bottom:12px"><div style="font-size:12px;color:#aaa;margin-bottom:4px">Currently holding the snake</div><div style="font-size:18px;font-weight:800;color:#f0c040">${holder||'\u2014 Nobody yet \u2014'}</div></div>`;
-  }
-  // Hole-by-hole 3-putt log
-  const sortedLog=[...(G.snake.history||[])].filter(e=>e.name).sort((a,b)=>playOrderIdx(a.hole)-playOrderIdx(b.hole));
-  if(sortedLog.length>0){
-    html+='<div style="background:#fff;border-radius:10px;overflow:hidden;margin-bottom:12px">'
-        +'<div style="background:#2a1a3e;padding:8px 12px;font-size:11px;font-weight:700;color:#c9a84c;letter-spacing:.5px;text-transform:uppercase">3-Putt Log</div>';
-    sortedLog.forEach((e,i)=>{
-      const border=i<sortedLog.length-1?'1px solid #f0ebe0':'none';
-      html+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:${border}">`
-          +`<span style="font-size:13px;font-weight:600;color:#333">${e.name}</span>`
-          +`<span style="font-size:12px;color:#888">Hole ${e.hole+1}</span>`
-          +'</div>';
-    });
-    html+='</div>';
-  }
-  html+='</div>';
-  el.innerHTML=html;
-}
+</html>
 /* ═══════════════════════════════════════════════
    BOOT
 ═══════════════════════════════════════════════ */
