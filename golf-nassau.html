@@ -556,7 +556,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v16.50
+    Nassau Golf · Derrick GWC · v16.52
   </div>
 </div>
 </div>
@@ -628,14 +628,14 @@ input::placeholder{color:#bbb}
   <div class="ni active" id="ni-score"   onclick="showS('score')"><div class="ni-icon">⛳<span class="ni-badge ni-badge-gold" id="holeBadge" style="display:none">1</span></div><div class="ni-lbl">Scorecard</div></div>
   <div class="ni"        id="ni-bets"    onclick="showS('bets')"><div class="ni-icon">💰<span class="ni-badge ni-badge-globe" id="intlBadge" style="display:none">🌍</span></div><div class="ni-lbl">Nassau</div></div>
   <div class="ni"        id="ni-sixpoint" onclick="showS('sixpoint')" style="display:none"><div class="ni-icon">6️⃣</div><div class="ni-lbl">6-Point</div></div>
-  <div class="ni"        id="ni-snake" onclick="showS('snake')" style="display:none"><div class="ni-icon">🐍</div><div class="ni-lbl">Snake</div></div>
+  <div class="ni"        id="ni-snake" onclick="showS(&quot;snake&quot;)" style="display:none"><div class="ni-icon">🐍</div><div class="ni-lbl">Snake</div></div>
   <div class="ni"        id="ni-birdiejuice" onclick="showS('birdiejuice')"><div class="ni-icon">🐦🥃<span class="ni-badge" id="bjBadge" style="display:none">0</span></div><div class="ni-lbl">Birdie Juice</div></div>
   <div class="ni"        id="ni-history" onclick="showS('history')"><div class="ni-icon">📜</div><div class="ni-lbl">History</div></div>
   <div class="ni"        id="ni-new"     onclick="newRound()"><div class="ni-icon">🔄</div><div class="ni-lbl">New Round</div></div>
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v16.50</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v16.52</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2365,7 +2365,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.50</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.52</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2551,7 +2551,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.50</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.52</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2595,23 +2595,12 @@ function renderSnakePanel(){
 
 
 function renderSnakeResult(){
-  const settlements=computeSnakeSettlements();
-  const stretchLabels=['Holes 1-3','Holes 4-6','Holes 7-9','Holes 10-12','Holes 13-15','Holes 16-18'];
-  const rowStyle='display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:12px';
-  let rows='';
-  SNAKE_SETTLE_HOLES.forEach((playIdx,i)=>{
-    const s=settlements.find(st=>st.playIdx===playIdx);
-    const label=stretchLabels[i];
-    const right=s ? '<span style="color:#f0c040;font-weight:700">'+s.loser+' – $'+s.total+'</span>'
-                  : '<span style="color:#555">No holder</span>';
-    rows+='<div style="'+rowStyle+'"><span style="color:#aaa">'+label+'</span>'+right+'</div>';
-  });
-  return '<div class="snake-result">'
-    +'<div class="snake-result-lbl">🐍 Snake 3-Putt — Results</div>'
-    +rows
-    +'<div style="margin-top:8px;font-size:11px;color:#888;text-align:center">Full details → Snake tab 🐍</div>'
+  return '<div onclick="showS(&quot;snake&quot;)" style="cursor:pointer;background:#1a1a2e;border:1.5px solid #6c3483;border-radius:8px;padding:8px 12px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between">'
+    +'<span style="font-size:13px;color:#f0c040;font-weight:700">🐍 Snake results available</span>'
+    +'<span style="font-size:12px;color:#aaa">View →</span>'
     +'</div>';
 }
+
 
 
 function setSnakeHolder(name,holeIdx){
@@ -3114,7 +3103,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.50</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.52</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3224,9 +3213,12 @@ function renderMasterScorecard(){
     const nassau = computeMoney();
     const hasSix = G.sixPointGames && G.sixPointGames.length;
     const six = hasSix ? computeSixPointMoney() : null;
-    const total = G.players.map((_,pi)=>nassau[pi] + (six?six[pi]:0));
+    const hasSnake = G.snake && G.snake.enabled;
+    const snake = hasSnake ? computeSnakeMoney() : null;
+    const total = G.players.map((_,pi)=>nassau[pi] + (six?six[pi]:0) + (snake?snake[pi]:0));
     html += moneyRow('Nassau $', nassau, '#1f5135');
     if(hasSix) html += moneyRow('6-Point $', six, '#1f5135');
+    if(hasSnake) html += moneyRow('🐍 Snake $', snake, '#1a1a2e');
     html += moneyRow('Total $ Today', total, 'var(--gd)', true);
   }
 
@@ -4523,7 +4515,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.50</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.52</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4632,7 +4624,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.50</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.52</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4754,7 +4746,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.50</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.52</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4862,7 +4854,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v16.50');
+  lines.push('— Nassau Golf · Derrick GWC · v16.52');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -4934,10 +4926,13 @@ function buildPrintHTML(snap){
   sc+=netR+'</tr>';
   if(isRoundComplete()&&!G.scorecardOnly){
     const nassau=computeMoney(),hasSix=!!(G.sixPointGames&&G.sixPointGames.length);
-    const six=hasSix?computeSixPointMoney():null,total=players.map((_,pi)=>nassau[pi]+(six?six[pi]:0));
+    const six=hasSix?computeSixPointMoney():null;
+    const hasSnake=!!(G.snake&&G.snake.enabled),snake=hasSnake?computeSnakeMoney():null;
+    const total=players.map((_,pi)=>nassau[pi]+(six?six[pi]:0)+(snake?snake[pi]:0));
     function moneyR(label,money,bg){let r=`<tr>${tdl(label,bg,'rgba(255,255,255,.85)',700)}<td colspan="6" style="background:${bg};border:1px solid #ddd"></td>`;money.forEach(v=>r+=td(v>0?'+$'+v:v<0?'-$'+Math.abs(v):'$0',bg,v>0?'#7CFC9E':v<0?'#ff9b9b':'#fff',700));return r+'</tr>';}
     sc+=moneyR('Nassau $',nassau,'#1f5135');
     if(hasSix)sc+=moneyR('6-Point $',six,'#1f5135');
+    if(hasSnake)sc+=moneyR('🐍 Snake $',snake,'#1a1a2e');
     sc+=moneyR('Total $ Today',total,GD);
   }
   sc+=`</tbody></table>`;
@@ -5037,7 +5032,7 @@ ${moneySection}<div class="sec">Master Scorecard</div>${sc}
 <div style="font-size:9px;color:#777;margin-top:3px">🔴 thin circle = 1 stroke · double circle = 2 strokes · NET = gross − full handicap index</div>
 ${matchSections}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v16.50 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v16.52 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -5954,7 +5949,7 @@ showEmergencyBanners();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v16.50';
+const CACHE='nassau-v16.52';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
@@ -6011,7 +6006,7 @@ self.addEventListener('fetch',e=>{
   // Blob-URL service workers on iOS Safari don't reliably fire updatefound/waiting.
   // Instead, fetch the live page every 90s and compare the version string.
   // If a newer version is found, show the update banner.
-  const CURRENT_VERSION = 'nassau-v16.50';
+  const CURRENT_VERSION = 'nassau-v16.52';
   const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
   const RELEASE_NOTES = [
     'v16.40 — Update banner now shows a ℹ️ button with release notes for what changed',
