@@ -561,7 +561,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v17.0
+    Nassau Golf · Derrick GWC · v17.1
   </div>
 </div>
 </div>
@@ -625,7 +625,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ UPDATE BANNER ══════════ -->
-<div id="updateBanner" role="alert" aria-live="polite" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:210;background:#1a3a2a;border-top:2px solid #c9a84c;padding:8px 12px;display:none;align-items:center;gap:8px;justify-content:space-between">
+<div id="updateBanner" role="alert" aria-live="polite" style="display:none;position:fixed;bottom:calc(56px + env(safe-area-inset-bottom));left:0;right:0;z-index:210;background:#1a3a2a;border-top:2px solid #c9a84c;border-bottom:1px solid rgba(201,168,76,.3);padding:8px 12px;align-items:center;gap:8px;justify-content:space-between">
   <span class="ub-msg" style="font-size:13px;font-weight:700;color:#c9a84c">🆕 Update available</span>
   <button class="ub-btn ub-info" onclick="showUpdateNotes()" style="display:none;background:rgba(201,168,76,.2);color:#c9a84c;border:1px solid #c9a84c;border-radius:6px;padding:4px 8px;font-size:12px;font-weight:700;cursor:pointer" title="What's new">ℹ️</button>
   <button class="ub-btn" onclick="applyUpdate()" style="background:#c9a84c;color:#1a3a2a;border:none;border-radius:6px;padding:6px 14px;font-size:13px;font-weight:800;cursor:pointer">Update Now</button>
@@ -645,7 +645,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v17.0</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v17.1</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2384,7 +2384,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v17.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v17.1</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2575,7 +2575,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v17.0</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v17.1</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3127,7 +3127,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v17.0</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v17.1</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3179,8 +3179,8 @@ function renderMasterScorecard(){
 
   function holeRow(playIdx){
     const h = actualHoleIdx(playIdx);
-    // Snake indicator: show 🐍 + holder name on settlement holes (3,6,9,12,15,18)
-    let snakeCell = '';
+    // Snake: find holder at this settlement hole (if applicable)
+    let snakeHolderName = null;
     if(G.snake && G.snake.enabled && SNAKE_SETTLE_HOLES.includes(playIdx)){
       const scored = G.scores[0] && G.scores[0][h] !== null;
       if(scored){
@@ -3197,39 +3197,21 @@ function renderMasterScorecard(){
           const entry=history.find(e=>e.hole===sh);
           if(entry&&entry.name&&parts.has(entry.name)) holder=entry.name;
         }
-        if(holder){
-          // Show just first name to keep it compact
-          const first=holder.split(' ')[0];
-          snakeCell = '<div style="font-size:8px;color:#9b59b6;font-weight:700;line-height:1.1;margin-top:1px">🐍 '+first+'</div>';
-        }
+        snakeHolderName = holder;
       }
     }
     let r = `<tr>
-      <td class="d-hole">${h+1}${snakeCell}</td>
+      <td class="d-hole">${h+1}</td>
       <td class="d-deck1">${Y.d1[h]}</td>
       <td class="d-deck2">${Y.d2[h]}</td>
       <td class="d-deck3">${Y.d3[h]}</td>
       <td class="d-deck4">${Y.d4[h]}</td>
       <td class="d-hcp">${G.si[h]}</td>
       <td class="d-par">${G.par[h]}</td>`;
-    // ── Manual-advance confirm button ──
-  if(!G.autoAdvance && !isRoundComplete()){
-    const allIn=!G.players.some((_,pi)=>G.scores[pi][G.hole]===null);
-    if(allIn && playOrderIdx(G.hole)<17){
-      html+='<button onclick="confirmNextHole()" style="width:100%;padding:14px;'
-        +'margin-bottom:8px;background:#c9a84c;color:#1a3a2a;font-size:16px;'
-        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">Next Hole &#8594;</button>';
-    }
-  }
-
-  // ── Snake 3-Putt panel ──
-  if(G.snake && G.snake.enabled){
-    html += isRoundComplete() ? renderSnakeResult() : renderSnakePanel();
-  }
-
-  G.players.forEach((p,pi)=>{
+    G.players.forEach((p,pi)=>{
       const g=G.scores[pi][h];
       const stk=strokeMaps[pi][h];
+      const isSnakeHolder = snakeHolderName && p.name===snakeHolderName;
       let inner;
       if(g===null){
         inner = stk===2 ? '<span class="circle-empty2">·</span>'
@@ -3240,10 +3222,12 @@ function renderMasterScorecard(){
               : stk===1 ? `<span class="circle1">${g}</span>`
               : `${g}`;
       }
-      r += `<td class="d-score">${inner}</td>`;
+      if(isSnakeHolder) inner += '<div style="font-size:7px;line-height:1;margin-top:1px">🐍</div>';
+      r += `<td class="d-score" style="${isSnakeHolder?'background:rgba(108,52,131,.15)':''}">${inner}</td>`;
     });
     return r+'</tr>';
   }
+
 
   // Front 9
   for(let i=0;i<9;i++) html+=holeRow(i);
@@ -4710,7 +4694,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v17.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v17.1</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4819,7 +4803,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v17.0</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v17.1</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4941,7 +4925,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v17.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v17.1</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5049,7 +5033,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v17.0');
+  lines.push('— Nassau Golf · Derrick GWC · v17.1');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -5227,7 +5211,7 @@ ${moneySection}<div class="sec">Master Scorecard</div>${sc}
 <div style="font-size:9px;color:#777;margin-top:3px">🔴 thin circle = 1 stroke · double circle = 2 strokes · NET = gross − full handicap index</div>
 ${matchSections}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v17.0 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v17.1 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -6259,9 +6243,10 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v17.0';
+const CURRENT_VERSION = 'nassau-v17.1';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v17.1 — Master scorecard: snake 🐍 now shown in the loser\'s score cell (with purple tint) instead of the hole number',
   'v17.0 — Major update: Games hub, Snake money game, hole wheel picker, and many more improvements',
   'v16.82 — Games menu: ✕ close button added to sheet header',
   'v16.81 — Snake: settlement hole labels now dynamic and correct for shotgun starts',
@@ -6392,7 +6377,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode=`
-const CACHE='nassau-v17.0';
+const CACHE='nassau-v17.1';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
