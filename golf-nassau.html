@@ -541,7 +541,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v16.42
+    Nassau Golf · Derrick GWC · v16.43
   </div>
 </div>
 </div>
@@ -2327,7 +2327,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.42</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.43</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2513,7 +2513,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.42</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.43</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3049,7 +3049,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.42</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.43</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3801,38 +3801,74 @@ function showS(name){
   }
 }
 function newRound(){
-  // Inline confirmation instead of confirm() (unreliable in iOS PWA standalone mode)
-  // Two-step confirmation since this button gets bumped easily mid-round.
   const existing=document.getElementById('newRoundConfirm');
   if(existing){ existing.remove(); return; }
+
+  const complete = isRoundComplete();
+  const saved    = isCurrentRoundSaved();
+  const inProgress = G.scores && G.scores[0] && G.scores[0].some(s=>s!==null);
 
   const overlay=document.createElement('div');
   overlay.className='export-overlay';
   overlay.id='newRoundConfirm';
+
+  // Message depends on round state
+  let icon, title, body, confirmLabel, confirmStyle;
+  if(complete && saved){
+    icon='✅'; title='Start New Round?';
+    body='Your completed round has been saved to History. Ready to tee it up again?';
+    confirmLabel='Start New Round'; confirmStyle='background:#2d6a4f;color:#fff';
+  } else if(complete && !saved){
+    icon='💾'; title='Save & Start New Round?';
+    body='Your round is complete and will be saved to History before starting the new one.';
+    confirmLabel='Save & Start New Round'; confirmStyle='background:#2d6a4f;color:#fff';
+  } else if(inProgress){
+    icon='⚠️'; title='Round in Progress';
+    body='You still have holes to score. Are you sure you want to abandon this round and start fresh?';
+    confirmLabel='Abandon & Start New'; confirmStyle='background:var(--red);color:#fff';
+  } else {
+    icon='🔄'; title='New Round?';
+    body='This will reset the current setup and start fresh.';
+    confirmLabel='Start New Round'; confirmStyle='background:#2d6a4f;color:#fff';
+  }
+
   overlay.innerHTML=`
     <div style="background:#fff;border-radius:14px;padding:20px;max-width:320px;text-align:center">
-      <div style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:10px">New Round?</div>
-      <div style="font-size:13px;color:#666;margin-bottom:16px">This will clear all scores, players, and matches from the current round.</div>
+      <div style="font-size:28px;margin-bottom:6px">${icon}</div>
+      <div style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:10px">${title}</div>
+      <div style="font-size:13px;color:#666;margin-bottom:16px">${body}</div>
       <div style="display:flex;gap:10px">
         <button class="export-overlay-btn close" style="flex:1" onclick="document.getElementById('newRoundConfirm').remove()">Cancel</button>
-        <button class="export-overlay-btn save" style="flex:1;background:var(--red);color:#fff" onclick="newRoundStep2()">New Round</button>
+        <button class="export-overlay-btn save" style="flex:1;${confirmStyle}" onclick="newRoundStep2()">${confirmLabel}</button>
       </div>
     </div>`;
   document.body.appendChild(overlay);
   overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
 }
 
-// Second confirmation — replaces the first dialog's content with a final warning
+// Second confirmation — swipe to confirm (only shown for in-progress rounds as extra protection)
 function newRoundStep2(){
   const overlay=document.getElementById('newRoundConfirm');
   if(!overlay) return;
+
+  const complete = isRoundComplete();
+  const saved    = isCurrentRoundSaved();
+
+  // If round is complete (saved or will be auto-saved) — no need for swipe, just proceed
+  if(complete || !G.scores || !G.scores[0] || !G.scores[0].some(s=>s!==null)){
+    overlay.remove();
+    confirmNewRound();
+    return;
+  }
+
+  // Round in progress — show the swipe-to-confirm safety step
   overlay.innerHTML=`
     <div style="background:#fff;border-radius:14px;padding:20px;max-width:320px;text-align:center">
-      <div style="font-size:16px;font-weight:700;color:var(--red);margin-bottom:10px">⚠️ Are You Sure?</div>
-      <div style="font-size:13px;color:#666;margin-bottom:16px"><b>This cannot be undone.</b> All scores, players, and matches for the current round will be permanently erased.</div>
+      <div style="font-size:16px;font-weight:700;color:var(--red);margin-bottom:10px">⚠️ Abandon Round?</div>
+      <div style="font-size:13px;color:#666;margin-bottom:16px">Scores entered so far <b>will not be saved</b> to History — this round is not yet complete.</div>
       <div class="swipe-track" id="swipeTrack">
         <div class="swipe-fill" id="swipeFill"></div>
-        <div class="swipe-label" id="swipeLabel">Swipe to erase &amp; start new round →</div>
+        <div class="swipe-label" id="swipeLabel">Swipe to abandon &amp; start new →</div>
         <div class="swipe-handle" id="swipeHandle">➜</div>
       </div>
       <button class="export-overlay-btn close" style="width:100%;margin-top:10px" onclick="document.getElementById('newRoundConfirm').remove()">Cancel</button>
@@ -4386,7 +4422,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.42</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.43</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4495,7 +4531,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.42</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.43</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4617,7 +4653,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.42</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.43</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4725,7 +4761,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v16.42');
+  lines.push('— Nassau Golf · Derrick GWC · v16.43');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -4900,7 +4936,7 @@ ${moneySection}<div class="sec">Master Scorecard</div>${sc}
 <div style="font-size:9px;color:#777;margin-top:3px">🔴 thin circle = 1 stroke · double circle = 2 strokes · NET = gross − full handicap index</div>
 ${matchSections}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v16.42 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v16.43 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -5719,7 +5755,7 @@ showEmergencyBanners();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v16.42';
+const CACHE='nassau-v16.43';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
@@ -5776,7 +5812,7 @@ self.addEventListener('fetch',e=>{
   // Blob-URL service workers on iOS Safari don't reliably fire updatefound/waiting.
   // Instead, fetch the live page every 90s and compare the version string.
   // If a newer version is found, show the update banner.
-  const CURRENT_VERSION = 'nassau-v16.42';
+  const CURRENT_VERSION = 'nassau-v16.43';
   const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
   const RELEASE_NOTES = [
     'v16.40 — Update banner now shows a ℹ️ button with release notes for what changed',
