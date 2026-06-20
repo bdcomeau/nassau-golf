@@ -41,7 +41,7 @@
 <header>
   <a class="back" href="./">‹ Back</a>
   <h1>Help &amp; Guide</h1>
-  <span class="ver">v16.26</span>
+  <span class="ver">v16.53</span>
 </header>
 <div class="wrap" id="top">
 
@@ -59,7 +59,7 @@
   <a href="#birdie">8 · Birdie Juice</a>
   <a href="#history">9 · Round History &amp; Backup</a>
   <a href="#newround">10 · Starting a New Round</a>
-  <a href="#snake">11 · The Snake 3-Putt Game</a>
+  <a href="#snake">11 · The Snake 3-Putt Money Game</a>
   <a href="#trouble">12 · Troubleshooting</a>
 </div>
 
@@ -190,7 +190,16 @@
 <p><b>2v2 Nassau Games</b> — Pair players into two-person teams. The bet amount applies separately to Front 9, Back 9, and Total 18. Multiple 2v2 games can run at once.</p>
 <p><b>1v1 Nassau Games</b> — Head-to-head match between any two players, with separate Front 9 / Back 9 / Total 18 bets.</p>
 <p><b>6-Point Game</b> — Choose any three players. Set the dollar value per point (25¢ to $10). Can be played with or without Nassau games.</p>
-<p><b>🐍 Snake 3-Putt Game</b> — Optional side game enabled via the purple Snake card on the Setup screen. Whoever last 3-putted holds the snake; at the end of the round, whoever is holding it loses. No money settlement — purely a fun side consequence. Can run alongside any other game or on its own. See <a href="#snake">Section 11</a> for full details.</p>
+<p><b>🐍 Snake 3-Putt Game</b> — Optional money game. Enable it in the purple Snake card on the Setup screen. Set the <b>bet amount per player</b> ($1–$20) and select which players are <b>participating</b> (others are invisible to the game). Settlements happen every 3 holes (holes 3, 6, 9, 12, 15, 18); the snake resets after each one. See <a href="#snake">Section 11</a> for full details.</p>
+
+<h3>Score Entry Options</h3>
+<p>The <b>⚙️ Score Entry Options</b> card (between Round Type and Snake) contains:</p>
+<ul>
+  <li><b>Auto-advance holes</b> — when on (default), the app moves to the next hole automatically after all scores are entered. Turn it off to require a manual <b>Next Hole →</b> tap, useful when you want to review results before moving on.</li>
+</ul>
+
+<h3>Solo Mode</h3>
+<p>Set Number of Players to <b>1</b> for a solo round. Scorecard-only mode is forced automatically — no matches, betting, or Snake. The round saves to History the same as any other.</p>
 
 <h3>Resetting the Setup Screen</h3>
 <p>The "↺ Reset Setup" button (below Start Round) clears all entered names, handicaps, Golf Canada IDs, and selected games, and resets to 2 players. A confirmation appears first. Your saved player contacts are not affected.</p>
@@ -341,23 +350,47 @@
 <a class="top" href="#top">↑ Back to top</a>
 
 <h2 id="newround">10 · Starting a New Round</h2>
-<p>Tap the 🔄 New Round icon. Because this erases the current round, it asks you to confirm with a swipe-to-erase slider. After confirming, you're returned to a clean Setup screen. Tip: export a backup or make sure the current round is saved to History first.</p>
-<a class="top" href="#top">↑ Back to top</a>
-
-<h2 id="snake">11 · The Snake 3-Putt Game</h2>
-<p>An optional side game you can enable on the Setup screen. Whoever last 3-putted holds the snake; at the end of the round, whoever is holding it loses.</p>
-<h3>Enabling</h3>
-<p>On the Setup screen, below the Round Type toggle and above the 2v2 Nassau section, check <b>Enable Snake Game</b>. It can be combined with any other game type.</p>
-<h3>Tracking During the Round</h3>
-<p>When Snake is enabled, a compact bar appears at the top of each hole's score entry screen — above the player score cards — showing a dropdown for that hole and the current holder. Tap the dropdown and select whoever last 3-putted on the current hole, or "No 3-putt" if nobody did. The holder updates immediately and persists until someone else 3-putts.</p>
+<p>Tap <b>🔄 New Round</b> in the bottom nav. The confirmation dialog adapts to the situation:</p>
 <ul>
-  <li>You can navigate back to any past hole and change the 3-putt entry — the holder is recalculated by replaying the history in hole order.</li>
-  <li>If nobody selects a 3-putt on a hole, the snake stays with whoever held it before that hole.</li>
+  <li><b>Round complete and saved</b> — green ✅ dialog, single tap to confirm. No data at risk.</li>
+  <li><b>Round complete, not yet saved</b> — the round is saved to History automatically before clearing.</li>
+  <li><b>Round in progress</b> — red ⚠️ dialog with a swipe-to-confirm slider, since unsaved scores will be lost.</li>
 </ul>
-<h3>End of Round</h3>
-<p>Once all 18 holes are scored, the snake bar shows a final result — either the player who holds it, or "No 3-putts this round — game void" if nobody 3-putted at all.</p>
-<h3>In History</h3>
-<p>The Snake result and a full hole-by-hole log (which hole each 3-putt happened on) appear at the bottom of the History Detail view for that round, and are included in the 📋 Text share.</p>
+<p><b>Blocked on hole 18:</b> if you tap New Round while on hole 18 with scores still missing, the app blocks you and names who still needs to score — finish the hole first.</p>
+<p><b>Emergency restore:</b> even after confirming a New Round, the previous round state is saved as an emergency backup for 24 hours. If you acted by accident, a yellow <b>⚠️ Accidental New Round?</b> banner appears on the Setup and History screens with a <b>↩ Restore Round</b> button.</p>
+
+<h2 id="snake">11 · The Snake 3-Putt Money Game</h2>
+<p>An optional money game that runs alongside (or instead of) Nassau and 6-Point. The snake settles every 3 holes — whoever held it at holes 3, 6, 9, 12, 15, and 18 pays each other participant. The snake <b>resets after each settlement</b>, so there are 6 independent stretches per round.</p>
+
+<h3>Setup</h3>
+<p>In the purple 🐍 Snake 3-Putt Game card on the Setup screen:</p>
+<ul>
+  <li>Check <b>Enable Snake Game</b>.</li>
+  <li>Choose the <b>bet amount</b> per player per settlement ($1, $2, $5, $10, or $20).</li>
+  <li>Select <b>Participants</b> — only checked players are in the game. Others don't appear in the 3-putt dropdown and don't pay or receive.</li>
+</ul>
+
+<h3>Tracking During the Round</h3>
+<p>A compact bar appears above the player cards on each hole. It shows a dropdown to record who 3-putted on that hole, and the current stretch holder on the right (e.g. "H4-6: Bruce"). After each settlement hole the stretch holder resets to "—" for the next stretch.</p>
+<ul>
+  <li>Only participant names appear in the dropdown.</li>
+  <li>You can go back to any past hole and change a 3-putt entry — the holder recalculates automatically.</li>
+  <li>If nobody selects a 3-putt on a hole, the snake stays with whoever had it in that stretch.</li>
+</ul>
+
+<h3>Settlement</h3>
+<p>At holes 3, 6, 9, 12, 15, and 18, whoever holds the snake at that moment pays each other participant the bet amount. With 5 players at $5: the holder pays $20 total ($5 × 4 others). If nobody held the snake in a stretch, that settlement is skipped.</p>
+
+<h3>The Snake Tab</h3>
+<p>Tap the 🐍 Snake tab in the bottom nav (visible when Snake is enabled) to see:</p>
+<ul>
+  <li><b>Settlement Holes</b> — all 6 stretches, colour coded: grey = not yet played, green = skipped (no holder), red = settled (shows who paid and how much).</li>
+  <li><b>Running Totals</b> — live per-player snake balance.</li>
+  <li>During a round, the current stretch holder is shown at the bottom. After hole 18 this section is hidden.</li>
+</ul>
+
+<h3>Money Integration</h3>
+<p>Snake money is included in the live $ beside each player name on the scorecard, the 🐍 Snake $ row at the bottom of the master scorecard, and the Total $ Today total.</p>
 
 <h2 id="trouble">12 · Troubleshooting</h2>
 <h3>A player has quit, been injured, or left the round</h3>
