@@ -5904,7 +5904,9 @@ function renderSnakeTab(){
     html+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid #f0ebe0"><span style="font-size:14px;font-weight:600">${p.name}</span><span style="font-size:16px;font-weight:800;color:${col}">${vs}</span></div>`;
   });
   html+='</div>';
+  if(!isRoundComplete()){
   html+=`<div style="background:#1a1a2e;border-radius:10px;padding:12px 14px;text-align:center"><div style="font-size:12px;color:#aaa;margin-bottom:4px">Currently holding the snake</div><div style="font-size:18px;font-weight:800;color:#f0c040">${holder||'— Nobody yet —'}</div></div>`;
+  }
   html+='</div>';
   el.innerHTML=html;
 }
@@ -6009,6 +6011,18 @@ self.addEventListener('fetch',e=>{
   const CURRENT_VERSION = 'nassau-v16.52';
   const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
   const RELEASE_NOTES = [
+    'v16.52 — Snake: after hole 18 scorecard shows a tap-to-view pointer instead of full results box',
+    'v16.51 — Master scorecard: Snake $ row added to money totals alongside Nassau and 6-Point',
+    'v16.50 — Snake: scorecard panel now shows stretch holder (resets after each settlement); hole 18 shows 6-stretch summary',
+    'v16.49 — Version number now shown beside Help button on every screen',
+    'v16.48 — Snake: resets every 3 holes (not continuous); participant selection added to setup',
+    'v16.47 — Snake 3-Putt is now a full money game with its own tab, settlement holes, and bet amount',
+    'v16.46 — Setup screen: Round Setup header added to clarify the screen purpose',
+    'v16.45 — Fixed: ℹ️ release notes button now correctly parses the notes list',
+    'v16.44 — New Round blocked if on hole 18 with missing scores',
+    'v16.43 — New Round dialog is now context-aware: completed rounds show a green confirmation, not a scary warning',
+    'v16.42 — Solo mode: set players to 1 for scorecard-only with no matches or betting',
+    'v16.41 — Fixed: ℹ️ update info button now appears correctly',
     'v16.40 — Update banner now shows a ℹ️ button with release notes for what changed',
     'v16.39 — Rounds now auto-save to History the moment the last score on hole 18 is entered',
     'v16.38 — Fixed: Restore Emergency Backup now reloads correctly on iOS',
