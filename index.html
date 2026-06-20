@@ -624,6 +624,13 @@ input::placeholder{color:#bbb}
   <div class="sbody" id="historyDetailBody"></div>
 </div>
 
+<!-- ══════════ UPDATE BANNER ══════════ -->
+<div id="updateBanner" role="alert" aria-live="polite" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:210;background:#1a3a2a;border-top:2px solid #c9a84c;padding:8px 12px;display:none;align-items:center;gap:8px;justify-content:space-between">
+  <span class="ub-msg" style="font-size:13px;font-weight:700;color:#c9a84c">🆕 Update available</span>
+  <button class="ub-btn ub-info" onclick="showUpdateNotes()" style="display:none;background:rgba(201,168,76,.2);color:#c9a84c;border:1px solid #c9a84c;border-radius:6px;padding:4px 8px;font-size:12px;font-weight:700;cursor:pointer" title="What's new">ℹ️</button>
+  <button class="ub-btn" onclick="applyUpdate()" style="background:#c9a84c;color:#1a3a2a;border:none;border-radius:6px;padding:6px 14px;font-size:13px;font-weight:800;cursor:pointer">Update Now</button>
+</div>
+
 <!-- ══════════ BOTTOM NAV ══════════ -->
 <div class="bnav" id="bnav" style="display:none">
   <div class="ni active" id="ni-score" onclick="showS('score')"><div class="ni-icon">⛳<span class="ni-badge ni-badge-gold" id="holeBadge" style="display:none">1</span><span class="ni-badge ni-badge-inprogress" id="inProgressDot" style="display:none;width:8px;min-width:8px;height:8px;padding:0;top:-2px;right:-4px"></span></div><div class="ni-lbl">Scorecard</div></div>
