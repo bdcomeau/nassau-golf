@@ -120,7 +120,7 @@ input::placeholder{color:#bbb}
 /* ── SCORE SCREEN ── */
 .shdr{background:var(--gd);padding:10px 16px;border-bottom:1px solid rgba(201,168,76,.2)}
 .hnav{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.hnav-btn{width:32px;height:32px;background:rgba(255,255,255,.1);border:none;border-radius:50%;color:var(--gold);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+.hnav-btn{width:44px;height:44px;background:rgba(201,168,76,.25);border:1.5px solid rgba(201,168,76,.5);border-radius:50%;color:var(--gold);font-size:24px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
 .hpdf-btn{background:var(--gold);color:var(--gd);border:none;border-radius:16px;padding:7px 14px;font-size:13px;font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent;white-space:nowrap}
 .hpdf-btn:disabled{opacity:.5}
 .hnav-btn:disabled{opacity:.3}
@@ -561,7 +561,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v16.66
+    Nassau Golf · Derrick GWC · v16.78
   </div>
 </div>
 </div>
@@ -570,20 +570,16 @@ input::placeholder{color:#bbb}
 <div class="screen" id="screen-score">
   <div class="shdr">
     <div class="hnav">
-      <button class="hnav-btn" id="btnPrev" onclick="goH(-1)">‹</button>
+      <button class="hnav-btn" id="btnPrev" onpointerdown="hnavLongPress(event,-1)" onclick="goH(-1)" onpointerup="clearTimeout(_hnavTimer)">◀</button>
       <div class="hinfo">
         <div class="hnum" id="hnum">Hole 1</div>
         <div class="hmeta" id="hmeta">Par 4 · SI 6</div>
       </div>
-      <button class="hnav-btn" id="btnNext" onclick="goH(1)">›</button>
+      <button class="hnav-btn" id="btnNext" onpointerdown="hnavLongPress(event,1)"  onclick="goH(1)"  onpointerup="clearTimeout(_hnavTimer)">▶</button>
     </div>
     <button class="manage-matches-btn" id="manageBtn" onclick="openMatchManager()">⚙️ Matches</button>
   </div>
   <div id="holeErr" onclick="openMatchManager()" style="display:none;background:#e74c3c;color:#fff;text-align:center;font-size:13px;font-weight:700;padding:8px 12px;margin:0 10px 6px;border-radius:8px;cursor:pointer"></div>
-  <div class="nine-tabs">
-    <div class="ntab active" id="tabF" onclick="jumpN(0)">Front 9</div>
-    <div class="ntab" id="tabB" onclick="jumpN(9)">Back 9</div>
-  </div>
   <div id="wxStrip" onclick="onWeatherStripTap()" style="display:none;margin:0 10px 6px;padding:7px 12px;background:rgba(255,255,255,.08);border-radius:8px;font-size:12px;font-weight:600;color:#dce8e0;text-align:center;cursor:pointer">…</div>
   <div class="sbody" id="sbody"></div>
 </div>
@@ -630,17 +626,19 @@ input::placeholder{color:#bbb}
 
 <!-- ══════════ BOTTOM NAV ══════════ -->
 <div class="bnav" id="bnav" style="display:none">
-  <div class="ni active" id="ni-score"   onclick="showS('score')"><div class="ni-icon">⛳<span class="ni-badge ni-badge-gold" id="holeBadge" style="display:none">1</span><span class="ni-badge ni-badge-inprogress" id="inProgressDot" style="display:none;width:8px;min-width:8px;height:8px;padding:0;top:-2px;right:-4px"></span></div><div class="ni-lbl">Scorecard</div></div>
-  <div class="ni"        id="ni-bets"    onclick="showS('bets')"><div class="ni-icon">💰<span class="ni-badge ni-badge-globe" id="intlBadge" style="display:none">🌍</span></div><div class="ni-lbl">Nassau</div></div>
-  <div class="ni"        id="ni-sixpoint" onclick="showS('sixpoint')" style="display:none"><div class="ni-icon">6️⃣</div><div class="ni-lbl">6-Point</div></div>
-  <div class="ni"        id="ni-snake" onclick="showS(&quot;snake&quot;)" style="display:none"><div class="ni-icon">🐍</div><div class="ni-lbl">Snake</div></div>
-  <div class="ni"        id="ni-birdiejuice" onclick="showS('birdiejuice')"><div class="ni-icon">🐦🥃<span class="ni-badge" id="bjBadge" style="display:none">0</span></div><div class="ni-lbl">Birdie Juice</div></div>
-  <div class="ni"        id="ni-history" onclick="showS('history')"><div class="ni-icon">📜</div><div class="ni-lbl">History</div></div>
-  <div class="ni"        id="ni-new"     onclick="newRound()"><div class="ni-icon">🔄</div><div class="ni-lbl">New Round</div></div>
+  <div class="ni active" id="ni-score" onclick="showS('score')"><div class="ni-icon">⛳<span class="ni-badge ni-badge-gold" id="holeBadge" style="display:none">1</span><span class="ni-badge ni-badge-inprogress" id="inProgressDot" style="display:none;width:8px;min-width:8px;height:8px;padding:0;top:-2px;right:-4px"></span></div><div class="ni-lbl">Scorecard</div></div>
+  <div class="ni" id="ni-games" onclick="showGamesMenu()"><div class="ni-icon">💵</div><div class="ni-lbl">Games</div></div>
+  <div class="ni" id="ni-birdiejuice" onclick="showS('birdiejuice')"><div class="ni-icon">🐦🥃<span class="ni-badge" id="bjBadge" style="display:none">0</span></div><div class="ni-lbl">Birdie Juice</div></div>
+  <div class="ni" id="ni-history" onclick="showS('history')"><div class="ni-icon">📜</div><div class="ni-lbl">History</div></div>
+  <div class="ni" id="ni-new" onclick="newRound()"><div class="ni-icon">🔄</div><div class="ni-lbl">New Round</div></div>
+  <!-- Hidden nav items kept for showS() active-state tracking -->
+  <div style="display:none" id="ni-bets"><span class="ni-badge ni-badge-globe" id="intlBadge" style="display:none">🌍</span></div>
+  <div style="display:none" id="ni-sixpoint"></div>
+  <div style="display:none" id="ni-snake"></div>
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v16.66</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v16.78</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2379,7 +2377,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.66</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.78</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2453,8 +2451,7 @@ function renderCard(){
   // Navigation steps through ACTUAL holes in PLAY ORDER (wraps for shotgun starts)
   document.getElementById('btnPrev').disabled=playIdx===0;
   document.getElementById('btnNext').disabled=playIdx===17;
-  document.getElementById('tabF').classList.toggle('active',playIdx<9);
-  document.getElementById('tabB').classList.toggle('active',playIdx>=9);
+  // tabF/tabB removed — hole picker replaces front/back 9 tabs
 
   const money=G.scorecardOnly ? G.players.map(()=>0) : computeLiveMoney();
 
@@ -2571,7 +2568,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.66</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.78</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3123,7 +3120,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.66</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.78</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3852,6 +3849,148 @@ function ordinal(n){
 }
 
 // Navigation steps through ACTUAL holes in PLAY ORDER (handles shotgun starts/wrapping)
+
+// ── Hole wheel picker ──
+let _hnavTimer=null;
+
+function hnavLongPress(e, dir){
+  clearTimeout(_hnavTimer);
+  _hnavTimer=setTimeout(()=>{ _hnavTimer=null; showHoleWheel(); }, 400);
+}
+
+function showHoleWheel(){
+  if(document.getElementById('holeWheel')) return;
+  const overlay=document.createElement('div');
+  overlay.id='holeWheel';
+  overlay.style.cssText='position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.6);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;touch-action:none';
+
+  // Build all 18 holes in play order
+  const holes=[];
+  for(let i=0;i<18;i++) holes.push({play:i, hNum:actualHoleIdx(i)+1});
+
+  const curPlay=playOrderIdx(G.hole);
+  const itemH=52;
+  const visibleCount=7; // odd number so selection is centred
+  const halfV=Math.floor(visibleCount/2);
+
+  const sheet=document.createElement('div');
+  sheet.style.cssText='width:100%;background:#1a2a1a;border-radius:20px 20px 0 0;padding-bottom:max(24px,env(safe-area-inset-bottom))';
+
+  // Header
+  const hdr=document.createElement('div');
+  hdr.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:14px 20px 10px';
+  const hdrTitle=document.createElement('div');
+  hdrTitle.style.cssText='font-size:13px;font-weight:700;color:#c9a84c;letter-spacing:.5px';
+  hdrTitle.textContent='SELECT HOLE';
+  hdr.appendChild(hdrTitle);
+  const cancelBtn=document.createElement('button');
+  cancelBtn.style.cssText='background:rgba(201,168,76,.2);border:1.5px solid #c9a84c;color:#c9a84c;border-radius:8px;padding:5px 14px;font-size:13px;font-weight:700';
+  cancelBtn.textContent='Cancel';
+  cancelBtn.onclick=()=>overlay.remove();
+  hdr.appendChild(cancelBtn);
+  sheet.appendChild(hdr);
+
+  // Wheel container
+  const wheelWrap=document.createElement('div');
+  wheelWrap.style.cssText='position:relative;height:'+(itemH*visibleCount)+'px;overflow:hidden;margin:0 20px 10px';
+
+  // Selection highlight bar
+  const selBar=document.createElement('div');
+  selBar.style.cssText='position:absolute;left:0;right:0;top:'+(halfV*itemH)+'px;height:'+itemH+'px;background:rgba(201,168,76,.18);border-top:1.5px solid #c9a84c;border-bottom:1.5px solid #c9a84c;border-radius:8px;pointer-events:none;z-index:1';
+  wheelWrap.appendChild(selBar);
+
+  // Fade top/bottom
+  ['top','bottom'].forEach(side=>{
+    const fade=document.createElement('div');
+    fade.style.cssText='position:absolute;left:0;right:0;'+side+':0;height:'+(halfV*itemH)+'px;background:linear-gradient(to '+(side==='top'?'bottom':'top')+',#1a2a1a,transparent);pointer-events:none;z-index:2';
+    wheelWrap.appendChild(fade);
+  });
+
+  // Scrollable list
+  const list=document.createElement('div');
+  list.style.cssText='position:absolute;left:0;right:0;top:0;padding:'+(halfV*itemH)+'px 0;will-change:transform';
+
+  holes.forEach(({play,hNum})=>{
+    const row=document.createElement('div');
+    row.dataset.play=play;
+    row.style.cssText='height:'+itemH+'px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#e0e0e0;cursor:pointer';
+    row.textContent='Hole '+hNum;
+    list.appendChild(row);
+  });
+  wheelWrap.appendChild(list);
+  sheet.appendChild(wheelWrap);
+
+  // Confirm button
+  const confirmBtn=document.createElement('button');
+  confirmBtn.style.cssText='display:block;width:calc(100% - 40px);margin:0 20px;padding:14px;background:#c9a84c;color:#1a3a2a;border:none;border-radius:12px;font-size:16px;font-weight:800;cursor:pointer';
+  confirmBtn.textContent='Go to Hole';
+  sheet.appendChild(confirmBtn);
+  overlay.appendChild(sheet);
+  document.body.appendChild(overlay);
+
+  // Wheel physics
+  let offsetY=curPlay*itemH;
+  let startY=0, startOffset=0, velY=0, lastY=0, lastT=0, rafId=null, isDragging=false;
+
+  function clamp(v){ return Math.max(0,Math.min(v,(holes.length-1)*itemH)); }
+
+  function applyOffset(o){
+    offsetY=clamp(o);
+    list.style.transform='translateY('+-offsetY+'px)';
+    const sel=Math.round(offsetY/itemH);
+    list.querySelectorAll('[data-play]').forEach((el,i)=>{
+      const dist=Math.abs(i-sel);
+      el.style.color=dist===0?'#f0c040':dist===1?'#bbb':'#666';
+      el.style.fontSize=dist===0?'24px':dist===1?'20px':'17px';
+    });
+    confirmBtn.textContent='Go to Hole '+holes[sel].hNum;
+  }
+
+  applyOffset(offsetY);
+
+  // Touch/pointer handling
+  list.addEventListener('pointerdown', e=>{
+    e.preventDefault();
+    isDragging=true;
+    cancelAnimationFrame(rafId);
+    startY=e.clientY; startOffset=offsetY;
+    velY=0; lastY=e.clientY; lastT=Date.now();
+    list.setPointerCapture(e.pointerId);
+  },{passive:false});
+
+  list.addEventListener('pointermove', e=>{
+    if(!isDragging) return;
+    e.preventDefault();
+    const now=Date.now();
+    velY=(lastY-e.clientY)/(now-lastT||1)*16;
+    lastY=e.clientY; lastT=now;
+    applyOffset(startOffset+(startY-e.clientY));
+  },{passive:false});
+
+  list.addEventListener('pointerup', e=>{
+    if(!isDragging) return;
+    isDragging=false;
+    // Momentum + snap
+    function momentum(){
+      velY*=0.92;
+      applyOffset(offsetY+velY);
+      if(Math.abs(velY)>0.5){ rafId=requestAnimationFrame(momentum); }
+      else { applyOffset(Math.round(offsetY/itemH)*itemH); }
+    }
+    rafId=requestAnimationFrame(momentum);
+  });
+
+  confirmBtn.addEventListener('click', ()=>{
+    const sel=Math.round(offsetY/itemH);
+    overlay.remove();
+    G.hole=actualHoleIdx(holes[sel].play);
+    saveG(); renderCard();
+  });
+
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+}
+
+
 function goH(d){
   clearTimeout(maybeAutoAdvance._t); // cancel any pending auto-advance so manual nav can't double-step
   const curPlay=playOrderIdx(G.hole);
@@ -3890,6 +4029,10 @@ function showS(name){
   document.getElementById(`screen-${name}`).classList.add('active');
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
   { const _ni=document.getElementById(`ni-${name}`); if(_ni) _ni.classList.add('active'); }
+  // Highlight Games hub when viewing any game screen
+  const _gameScreens=['bets','sixpoint','snake','birdiejuice'];
+  const _gamesTab=document.getElementById('ni-games');
+  if(_gamesTab && _gameScreens.includes(name)) _gamesTab.classList.add('active');
   if(name==='setup') startNamesPoll(); else stopNamesPoll();
   if(name==='bets')renderBets();
   if(name==='score')renderCard();
@@ -4560,7 +4703,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.66</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.78</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4669,7 +4812,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.66</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.78</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4791,7 +4934,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.66</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.78</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4899,7 +5042,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v16.66');
+  lines.push('— Nassau Golf · Derrick GWC · v16.78');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -5077,9 +5220,7 @@ ${moneySection}<div class="sec">Master Scorecard</div>${sc}
 <div style="font-size:9px;color:#777;margin-top:3px">🔴 thin circle = 1 stroke · double circle = 2 strokes · NET = gross − full handicap index</div>
 ${matchSections}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v16.66 · ${dateStr}</div>
-
-
+<div class="foot">Nassau Golf · Derrick GWC · v16.78 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -5211,6 +5352,105 @@ function mmConfirmRemovePlayer(i){
   if(!G.scorecardOnly){ renderMMPairOptions(); renderMMSingles(); }
 }
 
+function renderMMSixPoint(){
+  const gridEl=document.getElementById('mmSixPointGrid');
+  const listEl=document.getElementById('mmSixPointList');
+  if(!gridEl||!listEl) return;
+  const nm=names();
+  // Grid of 3-player combos
+  let grid='<div class="pair-grid">';
+  threeCombos().forEach(combo=>{
+    const already=G.sixPointGames.some(g=>JSON.stringify(g.players)===JSON.stringify(combo));
+    grid+=`<div class="pbtn${already?' sel':''}" onclick="addSixPointGame(${JSON.stringify(combo)});renderMMSixPoint()">${combo.map((pi,j)=>(j===0?nm[pi]:`<div class="pn">${nm[pi]}</div>`)).join('<div class="pn-vs">·</div>')}</div>`;
+  });
+  grid+='</div>';
+  gridEl.innerHTML=grid;
+  // Active games list with bet picker
+  let list='';
+  G.sixPointGames.forEach((g,i)=>{
+    list+=`<div class="game-item">`
+      +`<div class="game-item-label">${g.players.map(pi=>nm[pi]).join(' · ')}<div class="game-item-sub">6-Point Game</div></div>`
+      +`<div class="bet-picker">${SIX_POINT_OPTIONS.map(v=>`<button class="bp-btn${g.perPoint===v?' sel':''}" onclick="setSixPointVal(${i},${v});renderMMSixPoint()">$${v}</button>`).join('')}</div>`
+      +`<button class="remove-btn" onclick="removeSixPointGame(${i});renderMMSixPoint()">✕</button>`
+      +'</div>';
+  });
+  listEl.innerHTML=list;
+}
+
+function renderMMSnake(){
+  const el=document.getElementById('mmSnakeStatus'); if(!el) return;
+  const enabled=G.snake&&G.snake.enabled;
+  const parts=enabled&&G.snake.participants&&G.snake.participants.length
+    ? G.snake.participants
+    : G.players.map((_,i)=>i);
+  // Enable/disable toggle
+  let html=`<label style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${enabled?'10px':'0'}">`
+    +`<span style="font-size:13px;font-weight:600;color:${enabled?'#f0c040':'#888'}">Snake ${enabled?`ON &mdash; $${G.snake.bet}/player`:'OFF'}</span>`
+    +`<input type="checkbox" ${enabled?'checked':''} onchange="G.snake.enabled=this.checked;G.snake.settlements=computeSnakeSettlements();saveG();renderMMSnake();applyScorecardOnlyNav()" style="width:22px;height:22px;accent-color:#9b59b6"></label>`;
+  if(enabled){
+    // Bet amount
+    html+=`<div style="margin-bottom:10px"><div style="font-size:11px;color:#aaa;margin-bottom:4px">Bet per player per settlement</div>`
+      +`<div style="display:flex;gap:6px;flex-wrap:wrap">${[1,2,5,10,20].map(v=>`<button class="bp-btn${G.snake.bet===v?' sel':''}" onclick="G.snake.bet=${v};G.snake.settlements=computeSnakeSettlements();saveG();renderMMSnake()">$${v}</button>`).join('')}</div></div>`;
+    // Participant checkboxes
+    html+='<div style="font-size:11px;color:#aaa;margin-bottom:6px">Participants</div>';
+    G.players.forEach((p,pi)=>{
+      const inGame=parts.includes(pi);
+      html+=`<label style="display:flex;align-items:center;gap:8px;padding:4px 0;cursor:pointer">`
+        +`<input type="checkbox" ${inGame?'checked':''} onchange="mmToggleSnakePart(${pi},this.checked)" style="width:18px;height:18px;accent-color:#9b59b6">`
+        +`<span style="font-size:13px;color:#f0c040">${p.name}</span></label>`;
+    });
+  }
+  el.innerHTML=html;
+}
+
+function mmToggleSnakePart(pi,add){
+  if(!G.snake.participants||!G.snake.participants.length)
+    G.snake.participants=G.players.map((_,i)=>i);
+  if(add){ if(!G.snake.participants.includes(pi)) G.snake.participants.push(pi); }
+  else { G.snake.participants=G.snake.participants.filter(x=>x!==pi); }
+  G.snake.settlements=computeSnakeSettlements();
+  saveG(); renderMMSnake();
+}
+
+function buildGamesMenuList(){
+  const el=document.getElementById('gamesMenuList'); if(!el) return;
+  const so=!!G.scorecardOnly;
+  const games=[];
+  if(!so) games.push({id:'bets',icon:'💰',label:'Nassau',sub:'Match betting & presses'});
+  if(!so && G.sixPointGames&&G.sixPointGames.length)
+    games.push({id:'sixpoint',icon:'6️⃣',label:'6-Point Game',sub:G.sixPointGames.length+' active game'+(G.sixPointGames.length>1?'s':'')});
+  if(G.snake&&G.snake.enabled)
+    games.push({id:'snake',icon:'🐍',label:'Snake 3-Putt',sub:'$'+G.snake.bet+'/player · settles holes 3,6,9,12,15,18'});
+  if(!games.length){
+    el.innerHTML='<div style="padding:20px;text-align:center;color:#888;font-size:13px">No games active this round.</div>';
+    return;
+  }
+  el.innerHTML=games.map(g=>
+    '<div onclick="closeGamesMenu();showS(\''+g.id+'\')" style="display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.07);cursor:pointer">'
+    +'<div style="font-size:28px;width:36px;text-align:center">'+g.icon+'</div>'
+    +'<div><div style="font-size:15px;font-weight:700;color:#f0f0f0">'+g.label+'</div>'
+    +'<div style="font-size:11px;color:#888;margin-top:2px">'+g.sub+'</div></div>'
+    +'<div style="margin-left:auto;color:#555;font-size:18px">›</div></div>'
+  ).join('');
+}
+
+function showGamesMenu(){
+  buildGamesMenuList();
+  const menu=document.getElementById('gamesMenu');
+  const sheet=document.getElementById('gamesSheet');
+  menu.style.display='block';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    sheet.style.transform='translateY(0)';
+  }));
+}
+
+function closeGamesMenu(){
+  const sheet=document.getElementById('gamesSheet');
+  const menu=document.getElementById('gamesMenu');
+  sheet.style.transform='translateY(100%)';
+  setTimeout(()=>{ menu.style.display='none'; },300);
+}
+
 function openMatchManager(){
   const existing=document.getElementById('mmOverlay');
   if(existing) existing.remove();
@@ -5219,6 +5459,10 @@ function openMatchManager(){
   overlay.className='mm-overlay';
   overlay.id='mmOverlay';
   const so = !!G.scorecardOnly;
+  const autoInfo = `<div style="font-size:11px;color:#888;margin-bottom:6px">⚙️ Auto-advance: <b style="color:#c9a84c">${G.autoAdvance!==false?'On':'Off'}</b></div>`;
+  const scorecardInfo = G.scorecardOnly
+    ? `<div style="background:#2a2a2a;border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:#aaa">📋 Scorecard-only round &mdash; no betting or Nassau</div>`
+    : '';
   const gamesSections = so ? '' : `
       <div class="slabel">2v2 Nassau Games (High-Low)</div>
       <div class="card" id="mmTeamGamesCard">
@@ -5247,7 +5491,20 @@ function openMatchManager(){
         <div id="mmPlayersList"></div>
         ${G.n<5 ? `<button class="add-player-btn" onclick="mmAddPlayer()">+ Add Player</button>` : `<div style="font-size:11px;color:var(--inkl);text-align:center">Max 5 players</div>`}
       </div>
+      ${scorecardInfo}
       ${gamesSections}
+      ${so ? '' : `
+      <div class="slabel">6-Point Game</div>
+      <div class="card" id="mmSixPointCard" style="padding:10px">
+        <div style="font-size:12px;color:#666;margin-bottom:8px">Pick any 3 players — tap to add or remove.</div>
+        <div id="mmSixPointGrid"></div>
+        <div id="mmSixPointList"></div>
+      </div>
+      <div class="slabel">🐍 Snake 3-Putt Game</div>
+      <div class="card" id="mmSnakeCard" style="padding:10px">
+        <div id="mmSnakeStatus"></div>
+      </div>`}
+      <div style="margin:4px 0 8px">${autoInfo}</div>
       <div style="font-size:11px;color:var(--inkl);margin-top:10px;text-align:center">
         ${footNote}
       </div>
@@ -5256,7 +5513,7 @@ function openMatchManager(){
   overlay.addEventListener('click',e=>{ if(e.target===overlay) closeMatchManager(); });
 
   renderMMPlayers();
-  if(!so){ renderMMPairOptions(); renderMMSingles(); }
+  if(!so){ renderMMPairOptions(); renderMMSingles(); renderMMSixPoint(); renderMMSnake(); }
 }
 
 function closeMatchManager(){
@@ -5959,9 +6216,13 @@ function renderSnakeTab(){
   });
   html+='</div>';
   if(!isRoundComplete()){
+    // Find which hole the holder last 3-putted on in this stretch
+    const holderEntry=holder ? [...(G.snake.history||[])].filter(e=>e.name===holder).sort((a,b)=>playOrderIdx(a.hole)-playOrderIdx(b.hole)).pop() : null;
     html+='<div style="background:#1a1a2e;border-radius:10px;padding:12px 14px;text-align:center;margin-bottom:12px">'
         +'<div style="font-size:12px;color:#aaa;margin-bottom:4px">Currently holding the snake</div>'
-        +'<div style="font-size:18px;font-weight:800;color:#f0c040">'+(holder||'— Nobody yet —')+'</div></div>';
+        +'<div style="font-size:18px;font-weight:800;color:#f0c040">'+(holder||'\u2014 Nobody yet \u2014')+'</div>'
+        +(holderEntry ? '<div style="font-size:11px;color:#888;margin-top:4px">3-putted hole '+(holderEntry.hole+1)+'</div>' : '')
+        +'</div>';
   }
   const sortedLog=[...(G.snake.history||[])].filter(e=>e.name).sort((a,b)=>playOrderIdx(a.hole)-playOrderIdx(b.hole));
   if(sortedLog.length>0){
@@ -5991,9 +6252,21 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v16.66';
+const CURRENT_VERSION = 'nassau-v16.78';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v16.78 — Hole picker replaced with a spinning wheel — hold ◀ or ▶, spin to hole, tap Go',
+  'v16.77 — Hold ◀ or ▶ to get a hole picker; removed Front 9/Back 9 tabs',
+  'v16.76 — Double-tap ◀ to jump to hole 1, double-tap ▶ to jump to hole 18',
+  'v16.75 — Score entry: hole navigation arrows larger and more visible',
+  'v16.74 — Birdie Juice removed from Games pull-up menu (still accessible via its own tab)',
+  'v16.73 — Snake tab: current holder now shows which hole they 3-putted on',
+  'v16.72 — Games tab icon changed to 💵',
+  'v16.71 — Birdie Juice tab restored to bottom nav',
+  'v16.70 — Bottom nav: Nassau/6-Point/Snake/Birdie Juice tabs removed; all accessible via 🎮 Games pull-up menu',
+  'v16.69 — Bottom nav: individual game tabs replaced with a 🎮 Games hub that slides up a menu to pick any game',
+  'v16.68 — Manage Matches: Snake participants and 6-Point games now fully editable mid-round',
+  'v16.67 — Manage Matches: now shows 6-Point, Snake, and auto-advance status alongside Nassau games',
   'v16.66 — Setup: Load My Favorites button shows actual favorite names inline; updates when names change',
   'v16.65 — Setup: Snake participant names now sync live with player name changes',
   'v16.64 — Setup: Load My Favorites button moved into Round Setup box; favorites preview shows names and decks',
@@ -6107,7 +6380,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode=`
-const CACHE='nassau-v16.66';
+const CACHE='nassau-v16.78';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
@@ -6150,5 +6423,13 @@ self.addEventListener('fetch',e=>{
 }
 </script>
 
+
+<div id="gamesMenu" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.5)" onclick="if(event.target===this)closeGamesMenu()">
+  <div id="gamesSheet" style="position:absolute;bottom:0;left:0;right:0;background:#1a2a1a;border-radius:20px 20px 0 0;padding:16px 0 max(32px,calc(16px + env(safe-area-inset-bottom))) 0;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,0,.67,0)">
+    <div style="width:40px;height:4px;background:rgba(255,255,255,.2);border-radius:2px;margin:0 auto 16px"></div>
+    <div style="font-size:13px;font-weight:700;color:#c9a84c;letter-spacing:.5px;text-align:center;margin-bottom:12px;text-transform:uppercase">Games</div>
+    <div id="gamesMenuList"></div>
+  </div>
+</div>
 </body>
 </html>
