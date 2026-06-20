@@ -556,7 +556,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v16.56
+    Nassau Golf · Derrick GWC · v16.57
   </div>
 </div>
 </div>
@@ -635,7 +635,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v16.56</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v16.57</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2365,7 +2365,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.56</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.57</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2551,7 +2551,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.56</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.57</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3103,7 +3103,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.56</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.57</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4540,7 +4540,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.56</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.57</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4649,7 +4649,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.56</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.57</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4771,7 +4771,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.56</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.57</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4879,7 +4879,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v16.56');
+  lines.push('— Nassau Golf · Derrick GWC · v16.57');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -5057,7 +5057,7 @@ ${moneySection}<div class="sec">Master Scorecard</div>${sc}
 <div style="font-size:9px;color:#777;margin-top:3px">🔴 thin circle = 1 stroke · double circle = 2 strokes · NET = gross − full handicap index</div>
 ${matchSections}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v16.56 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v16.57 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -5976,7 +5976,7 @@ showEmergencyBanners();
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode = `
-const CACHE='nassau-v16.56';
+const CACHE='nassau-v16.57';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
@@ -6033,9 +6033,10 @@ self.addEventListener('fetch',e=>{
   // Blob-URL service workers on iOS Safari don't reliably fire updatefound/waiting.
   // Instead, fetch the live page every 90s and compare the version string.
   // If a newer version is found, show the update banner.
-  const CURRENT_VERSION = 'nassau-v16.56';
+  const CURRENT_VERSION = 'nassau-v16.57';
   const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
   const RELEASE_NOTES = [
+    'v16.57 — Fixed: What\'s New page now renders emoji and special characters correctly',
     'v16.56 — Master scorecard: 🐍 + holder name shown on settlement holes (3,6,9,12,15,18)',
     'v16.55 — Fixed: What\'s New opens as a full scrollable page instead of a stuck modal',
     'v16.54 — Fixed: update notes modal now scrollable on iOS',
@@ -6079,21 +6080,30 @@ self.addEventListener('fetch',e=>{
 
   window.showUpdateNotes=function(){
     if(!_pendingReleaseNotes || !_pendingReleaseNotes.length) return;
-    // Build a full-screen page and open it as a data: URL in a new tab
-    // iOS Safari handles scrolling natively with no overlay trapping issues
-    const items=_pendingReleaseNotes.map(n=>
-      '<li style="margin:10px 0;font-size:15px;color:#222;line-height:1.5">'+n+'</li>').join('');
-    const page='<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">'
-      +'<style>body{font-family:-apple-system,sans-serif;margin:0;padding:0;background:#f5f0e8}'
-      +'.hdr{background:#1a3a2a;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}'
-      +'.hdr-title{font-size:17px;font-weight:700;color:#c9a84c}'
-      +'.close-btn{background:rgba(201,168,76,.2);border:1.5px solid #c9a84c;color:#c9a84c;border-radius:8px;padding:6px 14px;font-size:14px;font-weight:700;cursor:pointer}'
-      +'ul{padding:16px 20px 16px 36px;margin:0}'
+    const items=_pendingReleaseNotes.map(n=>{
+      // Clean up version prefix and em dash for display
+      const m=n.match(/^(v[\d.]+)\s*\u2014\s*(.+)$/);
+      return m
+        ? '<li><span style="font-weight:700;color:#c9a84c">'+m[1]+'</span> — '+m[2]+'</li>'
+        : '<li>'+n+'</li>';
+    }).join('');
+    const page='<!DOCTYPE html>'
+      +'<html><head>'
+      +'<meta charset="utf-8">'
+      +'<meta name="viewport" content="width=device-width,initial-scale=1">'
+      +'<style>'
+      +'body{font-family:-apple-system,sans-serif;margin:0;padding:0;background:#f5f0e8;color:#222}'
+      +'.hdr{background:#1a3a2a;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0}'
+      +'.title{font-size:18px;font-weight:700;color:#c9a84c}'
+      +'.done{background:rgba(201,168,76,.2);border:1.5px solid #c9a84c;color:#c9a84c;border-radius:8px;padding:7px 16px;font-size:14px;font-weight:700}'
+      +'ul{list-style:disc;padding:16px 20px 40px 32px;margin:0}'
+      +'li{margin:10px 0;font-size:15px;line-height:1.5}'
       +'</style></head><body>'
-      +'<div class="hdr"><span class="hdr-title">📋 What\'s New</span>'
-      +'<button class="close-btn" onclick="window.close()">Done</button></div>'
-      +'<ul>'+items+'</ul></body></html>';
-    const blob=new Blob([page],{type:'text/html'});
+      +'<div class="hdr"><span class="title">What\'s New</span><button class="done" onclick="window.close()">Done</button></div>'
+      +'<ul>'+items+'</ul>'
+      +'</body></html>';
+    // Use blob with explicit UTF-8 type — most reliable on iOS Safari
+    const blob=new Blob([page],{type:'text/html;charset=utf-8'});
     const url=URL.createObjectURL(blob);
     window.open(url,'_blank');
   };
