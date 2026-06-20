@@ -561,7 +561,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v16.79
+    Nassau Golf · Derrick GWC · v16.81
   </div>
 </div>
 </div>
@@ -638,7 +638,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v16.79</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v16.81</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2377,7 +2377,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.79</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.81</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2568,7 +2568,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.79</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.81</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3120,7 +3120,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.79</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.81</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4703,7 +4703,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.79</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.81</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4812,7 +4812,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.79</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.81</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4934,7 +4934,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.79</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.81</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5042,7 +5042,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v16.79');
+  lines.push('— Nassau Golf · Derrick GWC · v16.81');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -5220,7 +5220,7 @@ ${moneySection}<div class="sec">Master Scorecard</div>${sc}
 <div style="font-size:9px;color:#777;margin-top:3px">🔴 thin circle = 1 stroke · double circle = 2 strokes · NET = gross − full handicap index</div>
 ${matchSections}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v16.79 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v16.81 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -5420,7 +5420,7 @@ function buildGamesMenuList(){
   if(!so && G.sixPointGames&&G.sixPointGames.length)
     games.push({id:'sixpoint',icon:'6️⃣',label:'6-Point Game',sub:G.sixPointGames.length+' active game'+(G.sixPointGames.length>1?'s':'')});
   if(G.snake&&G.snake.enabled)
-    games.push({id:'snake',icon:'🐍',label:'Snake 3-Putt',sub:'$'+G.snake.bet+'/player · settles holes 3,6,9,12,15,18'});
+    games.push({id:'snake',icon:'🐍',label:'Snake 3-Putt',sub:'$'+G.snake.bet+'/player · settles after '+SNAKE_SETTLE_HOLES.map(pi=>actualHoleIdx(pi)+1).join(',')});
   if(!games.length){
     el.innerHTML='<div style="padding:20px;text-align:center;color:#888;font-size:13px">No games active this round.</div>';
     return;
@@ -6188,7 +6188,7 @@ function renderSnakeTab(){
   let html='<div style="padding:12px 14px 170px">';
   html+='<div style="background:var(--gd);border-radius:10px;padding:12px 14px;margin-bottom:12px">'
       +'<div style="font-size:16px;font-weight:800;color:var(--gold);margin-bottom:4px">🐍 Snake 3-Putt Game</div>'
-      +'<div style="font-size:12px;color:var(--gl)">$'+bet+'/player · Settles holes 3,6,9,12,15,18 · resets each stretch</div>'
+      +'<div style="font-size:12px;color:var(--gl)">$'+bet+'/player · Settles after holes '+SNAKE_SETTLE_HOLES.map(pi=>actualHoleIdx(pi)+1).join(',')+' · resets each stretch</div>'
       +'<div style="font-size:11px;color:var(--gl);margin-top:2px">Participants: '+parts.map(pi=>G.players[pi]?G.players[pi].name:'').filter(Boolean).join(', ')+'</div>'
       +'</div>';
   html+='<div style="background:#fff;border-radius:10px;overflow:hidden;margin-bottom:12px">'
@@ -6224,7 +6224,7 @@ function renderSnakeTab(){
         +(holderEntry ? '<div style="font-size:11px;color:#888;margin-top:4px">3-putted hole '+(holderEntry.hole+1)+'</div>' : '')
         +'</div>';
   }
-  const sortedLog=[...(G.snake.history||[])].filter(e=>e.name).sort((a,b)=>playOrderIdx(a.hole)-playOrderIdx(b.hole));
+  const sortedLog=[...(G.snake.history||[])].filter(e=>e.name).sort((a,b)=>a.hole-b.hole);
   if(sortedLog.length>0){
     html+='<div style="background:#fff;border-radius:10px;overflow:hidden;margin-bottom:12px">'
         +'<div style="background:#2a1a3e;padding:8px 12px;font-size:11px;font-weight:700;color:#c9a84c;letter-spacing:.5px;text-transform:uppercase">3-Putt Log</div>';
@@ -6252,9 +6252,11 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v16.79';
+const CURRENT_VERSION = 'nassau-v16.81';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v16.81 — Snake: settlement hole labels now dynamic and correct for shotgun starts',
+  'v16.80 — Snake tab: 3-putt log now sorted by hole number',
   'v16.79 — Hole wheel: long press moved from ◀▶ buttons to the hole/par text in the header',
   'v16.78 — Hole picker replaced with a spinning wheel — hold ◀ or ▶, spin to hole, tap Go',
   'v16.77 — Hold ◀ or ▶ to get a hole picker; removed Front 9/Back 9 tabs',
@@ -6381,7 +6383,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode=`
-const CACHE='nassau-v16.79';
+const CACHE='nassau-v16.81';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
