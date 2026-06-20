@@ -5824,7 +5824,8 @@ function autofillFavorites(onlyIfEmpty){
       // Fetched contacts: stored idx is the raw Golf Canada index — apply the player's default deck.
       // Manual contacts: stored idx is the literal handicap (no adjustment).
       hdcpBaseline: hasGC ? c.idx : null,
-      idx: hasGC ? deckAdjust(c.idx, deck) : c.idx
+      idx: hasGC ? deckAdjust(c.idx, deck) : c.idx,
+      typicalScore: parseInt(c.typicalScore)||0
     };
   });
   renderPlayers();
@@ -6049,6 +6050,7 @@ function selectContact(i){
     // Manual contact: use the stored handicap as-is, no deck adjustment.
     G.players[i].hdcpBaseline = null;
     G.players[i].idx = c.idx;
+  G.players[i].typicalScore = parseInt(c.typicalScore)||0;
     const phEl=document.getElementById(`ph${i}`); if(phEl) phEl.value = c.idx;
     const adjEl=document.getElementById(`phAdj${i}`); if(adjEl) adjEl.value = c.idx;
     const noteEl=document.getElementById('deckNote'+i); if(noteEl) noteEl.textContent='';
