@@ -441,15 +441,18 @@ input::placeholder{color:#bbb}
 <div class="screen active" id="screen-setup">
 <div class="setup">
 
-  <div style="background:linear-gradient(135deg,#1a3a2a,#2d6a4f);border-radius:12px;padding:14px 16px;margin-bottom:14px;text-align:center">
+  <div style="background:linear-gradient(135deg,#1a3a2a,#2d6a4f);border-radius:12px;padding:14px 16px;margin-bottom:10px;text-align:center">
     <div style="font-size:17px;font-weight:800;color:#c9a84c;letter-spacing:.3px">⛳ Round Setup</div>
     <div style="font-size:12px;color:#a8d5b5;margin-top:4px">Enter your players, games, and bets below — then tap <b style="color:#c9a84c">Start Round</b> to begin.</div>
+    <button id="favPreview" onclick="loadFavoritesButton()" style="margin-top:10px;width:100%;background:var(--gold);color:var(--gd);border:none;border-radius:10px;padding:10px 14px;cursor:pointer;text-align:center">
+      <div style="font-size:13px;font-weight:700;margin-bottom:4px">⭐ Load My Favorites</div>
+      <div id="favNames" style="font-size:11px;opacity:.75;line-height:1.5"></div>
+    </button>
   </div>
   <div style="display:flex;gap:8px;margin-bottom:14px">
     <button class="view-history-btn" style="margin-bottom:0;flex:1" onclick="showS('history')">📜 Round History &amp; Backup / Restore</button>
     <button class="view-history-btn" style="margin-bottom:0;flex:1" onclick="openFavorites()">⭐ Manage Favorites &amp; Players</button>
   </div>
-  <button class="view-history-btn" onclick="loadFavoritesButton()" style="background:var(--gold);color:var(--gd);border-color:var(--gold)">⭐ Load My Favorites</button>
   <button class="btn-reset" onclick="showResetConfirm()">↺ Reset Setup</button>
   <div id="resetConfirm" style="display:none" class="save-dialog save-dialog-warn" style="margin-top:8px">
     <div class="save-dialog-txt">⚠️ Clear all names, handicaps, and selected games?</div>
@@ -558,7 +561,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v16.59
+    Nassau Golf · Derrick GWC · v16.66
   </div>
 </div>
 </div>
@@ -637,7 +640,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v16.59</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v16.66</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -739,6 +742,15 @@ const BET_OPTIONS=[1,2,5,10];
 ═══════════════════════════════════════════════ */
 function initSetup(){
   renderPlayers();
+  renderFavPreview();
+}
+
+function renderFavPreview(){
+  const el=document.getElementById('favNames'); if(!el) return;
+  const favs=loadFavorites();
+  if(!favs.length){ el.textContent='No favorites set yet'; return; }
+  const deckLabel=d=>({'DECK1':'D1','DECK2':'D2','DECK3':'D3','DECK4':'D4','DECK2/3':'D2/3','DECK3/4':'D3/4','DECK1/2':'D1/2'}[d]||d||'D2');
+  el.textContent=favs.map(f=>f.name+(f.defaultDeck?'\u00a0('+deckLabel(f.defaultDeck)+')':'')).join('\u2002·\u2002');
 }
 // Capture whatever is currently typed in the player input rows into G.players, so a
 // re-render (e.g. changing the golfer count) preserves names/handicaps/IDs already entered.
@@ -841,7 +853,7 @@ function renderPlayers(){
     h+=`<div class="p-row" id="prow${i}" style="${act?'':'opacity:.3;pointer-events:none'}">
       <div class="p-num" style="${act?'':'background:#ddd;color:#aaa'}">${i+1}</div>
       <div>
-        <input type="text" id="pn${i}" placeholder="Player ${i+1}" value="${nm}" oninput="renderAllPairOptions();highlightDuplicateRows()" ${act?'':'disabled'}>
+        <input type="text" id="pn${i}" placeholder="Player ${i+1}" value="${nm}" oninput="renderAllPairOptions();highlightDuplicateRows();renderSnakeSetupOptions()" ${act?'':'disabled'}>
         <select class="contact-select" id="contact${i}" onchange="selectContact(${i})" onfocus="refreshContactOpts(${i})" ${act?'':'disabled'}>
           ${contactOpts}
         </select>
@@ -2367,7 +2379,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.59</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.66</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2559,7 +2571,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.59</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.66</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3111,7 +3123,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.59</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.66</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4548,7 +4560,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.59</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.66</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4657,7 +4669,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.59</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v16.66</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4779,7 +4791,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.59</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v16.66</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -4887,7 +4899,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v16.59');
+  lines.push('— Nassau Golf · Derrick GWC · v16.66');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -5065,7 +5077,9 @@ ${moneySection}<div class="sec">Master Scorecard</div>${sc}
 <div style="font-size:9px;color:#777;margin-top:3px">🔴 thin circle = 1 stroke · double circle = 2 strokes · NET = gross − full handicap index</div>
 ${matchSections}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v16.59 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v16.66 · ${dateStr}</div>
+
+
 </body></html>`;
 }
 
@@ -5545,6 +5559,8 @@ function autofillFavorites(onlyIfEmpty){
   renderAllPairOptions();
   highlightDuplicateRows();
   autoFetchAllStale(); // refresh any stale handicaps in the background (silent)
+  renderSnakeSetupOptions(); // refresh participant names with loaded favorites
+  renderFavPreview();
   return true;
 }
 
@@ -5972,6 +5988,99 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 showEmergencyBanners();
 
 // ── Restore saved round on launch ──
+/* ═══════════════════════════════════════════════
+   VERSION POLLING + UPDATE BANNER
+═══════════════════════════════════════════════ */
+const CURRENT_VERSION = 'nassau-v16.66';
+const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
+const RELEASE_NOTES = [
+  'v16.66 — Setup: Load My Favorites button shows actual favorite names inline; updates when names change',
+  'v16.65 — Setup: Snake participant names now sync live with player name changes',
+  'v16.64 — Setup: Load My Favorites button moved into Round Setup box; favorites preview shows names and decks',
+  'v16.63 — Fixed: Snake participant names now update correctly when favorites are loaded',
+  'v16.62 — Fixed: player entry section now displays correctly',
+  'v16.59 — Emergency backup persists until next round; pulsing dot on scorecard tab when hole partially scored; snake tab shows 3-putt log',
+  'v16.58 — Setup: Round Setup header moved to the very top of the screen',
+  'v16.57 — Fixed: What\'s New page now renders emoji and special characters correctly',
+  'v16.56 — Master scorecard: 🐍 + holder name shown on settlement holes (3,6,9,12,15,18)',
+  'v16.55 — Fixed: What\'s New opens as a full scrollable page instead of a stuck modal',
+  'v16.54 — Fixed: update notes modal now scrollable on iOS',
+  'v16.53 — Snake tab: current holder hidden after round is complete',
+  'v16.52 — Snake: after hole 18 scorecard shows a tap-to-view pointer instead of full results box',
+  'v16.51 — Master scorecard: Snake $ row added to money totals alongside Nassau and 6-Point',
+  'v16.50 — Snake: scorecard panel now shows stretch holder (resets after each settlement)',
+  'v16.49 — Version number now shown beside Help button on every screen',
+  'v16.48 — Snake: resets every 3 holes; participant selection added to setup',
+  'v16.47 — Snake 3-Putt is now a full money game with its own tab and settlement holes',
+  'v16.46 — Setup screen: Round Setup header added to clarify the screen purpose',
+  'v16.45 — Fixed: ℹ️ release notes button now correctly parses the notes list',
+  'v16.44 — New Round blocked if on hole 18 with missing scores',
+  'v16.43 — New Round dialog is now context-aware: completed rounds show a green confirmation',
+  'v16.42 — Solo mode: set players to 1 for scorecard-only with no matches or betting',
+  'v16.41 — Fixed: ℹ️ update info button now appears correctly',
+  'v16.40 — Update banner now shows a ℹ️ button with release notes for what changed',
+];
+let _pendingReleaseNotes = null;
+
+function showUpdateBanner(notes){
+  _pendingReleaseNotes = notes || null;
+  const b=document.getElementById('updateBanner');
+  if(!b) return;
+  const infoBtn=b.querySelector('.ub-info');
+  if(infoBtn) infoBtn.style.display = notes ? 'inline-block' : 'none';
+  b.style.display='flex';
+}
+
+window.applyUpdate=function(){
+  const b=document.getElementById('updateBanner');
+  if(b) b.style.display='none';
+  window.location.href = LIVE_URL + '?v=' + Date.now();
+};
+
+window.showUpdateNotes=function(){
+  if(!_pendingReleaseNotes || !_pendingReleaseNotes.length) return;
+  const items=_pendingReleaseNotes.map(n=>{
+    const m=n.match(/^(v[\d.]+)\s*—\s*(.+)$/);
+    return m ? '<li><span style="font-weight:700;color:#c9a84c">'+m[1]+'</span> — '+m[2]+'</li>' : '<li>'+n+'</li>';
+  }).join('');
+  const page='<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+    +'<style>body{font-family:-apple-system,sans-serif;margin:0;padding:0;background:#f5f0e8;color:#222}'
+    +'.hdr{background:#1a3a2a;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0}'
+    +'.title{font-size:18px;font-weight:700;color:#c9a84c}'
+    +'.done{background:rgba(201,168,76,.2);border:1.5px solid #c9a84c;color:#c9a84c;border-radius:8px;padding:7px 16px;font-size:14px;font-weight:700}'
+    +'ul{list-style:disc;padding:16px 20px 40px 32px;margin:0}li{margin:10px 0;font-size:15px;line-height:1.5}'
+    +'</style></head><body>'
+    +'<div class="hdr"><span class="title">What\'s New</span><button class="done" onclick="window.close()">Done</button></div>'
+    +'<ul>'+items+'</ul></body></html>';
+  const blob=new Blob([page],{type:'text/html;charset=utf-8'});
+  window.open(URL.createObjectURL(blob),'_blank');
+};
+
+async function checkForUpdate(){
+  try{
+    const res=await fetch(LIVE_URL,{cache:'no-store'});
+    if(!res.ok) return;
+    const text=await res.text();
+    const m=text.match(/const CURRENT_VERSION = '(nassau-v[\d.]+)'/);
+    if(m && m[1]!==CURRENT_VERSION){
+      let notes=null;
+      try{
+        const rnStart=text.indexOf('const RELEASE_NOTES = [');
+        if(rnStart>=0){
+          const rnEnd=text.indexOf('];',rnStart)+2;
+          const rnSrc=text.slice(rnStart+'const RELEASE_NOTES = '.length,rnEnd);
+          notes=(new Function('return '+rnSrc))();
+        }
+      }catch(_){}
+      showUpdateBanner(notes);
+    }
+  }catch(e){}
+}
+
+setTimeout(checkForUpdate,30000);
+setInterval(checkForUpdate,90000);
+
+
 (function(){
   if(loadG()){
     document.getElementById('bnav').style.display='flex';
@@ -5994,5 +6103,52 @@ showEmergencyBanners();
 })();
 
 </script>
+<script>
+// Inline service worker for PWA offline support
+if('serviceWorker' in navigator){
+  const swCode=`
+const CACHE='nassau-v16.66';
+self.addEventListener('install',e=>{
+  e.waitUntil(
+    caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
+    .then(()=>self.skipWaiting())
+  );
+});
+self.addEventListener('activate',e=>{
+  e.waitUntil(
+    caches.keys().then(keys=>Promise.all(
+      keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))
+    )).then(()=>clients.claim())
+  );
+});
+self.addEventListener('fetch',e=>{
+  const req=e.request;
+  if(req.method!=='GET'){ return; }
+  const isNavigation=req.mode==='navigate'||(req.destination==='document')||(req.headers.get('accept')||'').includes('text/html');
+  if(isNavigation){
+    e.respondWith(fetch(req).then(res=>{
+      const clone=res.clone();
+      caches.open(CACHE).then(c=>c.put(req,clone));
+      return res;
+    }).catch(()=>caches.match(req).then(r=>r||caches.match('./'))));
+    return;
+  }
+  e.respondWith(caches.match(req).then(r=>r||fetch(req).then(res=>{
+    const clone=res.clone();
+    caches.open(CACHE).then(c=>c.put(req,clone));
+    return res;
+  })));
+});
+\`;
+  const blob=new Blob([swCode],{type:'application/javascript'});
+  const swUrl=URL.createObjectURL(blob);
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register(swUrl)
+      .then(()=>console.log('SW ready'))
+      .catch(e=>console.log('SW failed',e));
+  });
+}
+</script>
+
 </body>
 </html>
