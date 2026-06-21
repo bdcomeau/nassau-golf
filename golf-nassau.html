@@ -603,7 +603,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v28.3
+    Nassau Golf · Derrick GWC · v28.4
   </div>
 </div>
 </div>
@@ -687,7 +687,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v28.3</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v28.4</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -1636,6 +1636,7 @@ function startRound(){
   G.scores=G.players.map(()=>Array(18).fill(null));
   G.hole=G.startHole-1; // start on the actual hole the group tees off on
   G.roundDate=new Date().toISOString();
+  G.firstScoreAt=null;
   G.roundEnd=null;
   G.weatherStart=null; G.weatherEnd=null; // fresh weather snapshots for this round
   G.internationals={}; // reset any leftover International state from a previous round
@@ -2297,6 +2298,7 @@ function adjustScore(pi, h, delta){
   if(next<1||next>15)return;
   const prev=G.scores[pi][h];
   G.scores[pi][h]=next;
+  if(!G.firstScoreAt) { G.firstScoreAt=new Date().toISOString(); }
   checkBirdieJuice(pi,h,prev);
   saveG();
   renderCard();
@@ -2508,7 +2510,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v28.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v28.4</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2708,7 +2710,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v28.3</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v28.4</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3260,7 +3262,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v28.3</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v28.4</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4587,8 +4589,10 @@ function paceOfPlayStr(){
   const start = new Date(G.roundDate);
   const startStr = start.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
   if(!G.roundEnd) return `Round started ${startStr}`;
+  // Clock starts when first score was entered; add 12 min for hole 1 play time
+  const clockStart = G.firstScoreAt ? new Date(G.firstScoreAt) : start;
   const end = new Date(G.roundEnd);
-  let mins = Math.round((end - start)/60000);
+  let mins = Math.round((end - clockStart)/60000) + 12;
   if(mins < 0) mins = 0;
   const h = Math.floor(mins/60), m = mins%60;
   let dur;
@@ -4860,7 +4864,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v28.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v28.4</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4969,7 +4973,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v28.3</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v28.4</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -5091,7 +5095,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v28.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v28.4</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5199,7 +5203,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v28.3');
+  lines.push('— Nassau Golf · Derrick GWC · v28.4');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -5377,7 +5381,7 @@ ${moneySection}<div class="sec">Master Scorecard</div>${sc}
 <div style="font-size:9px;color:#777;margin-top:3px">🔴 thin circle = 1 stroke · double circle = 2 strokes · NET = gross − full handicap index</div>
 ${matchSections}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v28.3 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v28.4 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -6617,9 +6621,10 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v28.3';
+const CURRENT_VERSION = 'nassau-v28.4';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v28.4 — Pace of play: clock starts at first score entry + 12 min for hole 1',
   'v28.3 — Scorecard: score numbers regular weight (not bold)',
   'v28.2 — Scorecard: all score numbers black; ACE stays green',
   'v28.1 — Scorecard: birdie circle and bogey square made thinner',
@@ -6867,7 +6872,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode=`
-const CACHE='nassau-v28.3';
+const CACHE='nassau-v28.4';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
