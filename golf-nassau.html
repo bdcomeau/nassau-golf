@@ -586,7 +586,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v22.9
+    Nassau Golf · Derrick GWC · v23.0
   </div>
 </div>
 </div>
@@ -670,7 +670,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v22.9</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v23.0</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -978,7 +978,7 @@ async function fetchWeather(){
 //   • VP2 / WeatherLinkIP (data_structure_type 2): temp_out, hum_out, wind_speed, wind_dir, dew_point
 //   • WeatherLink Live (newer): temp, hum, wind_speed_last, wind_dir_last
 function parseWeather(data){
-  let tempF, hum, windMph, windDir, dewF, gustMph, rainDayIn, rainRateIn, barIn, barTrend;
+  let tempF, hum, windMph, windDir, dewF, gustMph, rainDayIn, rainRateIn, barIn, barTrend, uvIndex, heatIndexF, windChillF;
   const pick=(d,keys)=>{ for(const k of keys){ if(d[k]!==undefined && d[k]!==null) return d[k]; } return undefined; };
   (data.sensors||[]).forEach(sen=>{
     (sen.data||[]).forEach(d=>{
@@ -991,6 +991,9 @@ function parseWeather(data){
       if(rainDayIn===undefined)rainDayIn = pick(d,['rain_day_in','rainfall_daily_in']);
       if(rainRateIn===undefined)rainRateIn = pick(d,['rain_rate_in','rain_rate_last_in']);
       if(barIn===undefined)  barIn   = pick(d,['bar','bar_sea_level','bar_absolute']);
+      if(uvIndex===undefined)   uvIndex    = pick(d,['uv_index','uv']);
+      if(heatIndexF===undefined) heatIndexF = pick(d,['heat_index','heat_index_out']);
+      if(windChillF===undefined) windChillF = pick(d,['wind_chill']);
       if(barTrend===undefined)barTrend= pick(d,['bar_trend','pressure_trend']);
     });
   });
@@ -1005,23 +1008,43 @@ function parseWeather(data){
   // Trend: Davis encodes as inHg/hr; >0.02 = rising, <-0.02 = falling
   const barTrendLabel = barTrend===undefined||barTrend===null ? null
     : barTrend > 0.02 ? '↗️' : barTrend < -0.02 ? '↘️' : '→';
+  // Feels-like: use Davis value if available, else calculate
+  let feelsC = null;
+  if(heatIndexF!==undefined && heatIndexF!==null && tempF!==undefined && tempF>80){
+    feelsC = Math.round((heatIndexF-32)*5/9);
+  } else if(windChillF!==undefined && windChillF!==null && tempF!==undefined && tempF<50){
+    feelsC = Math.round((windChillF-32)*5/9);
+  } else if(tempC!==null && windKmh!==null && windKmh>4.8 && tempC<10){
+    // Wind chill formula (Environment Canada)
+    feelsC = Math.round(13.12 + 0.6215*tempC - 11.37*Math.pow(windKmh,0.16) + 0.3965*tempC*Math.pow(windKmh,0.16));
+  } else if(tempC!==null && hum!==undefined && tempC>27){
+    // Heat index approximation
+    feelsC = Math.round(tempC + 0.33*(hum/100*6.105*Math.exp(17.27*tempC/(237.7+tempC)))-4);
+  }
+  const uvIdx = uvIndex!==undefined && uvIndex!==null ? Math.round(uvIndex*10)/10 : null;
+  const gustKmhVal = gustKmh;
   return {
     tempC, humidity:(hum!==undefined?Math.round(hum):null),
     windKmh, windDir:(windDir!==undefined?windDir:null),
-    dewC, gustKmh, rainDayMm, rainRateMm, barHpa, barTrendLabel,
-    label: weatherLabel(tempC, windKmh, windDir, hum, rainDayMm, rainRateMm, barHpa, barTrendLabel),
+    dewC, gustKmh:gustKmhVal, rainDayMm, rainRateMm, barHpa, barTrendLabel,
+    feelsC, uvIdx,
+    label: weatherLabel(tempC, windKmh, windDir, hum, rainDayMm, rainRateMm, barHpa, barTrendLabel, gustKmhVal, feelsC, uvIdx),
     ts: new Date().toISOString(),
   };
 }
 
 const COMPASS=['N','NE','E','SE','S','SW','W','NW'];
 function dirToCompass(deg){ if(deg===null||deg===undefined) return ''; return COMPASS[Math.round(deg/45)%8]; }
-function weatherLabel(tempC, windKmh, windDir, hum, rainDayMm, rainRateMm, barHpa, barTrendLabel){
+function weatherLabel(tempC, windKmh, windDir, hum, rainDayMm, rainRateMm, barHpa, barTrendLabel, gustKmh, feelsC, uvIdx){
   const parts=[];
-  if(tempC!==null && tempC!==undefined) parts.push(`🌡️ ${tempC}°C`);
+  if(tempC!==null && tempC!==undefined){
+    const fl=(feelsC!==null&&feelsC!==undefined&&feelsC!==tempC)?` feels ${feelsC}°`:'';
+    parts.push(`🌡️ ${tempC}°C${fl}`);
+  }
   if(windKmh!==null && windKmh!==undefined){
-    if(windKmh===0){ parts.push(`💨 calm`); }
-    else { const c=dirToCompass(windDir); parts.push(`💨 ${windKmh} km/h${c?' '+c:''}`); }
+    const gustStr=gustKmh&&gustKmh>0?' (gusts '+gustKmh+'km/h)':'';
+    if(windKmh===0){ parts.push('💨 calm'+gustStr); }
+    else { const c=dirToCompass(windDir); const g=gustKmh&&gustKmh>windKmh?' (gusts '+gustKmh+'km/h)':''; parts.push('💨 '+windKmh+' km/h'+(c?' '+c:'')+g); }
   }
   if(hum!==null && hum!==undefined) parts.push(`💧 ${Math.round(hum)}%`);
   // Rain: show today's total always; add the live rate only when it's actively raining.
@@ -1033,6 +1056,10 @@ function weatherLabel(tempC, windKmh, windDir, hum, rainDayMm, rainRateMm, barHp
   if(barHpa!==null && barHpa!==undefined){
     const trend = barTrendLabel ? ' '+barTrendLabel : '';
     parts.push(`🌡️ ${barHpa} hPa${trend}`);
+  }
+  if(uvIdx!==null && uvIdx!==undefined){
+    const risk=uvIdx<=2?'Low':uvIdx<=5?'Moderate':uvIdx<=7?'High':uvIdx<=10?'Very High':'Extreme';
+    parts.push(`☀️ UV ${uvIdx} – ${risk}`);
   }
   return parts.join(' · ');
 }
@@ -2470,7 +2497,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v22.9</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v23.0</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2671,7 +2698,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v22.9</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v23.0</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3223,7 +3250,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v22.9</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v23.0</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4823,7 +4850,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v22.9</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v23.0</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4932,7 +4959,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v22.9</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v23.0</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -5054,7 +5081,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v22.9</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v23.0</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5162,7 +5189,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v22.9');
+  lines.push('— Nassau Golf · Derrick GWC · v23.0');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -5340,7 +5367,7 @@ ${moneySection}<div class="sec">Master Scorecard</div>${sc}
 <div style="font-size:9px;color:#777;margin-top:3px">🔴 thin circle = 1 stroke · double circle = 2 strokes · NET = gross − full handicap index</div>
 ${matchSections}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v22.9 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v23.0 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -6406,9 +6433,10 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v22.9';
+const CURRENT_VERSION = 'nassau-v23.0';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v23.0 — Weather: gusts, feels-like temp, and UV index added to scorecard weather strip',
   'v22.9 — Master scorecard: +/- to par row added below NET (red under, gold even, grey over)',
   'v22.8 — Setup: rain widget top-right shows live mm/h rate and daily total when raining',
   'v22.7 — Fixed: setup weather widget now fetches and displays on page load',
@@ -6602,7 +6630,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode=`
-const CACHE='nassau-v22.9';
+const CACHE='nassau-v23.0';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
