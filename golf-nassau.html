@@ -586,7 +586,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v23.4
+    Nassau Golf · Derrick GWC · v23.5
   </div>
 </div>
 </div>
@@ -605,7 +605,7 @@ input::placeholder{color:#bbb}
     <button class="manage-matches-btn" id="manageBtn" onclick="openMatchManager()">⚙️ Matches</button>
   </div>
   <div id="holeErr" onclick="openMatchManager()" style="display:none;background:#e74c3c;color:#fff;text-align:center;font-size:13px;font-weight:700;padding:8px 12px;margin:0 10px 6px;border-radius:8px;cursor:pointer"></div>
-  <div id="wxStrip" onclick="onWeatherStripTap()" style="display:none;margin:0 10px 6px;padding:7px 0;background:rgba(255,255,255,.08);border-radius:8px;font-size:12px;font-weight:600;color:#dce8e0;cursor:pointer;overflow:hidden">…</div>
+  <div id="wxStrip" onclick="onWeatherStripTap()" style="display:none;margin:0 10px 6px;padding:7px 12px;background:rgba(255,255,255,.08);border-radius:8px;font-size:12px;font-weight:600;color:#dce8e0;text-align:center;cursor:pointer">…</div>
   <div class="sbody" id="sbody"></div>
 </div>
 
@@ -670,7 +670,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v23.4</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v23.5</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -1067,9 +1067,7 @@ async function refreshWeatherDisplay(){
     const w=await fetchWeather();
     _wxLast=w;
     updateSetupWxWidget(w);
-    const timeStr=new Date(w.ts).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
-    const txt=w.label ? w.label+'&nbsp;&nbsp;<span style="opacity:.5">&middot;&nbsp;'+timeStr+'</span>' : 'Weather unavailable';
-    el.innerHTML='<span id="wxTicker">'+txt+'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'+txt+'</span>';
+    el.innerHTML = w.label ? `${w.label} <span style="opacity:.5">· ${new Date(w.ts).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}</span>` : 'Weather unavailable';
     el.style.display='block';
     // Capture round-start conditions the first time we get a good reading in a round.
     if(G.roundDate && !G.weatherStart && w.tempC!==null){ G.weatherStart=w; saveG(); }
@@ -2493,7 +2491,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v23.4</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v23.5</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2694,7 +2692,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v23.4</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v23.5</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3246,7 +3244,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v23.4</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v23.5</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4846,7 +4844,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v23.4</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v23.5</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4955,7 +4953,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v23.4</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v23.5</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -5077,7 +5075,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v23.4</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v23.5</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5185,7 +5183,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v23.4');
+  lines.push('— Nassau Golf · Derrick GWC · v23.5');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -5363,7 +5361,7 @@ ${moneySection}<div class="sec">Master Scorecard</div>${sc}
 <div style="font-size:9px;color:#777;margin-top:3px">🔴 thin circle = 1 stroke · double circle = 2 strokes · NET = gross − full handicap index</div>
 ${matchSections}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v23.4 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v23.5 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -6429,9 +6427,10 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v23.4';
+const CURRENT_VERSION = 'nassau-v23.5';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v23.5 — Weather strip restored to clean static display',
   'v23.4 — Weather strip: slow scrolling news ticker',
   'v23.3 — Weather strip: single scrollable line, no wrapping',
   'v23.2 — Weather: UV removed (Vantage Vue has no UV sensor); gusts and feels-like retained',
@@ -6630,7 +6629,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode=`
-const CACHE='nassau-v23.4';
+const CACHE='nassau-v23.5';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
