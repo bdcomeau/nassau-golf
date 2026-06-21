@@ -61,8 +61,41 @@
   <a href="#newround">10 · Starting a New Round</a>
   <a href="#snake">11 · The Snake 3-Putt Money Game</a>
   <a href="#typical">12 · Typical Score</a>
+    <a href="#privacy">0 · Privacy &amp; Data Security</a>
     <a href="#trouble">13 · Troubleshooting</a>
 </div>
+
+<h2 id="privacy">Privacy &amp; Data Security</h2>
+<p>Nassau Golf takes your privacy seriously. Here is a plain-English explanation of exactly what data the app collects, where it goes, and who can see it.</p>
+
+<h3>Everything stays on your device</h3>
+<p>All round data, player names, handicaps, betting results, and Golf Canada member IDs are stored exclusively in your iPhone&#x2019;s browser storage (<code>localStorage</code>). This data <b>never leaves your device</b> and is never sent to any server, cloud service, or third party. There is no Nassau Golf database or backend — the app is a single file that runs entirely on your phone.</p>
+
+<h3>Golf Canada Member ID &amp; Password</h3>
+<p>When you enter your Golf Canada credentials (member ID and password), they are used for one purpose only: fetching your current handicap index directly from Golf Canada&#x2019;s API. Your credentials are:</p>
+<ul>
+  <li>Stored only in your device&#x2019;s local browser storage</li>
+  <li>Never transmitted to any server other than Golf Canada&#x2019;s own secure API</li>
+  <li>Never shared with other players, the app developer, or any third party</li>
+  <li>Never included in round history exports or backups</li>
+</ul>
+<p>Once saved, your handicap refreshes automatically every 3 hours in the background — your credentials are read locally each time and sent directly to Golf Canada. No one else ever sees them.</p>
+
+<h3>How long credentials are remembered</h3>
+<p>Your Golf Canada credentials persist in localStorage indefinitely — they survive app updates, closing the app, and restarting your phone. They are only lost if you:</p>
+<ul>
+  <li>Manually clear Safari website data in iPhone Settings</li>
+  <li>Set up a brand new iPhone without restoring from an iCloud backup</li>
+</ul>
+<p>If you restore a new iPhone from an iCloud backup, your credentials and all app data come with it.</p>
+
+<h3>Weather data</h3>
+<p>The app fetches live weather from the Derrick GWC weather station via a secure Cloudflare Worker proxy. No personal information is sent with this request — it is a read-only call to a weather instrument.</p>
+
+<h3>Need help with Golf Canada credentials?</h3>
+<p>If you don&#x2019;t have a Golf Canada account or have forgotten your credentials, contact <b>Trevor Goplin</b>, Golf Professional at Derrick Golf &amp; Winter Club. He can look up your member ID and assist with account setup at <a href="https://www.golfcanada.ca" target="_blank">golfcanada.ca</a>.</p>
+
+<div class="note">&#128274; Nassau Golf does not collect analytics, does not serve ads, has no user accounts, and has no server. Your data is yours alone.</div>
 
 <h2 id="install">1 · Installing on Your iPhone</h2>
 <p>Nassau Golf is a web app that installs to your Home Screen like a regular app and works offline once loaded.</p>
