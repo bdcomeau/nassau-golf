@@ -603,7 +603,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v29.3
+    Nassau Golf · Derrick GWC · v29.5
   </div>
 </div>
 </div>
@@ -686,7 +686,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v29.3</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v29.5</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2509,7 +2509,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v29.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v29.5</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2709,7 +2709,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v29.3</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v29.5</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3261,7 +3261,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v29.3</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v29.5</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4892,7 +4892,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v29.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v29.5</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -5002,7 +5002,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v29.3</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v29.5</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -5124,7 +5124,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v29.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v29.5</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5232,7 +5232,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v29.3');
+  lines.push('— Nassau Golf · Derrick GWC · v29.5');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -5304,8 +5304,22 @@ function buildPrintHTML(snap){
   sc+=`</tr></thead><tbody>`;
   function scRow(playIdx){
     const h=actualHoleIdx(playIdx);
+    // Find snake holder at settlement holes
+    let snakeHolderName=null;
+    if(G.snake&&G.snake.enabled&&SNAKE_SETTLE_HOLES.includes(playIdx)){
+      const history=[...(G.snake.history||[])].filter(e=>e.hole<=playIdx).sort((a,b)=>a.hole-b.hole);
+      const parts=new Set((G.snake.participants&&G.snake.participants.length>=2?G.snake.participants:players.map((_,i)=>i)).map(pi=>players[pi]?players[pi].name:'').filter(Boolean));
+      let holder=null;
+      const stretchStart=playIdx-2;
+      history.filter(e=>e.hole>=stretchStart&&e.hole<=playIdx).forEach(e=>{if(parts.has(e.name))holder=e.name;});
+      snakeHolderName=holder;
+    }
     let r=`<tr>${td(h+1,'#3a3a3a','#fff',700)}${td(Y.d1[h],'#e8eaed','#1a2a3a')}${td(Y.d2[h],'#c5cdd8','#1a2a3a')}${td(Y.d3[h],'#aab6c6','#1a2a3a')}${td(Y.d4[h],'#9aa8bb','#1a2a3a')}${td(G.si[h],'#e6e2e2','#1a1a1a',700)}${td(G.par[h],'#c3cc5a','#1a1a1a',700)}`;
-    players.forEach((p,pi)=>r+=td(scoreCell(G.scores[pi][h],strokeMaps[pi][h]),'#fff','#1a1a1a',700));
+    players.forEach((p,pi)=>{
+      const isHolder=snakeHolderName&&p.name===snakeHolderName;
+      const cell=scoreCell(G.scores[pi][h],strokeMaps[pi][h])+(isHolder?'<div style="font-size:7px;line-height:1;margin-top:1px">🐍</div>':''  );
+      r+=td(cell,isHolder?'rgba(108,52,131,.12)':'#fff','#1a1a1a',700);
+    });
     return r+'</tr>';
   }
   function scSub(label,start,end){
@@ -5405,6 +5419,45 @@ function buildPrintHTML(snap){
       st+=`</tbody></table></div>`; matchSections+='<div style="page-break-before:always;break-before:page"></div>'+st;
     });
   }
+  // ── Snake results section ──
+  let snakeSection='';
+  if(G.snake && G.snake.enabled){
+    const settlements=computeSnakeSettlements();
+    const snakeMoney=computeSnakeMoney();
+    let st='<div style="page-break-before:always"></div>';
+    st+='<div style="font-size:15px;font-weight:800;color:#6c3483;margin:14px 0 6px;border-bottom:2px solid #9b59b6;padding-bottom:4px">🐍 Snake 3-Putt Game</div>';
+    st+='<table style="border-collapse:collapse;width:100%;font-size:10px;margin-bottom:10px">';
+    st+='<thead><tr>';
+    st+='<th style="background:#2a1a3a;color:#9b59b6;padding:5px 8px;border:1px solid #6c3483;text-align:left">Settlement</th>';
+    st+='<th style="background:#2a1a3a;color:#9b59b6;padding:5px 8px;border:1px solid #6c3483">Holes</th>';
+    st+='<th style="background:#2a1a3a;color:#9b59b6;padding:5px 8px;border:1px solid #6c3483">Holder</th>';
+    st+='<th style="background:#2a1a3a;color:#9b59b6;padding:5px 8px;border:1px solid #6c3483">Pays</th>';
+    st+='<th style="background:#2a1a3a;color:#9b59b6;padding:5px 8px;border:1px solid #6c3483">Amount</th>';
+    st+='</tr></thead><tbody>';
+    settlements.forEach((s,i)=>{
+      const recips=s.recipients.join(', ');
+      st+=`<tr>
+        <td style="padding:4px 8px;border:1px solid #ddd;font-weight:700">Settlement ${i+1}</td>
+        <td style="padding:4px 8px;border:1px solid #ddd;text-align:center">H${s.startHole+1}–H${s.endHole+1}</td>
+        <td style="padding:4px 8px;border:1px solid #ddd;text-align:center">${s.loser||'—'}</td>
+        <td style="padding:4px 8px;border:1px solid #ddd;text-align:center">${recips}</td>
+        <td style="padding:4px 8px;border:1px solid #ddd;text-align:center;font-weight:700">$${s.total.toFixed(2)}</td>
+      </tr>`;
+    });
+    if(!settlements.length) st+='<tr><td colspan="5" style="padding:8px;text-align:center;color:#888">No settlements yet</td></tr>';
+    st+='</tbody></table>';
+    // Money totals per player
+    st+='<div style="font-size:11px;font-weight:700;color:#6c3483;margin:8px 0 4px">Snake Totals</div>';
+    st+='<table style="border-collapse:collapse;font-size:10px"><thead><tr>';
+    players.forEach(p=>st+=`<th style="background:#2a1a3a;color:#9b59b6;padding:4px 10px;border:1px solid #6c3483">${p.name.split(/\s+/)[0]}</th>`);
+    st+='</tr></thead><tbody><tr>';
+    snakeMoney.forEach(m=>{
+      const col=m>0?'#27ae60':m<0?'#c0392b':'#888';
+      st+=`<td style="padding:4px 10px;border:1px solid #ddd;text-align:center;font-weight:700;color:${col}">${m>=0?'+'+m.toFixed(2):m.toFixed(2)}</td>`;
+    });
+    st+='</tr></tbody></table>';
+    snakeSection=st;
+  }
   const wxLine=weatherSummaryLine(snap.weatherStart,snap.weatherEnd);
   let moneySection='';
   if(!G.scorecardOnly&&isRoundComplete()){
@@ -5431,8 +5484,9 @@ table{border-collapse:collapse;width:100%}th,td{border:1px solid #90a4ae;padding
 ${moneySection}<div class="page-break"></div><div class="sec">Master Scorecard</div>${sc}
 <div style="font-size:9px;color:#777;margin-top:3px">🔴 thin circle = 1 stroke · double circle = 2 strokes · NET = gross − full handicap index</div>
 ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections : ''}
+${snakeSection}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v29.3 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v29.5 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -6672,9 +6726,11 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v29.3';
+const CURRENT_VERSION = 'nassau-v29.5';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v29.5 — PDF: snake 🐍 icon now appears on settlement holes in master scorecard',
+  'v29.4 — PDF: Snake 3-Putt results and settlements now included in share/print',
   'v29.3 — Score entry: master scorecard Share/Print uses same Blob URL approach as history',
   'v29.2 — Score entry: Share/Print button uses same Blob URL approach as history; camera icons updated',
   'v29.1 — History: Text button removed, single Share/Print button',
@@ -6932,7 +6988,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode=`
-const CACHE='nassau-v29.3';
+const CACHE='nassau-v29.5';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
