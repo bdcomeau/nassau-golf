@@ -462,8 +462,6 @@ input::placeholder{color:#bbb}
         <div id="setupRainIcon" style="font-size:36px;line-height:1">🌧️</div>
         <div id="setupRainRate" style="font-size:11px;font-weight:700;color:#7ec8e3;margin-top:1px;text-align:center;line-height:1.3"></div>
         <div id="setupRainDay" style="font-size:10px;color:#a8d5b5;text-align:center;line-height:1.3"></div>
-        <div id="setupRain24" style="font-size:9px;color:#a8d5b5;text-align:center;line-height:1.3"></div>
-        <div id="setupRain7" style="font-size:9px;color:#a8d5b5;text-align:center;line-height:1.3"></div>
       </div>
     </div>
     <!-- Row 1: Reset + Load Favorites -->
@@ -588,7 +586,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v24.1
+    Nassau Golf · Derrick GWC · v24.2
   </div>
 </div>
 </div>
@@ -672,7 +670,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v24.1</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v24.2</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -979,34 +977,6 @@ async function fetchWeather(){
 // Handles BOTH naming conventions:
 //   • VP2 / WeatherLinkIP (data_structure_type 2): temp_out, hum_out, wind_speed, wind_dir, dew_point
 //   • WeatherLink Live (newer): temp, hum, wind_speed_last, wind_dir_last
-async function fetchRainHistory(){
-  try{
-    const now=Math.floor(Date.now()/1000);
-    const d1ago=now-86400;   // 24 hours ago
-    const d7ago=now-604800;  // 7 days ago
-    const base=WL_WORKER.replace(/\/+$/,"");
-    const url=`${base}/wl-historic?apiKey=${encodeURIComponent(WL_KEY)}&stationId=${encodeURIComponent(WL_STATION)}&startTimestamp=${d7ago}&endTimestamp=${now}`;
-    const res=await fetch(url,{headers:{"X-Api-Secret":WL_SECRET}});
-    if(!res.ok) return null;
-    const data=await res.json();
-    // Sum rain_in across all sensor records in the time window
-    let rain24=0, rain7=0;
-    (data.sensors||[]).forEach(sen=>{
-      (sen.data||[]).forEach(d=>{
-        const r=d.rain_in||d.rainfall_in||d.rain_mm||0;
-        const rMm=r>5?r:r*25.4; // convert if in inches
-        const ts=d.ts||d.timestamp||0;
-        if(ts>=d7ago) rain7+=rMm;
-        if(ts>=d1ago) rain24+=rMm;
-      });
-    });
-    return {
-      rain24mm: Math.round(rain24*10)/10,
-      rain7mm:  Math.round(rain7*10)/10,
-    };
-  }catch(e){ return null; }
-}
-
 function parseWeather(data){
   let tempF, hum, windMph, windDir, dewF, gustMph, rainDayIn, rainRateIn, barIn, barTrend, heatIndexF, windChillF;
   const pick=(d,keys)=>{ for(const k of keys){ if(d[k]!==undefined && d[k]!==null) return d[k]; } return undefined; };
@@ -2521,7 +2491,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v24.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v24.2</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2722,7 +2692,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v24.1</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v24.2</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3274,7 +3244,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v24.1</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v24.2</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4874,7 +4844,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v24.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v24.2</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4983,7 +4953,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v24.1</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v24.2</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -5105,7 +5075,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v24.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v24.2</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5213,7 +5183,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v24.1');
+  lines.push('— Nassau Golf · Derrick GWC · v24.2');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -5391,7 +5361,7 @@ ${moneySection}<div class="sec">Master Scorecard</div>${sc}
 <div style="font-size:9px;color:#777;margin-top:3px">🔴 thin circle = 1 stroke · double circle = 2 strokes · NET = gross − full handicap index</div>
 ${matchSections}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v24.1 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v24.2 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -6490,9 +6460,10 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v24.1';
+const CURRENT_VERSION = 'nassau-v24.2';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v24.2 — Removed rain history feature (requires Worker update)',
   'v24.1 — Setup: 24hr and 7-day rain totals from WeatherLink history shown in rain widget',
   'v24.0 — Master scorecard: score markings enlarged for readability',
   'v23.9 — Score wheel: deck label smaller and Derrick green',
@@ -6691,16 +6662,6 @@ setInterval(checkForUpdate,90000);
   }
   // Fetch fresh weather for the setup screen
   fetchWeather().then(w=>{ _wxLast=w; updateSetupWxWidget(w); }).catch(()=>{});
-  // Fetch rain history (24hr and 7-day)
-  fetchRainHistory().then(r=>{
-    if(!r) return;
-    const el24=document.getElementById("setupRain24");
-    const el7=document.getElementById("setupRain7");
-    const rainDiv=document.getElementById("setupRain");
-    if(el24) el24.textContent=r.rain24mm>0?"24h: "+r.rain24mm+"mm":"";
-    if(el7)  el7.textContent=r.rain7mm>0?"7d: "+r.rain7mm+"mm":"";
-    if(rainDiv && (r.rain24mm>0||r.rain7mm>0)) rainDiv.style.visibility="visible";
-  }).catch(()=>{});
 })();
 
 </script>
@@ -6708,7 +6669,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode=`
-const CACHE='nassau-v24.1';
+const CACHE='nassau-v24.2';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
