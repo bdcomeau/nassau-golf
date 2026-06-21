@@ -573,7 +573,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v22.3
+    Nassau Golf · Derrick GWC · v22.4
   </div>
 </div>
 </div>
@@ -657,7 +657,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v22.3</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v22.4</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2410,7 +2410,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v22.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v22.4</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2611,7 +2611,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v22.3</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v22.4</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3163,7 +3163,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v22.3</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v22.4</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4745,7 +4745,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v22.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v22.4</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4854,7 +4854,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v22.3</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v22.4</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -4976,7 +4976,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v22.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v22.4</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5084,7 +5084,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v22.3');
+  lines.push('— Nassau Golf · Derrick GWC · v22.4');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -5262,7 +5262,7 @@ ${moneySection}<div class="sec">Master Scorecard</div>${sc}
 <div style="font-size:9px;color:#777;margin-top:3px">🔴 thin circle = 1 stroke · double circle = 2 strokes · NET = gross − full handicap index</div>
 ${matchSections}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v22.3 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v22.4 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -5809,13 +5809,10 @@ function renderFavoritesList(){
           ${c.golfId?`<img src="${GC_LOGO}" alt="Golf Canada" style="height:13px;width:auto;flex-shrink:0;margin-left:auto"><span style="font-family:monospace;font-size:10px;color:#888;letter-spacing:.5px">${c.golfId}</span><button onclick="navigator.clipboard.writeText('${c.golfId}')" style="background:#222;border:none;color:#fff;border-radius:5px;padding:2px 7px;font-size:9px;cursor:pointer;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:0" title="Copy Golf Canada ID"><span style="font-size:7px;font-weight:700;letter-spacing:.5px">COPY</span><span style="font-size:10px">&#x2398;</span></button>`:''}
         </div>
         <div style="display:flex;align-items:center;gap:8px;margin-top:6px;width:100%"><span class="fav-deck-lbl" style="min-width:120px">Preferred Tee Deck</span><select class="fav-deck-select" onchange="setFavoriteDeck('${safe}', this.value)" style="width:110px;text-align:center">${opts}</select></div>
-        <div style="display:flex;align-items:center;gap:8px;margin-top:4px;width:100%"><span class="fav-deck-lbl" style="min-width:120px">Score Wheel Default</span><select class="fav-deck-select" onchange="setFavoriteTypical('${safe}', this.value)" style="width:110px;text-align:center"><option value="0"${(c.typicalScore||0)===0?' selected':''}>Par</option><option value="1"${(c.typicalScore||0)===1?' selected':''}>Bogey</option><option value="2"${(c.typicalScore||0)===2?' selected':''}>Double</option></select><button onclick="event.stopPropagation();showFavInfo()" style="background:none;border:1.5px solid rgba(168,213,181,.5);color:#a8d5b5;border-radius:50%;width:16px;height:16px;font-size:10px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;line-height:1">ℹ</button></div>
-        <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
-          <div class="fav-stats" style="flex:1;margin-top:0">
+        <div style="display:flex;align-items:center;gap:8px;margin-top:4px;width:100%"><span class="fav-deck-lbl" style="min-width:120px">Score Wheel Default</span><select class="fav-deck-select" onchange="setFavoriteTypical('${safe}', this.value)" style="width:110px;text-align:center"><option value="0"${(c.typicalScore||0)===0?' selected':''}>Par</option><option value="1"${(c.typicalScore||0)===1?' selected':''}>Bogey</option><option value="2"${(c.typicalScore||0)===2?' selected':''}>Double</option></select><button onclick="event.stopPropagation();showFavInfo()" style="background:none;border:1.5px solid rgba(168,213,181,.5);color:#a8d5b5;border-radius:50%;width:16px;height:16px;font-size:10px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;line-height:1">ℹ</button><span style="flex:1"></span><button class="mm-player-del" onclick="deleteFavPlayer('${safe}')" style="background:radial-gradient(circle at 40% 35%,#e74c3c,#c0392b,#922b21);color:#fff;border:2px solid #7b241c;border-radius:50%;width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(0,0,0,.35);flex-shrink:0" title="Delete player"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg></button></div>
+        <div class="fav-stats" style="margin-top:2px">
           ${lrd?`<span class="fs-item">📅 ${lrd}${grs?' · '+grs:''}</span>`:`<span class="fs-item" style="color:#ccc">No rounds yet</span>`}
           ${st.rounds>0?`<span class="fs-item"><span class="${cc}">${cs}</span> all-time (${st.rounds} rnd${st.rounds!==1?'s':''}</span>`:''}
-        </div>
-          <button class="mm-player-del" onclick="deleteFavPlayer('${safe}')" style="background:radial-gradient(circle at 40% 35%,#e74c3c,#c0392b,#922b21);color:#fff;border:2px solid #7b241c;border-radius:50%;width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(0,0,0,.35);flex-shrink:0" title="Delete player"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg></button>
         </div>
       </div>
 
@@ -6331,9 +6328,10 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v22.3';
+const CURRENT_VERSION = 'nassau-v22.4';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v22.4 — Manage Favorites: trash button moved up to Score Wheel row',
   'v22.3 — Manage Favorites: trash button raised, tighter spacing between players',
   'v22.2 — Fixed: Score Wheel Default info popup now appears above the favorites screen',
   'v22.1 — Manage Favorites: deck and score wheel selector text centred',
@@ -6511,7 +6509,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode=`
-const CACHE='nassau-v22.3';
+const CACHE='nassau-v22.4';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
