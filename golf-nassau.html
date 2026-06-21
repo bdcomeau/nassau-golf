@@ -586,7 +586,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v25.5
+    Nassau Golf · Derrick GWC · v25.8
   </div>
 </div>
 </div>
@@ -670,7 +670,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v25.5</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v25.8</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -1353,7 +1353,7 @@ function allPairCombos(){
   return u;
 }
 
-function names(){return Array.from({length:G.n},(_,i)=>((document.getElementById(`pn${i}`)||{}).value||'').trim()||`P${i+1}`);}
+function names(){return Array.from({length:G.n},(_,i)=>(G.players&&G.players[i]?G.players[i].name:null)||((document.getElementById(`pn${i}`)||{}).value||'').trim()||`P${i+1}`);}
 
 // Poll player name fields every 400ms while on setup screen — catches typing, paste,
 // autocomplete, and programmatic changes that don't fire oninput reliably on iOS PWA.
@@ -2491,7 +2491,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v25.5</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v25.8</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2692,7 +2692,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v25.5</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v25.8</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3244,7 +3244,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v25.5</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v25.8</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4844,7 +4844,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v25.5</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v25.8</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4953,7 +4953,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v25.5</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v25.8</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -5075,7 +5075,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v25.5</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v25.8</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5183,7 +5183,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v25.5');
+  lines.push('— Nassau Golf · Derrick GWC · v25.8');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -5361,7 +5361,7 @@ ${moneySection}<div class="sec">Master Scorecard</div>${sc}
 <div style="font-size:9px;color:#777;margin-top:3px">🔴 thin circle = 1 stroke · double circle = 2 strokes · NET = gross − full handicap index</div>
 ${matchSections}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v25.5 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v25.8 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -5747,12 +5747,7 @@ function openMatchManager(){
         <div class="mm-title">Round, Match &amp; Player Settings</div>
         <button class="mm-close" onclick="closeMatchManager()">Done</button>
       </div>
-      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:11px;color:#888;line-height:1.6">
-        <div style="font-size:12px;font-weight:700;color:#c9a84c;margin-bottom:6px">⚙️ What you can change here</div>
-        🚩 Starting hole &nbsp;·&nbsp; ⚡ Auto-advance &nbsp;·&nbsp; 🏌️ Player tee decks &nbsp;·&nbsp; ➕➖ Nassau 1v1 &amp; 2v2 &nbsp;·&nbsp; 🎯 6-Point &nbsp;·&nbsp; 🐍 Snake on/off
-      </div>
-      ${startHoleSection}
-      <div style="background:#1a2a1a;border:1.5px solid rgba(168,213,181,.3);border-radius:10px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
+      <div style="background:#1a2a1a;border:1.5px solid rgba(168,213,181,.3);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
         <div>
           <div style="font-size:13px;font-weight:700;color:#a8d5b5">⚡ Auto-Advance Scoring</div>
           <div style="font-size:10px;color:#888;margin-top:2px">Auto move to next hole when all scores entered</div>
@@ -5762,16 +5757,30 @@ function openMatchManager(){
           ${G.autoAdvance!==false?'ON':'OFF'}
         </button>
       </div>
-      <div class="slabel">Players (${G.n})</div>
-      <div style="background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.25);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:11px;color:#a8d5b5;line-height:1.5">
-        🏌️ <b style="color:#c9a84c">Changing a Tee Deck</b> automatically recalculates that player's handicap index and updates all Nassau and 6-Point matches instantly — no manual math needed.
-        <br><span style="color:#888;font-size:10px;margin-top:4px;display:block">💡 Handicap index is display-only — it updates automatically when you change the Tee Deck.</span>
+      <div onclick="var s=this.nextElementSibling;s.style.display=s.style.display==='none'?'block':'none';this.querySelector('.mmc').textContent=s.style.display==='none'?'▶':'▼'"
+        style="display:flex;align-items:center;justify-content:space-between;background:#1a1a2e;border:1.5px solid rgba(201,168,76,.3);border-radius:8px;padding:10px 14px;margin-bottom:4px;cursor:pointer">
+        <span style="font-size:13px;font-weight:700;color:#c9a84c">🚩 Change Starting Hole</span><span class="mmc" style="color:#c9a84c;font-size:12px">▶</span>
       </div>
-      <div class="card" id="mmPlayersCard">
-        <div id="mmPlayersList"></div>
-        ${G.n<5 ? `<button class="add-player-btn" onclick="mmAddPlayer()">+ Add Player</button>` : `<div style="font-size:11px;color:var(--inkl);text-align:center">Max 5 players</div>`}
+      <div style="display:none;margin-bottom:8px">
+        ${startHoleSection}
+        <button onclick="this.parentElement.style.display='none';this.parentElement.previousElementSibling.querySelector('.mmc').textContent='▶'" style="width:100%;margin-top:6px;padding:6px;background:rgba(255,255,255,.06);border:none;border-radius:6px;color:#888;font-size:11px;cursor:pointer">▲ Collapse</button>
       </div>
-      ${scorecardInfo}
+      <div onclick="var s=this.nextElementSibling;s.style.display=s.style.display==='none'?'block':'none';this.querySelector('.mmc').textContent=s.style.display==='none'?'▶':'▼'"
+        style="display:flex;align-items:center;justify-content:space-between;background:#1a2a3a;border:1px solid rgba(201,168,76,.3);border-radius:8px;padding:10px 14px;margin-bottom:4px;cursor:pointer">
+        <span style="font-size:13px;font-weight:700;color:#c9a84c">🏌️ Players (${G.n})</span><span class="mmc" style="color:#c9a84c;font-size:12px">▶</span>
+      </div>
+      <div style="display:none;margin-bottom:8px">
+        <div style="background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.3);border-radius:8px;padding:12px;margin-bottom:8px">
+          <div style="font-size:12px;font-weight:700;color:#c9a84c;margin-bottom:6px">🏌️ Changing Tee Deck Mid-Round</div>
+          <div style="font-size:12px;color:#111;line-height:1.6">Select a different Tee Deck for any player and their handicap index recalculates automatically. All Nassau and 6-Point matches update instantly.</div>
+          <div style="font-size:11px;color:#333;margin-top:6px">💡 Handicap shown is display-only — change it by selecting a new Tee Deck.</div>
+        </div>
+        <div class="card" id="mmPlayersCard">
+          <div id="mmPlayersList"></div>
+          ${G.n<5 ? `<button class="add-player-btn" onclick="mmAddPlayer()">+ Add Player</button>` : `<div style="font-size:11px;color:var(--inkl);text-align:center">Max 5 players</div>`}
+        </div>
+        ${scorecardInfo}
+      </div>
       ${so ? '' : `
       <div onclick="var s=this.nextElementSibling;s.style.display=s.style.display==='none'?'block':'none';this.querySelector('.mmc').textContent=s.style.display==='none'?'▶':'▼'"
         style="display:flex;align-items:center;justify-content:space-between;background:#1a2a3a;border:1px solid rgba(201,168,76,.3);border-radius:8px;padding:10px 14px;margin-bottom:4px;cursor:pointer">
@@ -6591,9 +6600,12 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v25.5';
+const CURRENT_VERSION = 'nassau-v25.8';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v25.8 — Round settings: Starting hole collapse button added; player tip text darkened',
+  'v25.7 — Fixed: 6-Point shows real player names mid-round; player tip more readable',
+  'v25.6 — Round settings: all sections collapsible, auto-advance at top, info header removed',
   'v25.5 — Round settings: info header, auto-advance toggle, collapsible sections, purple snake',
   'v25.4 — Round settings: Players section tip added; handicap now display-only, changed via Tee Deck only',
   'v25.3 — Round settings: Starting hole section redesigned with clearer messaging',
@@ -6813,7 +6825,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode=`
-const CACHE='nassau-v25.5';
+const CACHE='nassau-v25.8';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
