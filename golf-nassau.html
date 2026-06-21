@@ -559,33 +559,44 @@ input::placeholder{color:#bbb}
   </div>
 
   <div id="bettingSections">
-  <div onclick="var s=this.nextElementSibling;s.style.display=s.style.display==='none'?'block':'none';this.querySelector('.sc').textContent=s.style.display==='none'?'▶':'▼'" style="display:flex;align-items:center;justify-content:space-between;background:#1a2a3a;border:1px solid rgba(201,168,76,.3);border-radius:8px;padding:10px 14px;margin:0 0 4px;cursor:pointer"><span class="slabel" style="color:#c9a84c;margin:0;padding:0;background:none;font-size:13px">2v2 Nassau Games (High-Low)</span><span class="sc" style="color:#c9a84c;font-size:12px">▶</span></div>
-  <div style="display:none">
-  <div class="card" id="teamGamesCard">
-    <div style="font-size:12px;color:#666;margin:0 0 8px">Select as many pairings as you wish — Nassau Golf will score all of them. Tap a pairing to add it, then set the bet amount.</div>
-    <div id="pairGrid"></div>
-    <div id="teamGamesList"></div>
+
+  <div onclick="var s=this.nextElementSibling;s.style.display=s.style.display==='none'?'block':'none';this.querySelector('.sc').textContent=s.style.display==='none'?'▶':'▼'" style="display:flex;align-items:center;justify-content:space-between;background:#1a2a3a;border:1px solid rgba(201,168,76,.3);border-radius:8px;padding:10px 14px;margin:0 0 4px;cursor:pointer">
+    <span class="slabel" style="color:#c9a84c;margin:0;padding:0;background:none;font-size:13px">2v2 Nassau Games (High-Low)</span><span class="sc" style="color:#c9a84c;font-size:12px">▶</span>
+  </div>
+  <div style="display:none;margin-bottom:8px">
+    <div class="card" id="teamGamesCard">
+      <div style="font-size:12px;color:#666;margin:0 0 8px">Select as many pairings as you wish — Nassau Golf will score all of them. Tap a pairing to add it, then set the bet amount.</div>
+      <div id="pairGrid"></div>
+      <div id="teamGamesList"></div>
+      <button onclick="this.closest('div[style*=display]').style.display='none';this.closest('div[style*=display]').previousElementSibling.querySelector('.sc').textContent='▶'" style="width:100%;margin-top:8px;padding:6px;background:rgba(255,255,255,.06);border:none;border-radius:6px;color:#888;font-size:11px;cursor:pointer">▲ Collapse</button>
+    </div>
   </div>
 
-  <div class="slabel-collapsible" onclick="var s=this.nextElementSibling;s.style.display=s.style.display==='none'?'block':'none';this.querySelector('.sc').textContent=s.style.display==='none'?'▶':'▼'" style="display:flex;align-items:center;justify-content:space-between;background:#1a2a3a;border:1px solid rgba(201,168,76,.3);border-radius:8px;padding:10px 14px;margin:0 0 4px;cursor:pointer"><span class="slabel" style="color:#c9a84c;margin:0;padding:0;background:none;font-size:13px">1v1 Nassau Games</span><span class="sc" style="color:#c9a84c;font-size:12px">▶</span></div>
-  <div style="display:none">
-  <div class="card" id="singlesCard">
-    <div style="font-size:12px;color:#666;margin:0 0 8px">Select as many matchups as you wish — Nassau Golf will score all of them. Tap a matchup to add it, then set the bet amount.</div>
-    <div id="singlesGrid"></div>
-    <div id="singleGamesList"></div>
+  <div onclick="var s=this.nextElementSibling;s.style.display=s.style.display==='none'?'block':'none';this.querySelector('.sc').textContent=s.style.display==='none'?'▶':'▼'" style="display:flex;align-items:center;justify-content:space-between;background:#1a2a3a;border:1px solid rgba(201,168,76,.3);border-radius:8px;padding:10px 14px;margin:0 0 4px;cursor:pointer">
+    <span class="slabel" style="color:#c9a84c;margin:0;padding:0;background:none;font-size:13px">1v1 Nassau Games</span><span class="sc" style="color:#c9a84c;font-size:12px">▶</span>
   </div>
+  <div style="display:none;margin-bottom:8px">
+    <div class="card" id="singlesCard">
+      <div style="font-size:12px;color:#666;margin:0 0 8px">Select as many matchups as you wish — Nassau Golf will score all of them. Tap a matchup to add it, then set the bet amount.</div>
+      <div id="singlesGrid"></div>
+      <div id="singleGamesList"></div>
+      <button onclick="this.closest('div[style*=display]').style.display='none';this.closest('div[style*=display]').previousElementSibling.querySelector('.sc').textContent='▶'" style="width:100%;margin-top:8px;padding:6px;background:rgba(255,255,255,.06);border:none;border-radius:6px;color:#888;font-size:11px;cursor:pointer">▲ Collapse</button>
+    </div>
   </div>
 
-  <div onclick="var s=this.nextElementSibling;s.style.display=s.style.display==='none'?'block':'none';this.querySelector('.sc').textContent=s.style.display==='none'?'▶':'▼'" style="display:flex;align-items:center;justify-content:space-between;background:#1a2a3a;border:1px solid rgba(201,168,76,.3);border-radius:8px;padding:10px 14px;margin:0 0 4px;cursor:pointer"><span class="slabel" style="color:#c9a84c;margin:0;padding:0;background:none;font-size:13px">🎯 6-Point Game</span><span class="sc" style="color:#c9a84c;font-size:12px">▶</span></div>
-  <div style="display:none">
-  <div class="card" id="sixPointCard">
-    <div style="font-size:12px;color:#666;margin:0 0 8px">Pick any 3 players for a separate 6-Point game (lowest player dropped to 0, net, no presses — 6 points up for grabs every hole).</div>
-    <div id="sixPointGrid"></div>
-    <div id="sixPointGamesList"></div>
+  <div onclick="var s=this.nextElementSibling;s.style.display=s.style.display==='none'?'block':'none';this.querySelector('.sc').textContent=s.style.display==='none'?'▶':'▼'" style="display:flex;align-items:center;justify-content:space-between;background:#1a2a3a;border:1px solid rgba(201,168,76,.3);border-radius:8px;padding:10px 14px;margin:0 0 4px;cursor:pointer">
+    <span class="slabel" style="color:#c9a84c;margin:0;padding:0;background:none;font-size:13px">🎯 6-Point Game</span><span class="sc" style="color:#c9a84c;font-size:12px">▶</span>
   </div>
+  <div style="display:none;margin-bottom:8px">
+    <div class="card" id="sixPointCard">
+      <div style="font-size:12px;color:#666;margin:0 0 8px">Pick any 3 players for a separate 6-Point game (lowest player dropped to 0, net, no presses — 6 points up for grabs every hole).</div>
+      <div id="sixPointGrid"></div>
+      <div id="sixPointGamesList"></div>
+      <button onclick="this.closest('div[style*=display]').style.display='none';this.closest('div[style*=display]').previousElementSibling.querySelector('.sc').textContent='▶'" style="width:100%;margin-top:8px;padding:6px;background:rgba(255,255,255,.06);border:none;border-radius:6px;color:#888;font-size:11px;cursor:pointer">▲ Collapse</button>
+    </div>
   </div>
-  </div>
-  </div>
+
+</div>
 
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
@@ -594,7 +605,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v26.0
+    Nassau Golf · Derrick GWC · v26.2
   </div>
 </div>
 </div>
@@ -678,7 +689,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v26.0</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v26.2</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2499,7 +2510,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v26.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v26.2</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2700,7 +2711,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v26.0</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v26.2</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3252,7 +3263,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v26.0</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v26.2</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4852,7 +4863,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v26.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v26.2</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -4961,7 +4972,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v26.0</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v26.2</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -5083,7 +5094,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v26.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v26.2</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5191,7 +5202,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v26.0');
+  lines.push('— Nassau Golf · Derrick GWC · v26.2');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -5369,7 +5380,7 @@ ${moneySection}<div class="sec">Master Scorecard</div>${sc}
 <div style="font-size:9px;color:#777;margin-top:3px">🔴 thin circle = 1 stroke · double circle = 2 strokes · NET = gross − full handicap index</div>
 ${matchSections}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v26.0 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v26.2 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -6609,9 +6620,11 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v26.0';
+const CURRENT_VERSION = 'nassau-v26.2';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v26.2 — Setup: collapse button at bottom of 2v2, 1v1 and 6-Point sections',
+  'v26.1 — Fixed: 2v2, 1v1 and 6-Point now separate collapsible sections on setup screen',
   'v26.0 — Fixed: setup screen collapsible sections div balance corrected',
   'v25.9 — Setup screen: Snake, 2v2, 1v1 and 6-Point sections now collapsible',
   'v25.8 — Round settings: Starting hole collapse button added; player tip text darkened',
@@ -6836,7 +6849,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode=`
-const CACHE='nassau-v26.0';
+const CACHE='nassau-v26.2';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
