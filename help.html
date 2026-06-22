@@ -41,7 +41,7 @@
 <header>
   <a class="back" href="./">‹ Back</a>
   <h1>Help &amp; Guide</h1>
-  <span class="ver">v25.8</span>
+  <span class="ver">v31.8</span>
 </header>
 <div class="wrap" id="top">
 
@@ -273,13 +273,18 @@
 <p>Each player card shows the player's name and a live combined money total covering all active games — Nassau (1v1 and 2v2) and 6-Point — in real time (green = winning, red = losing, gold = even). The handicap index and ✏️ edit button sit on the right side of the header beside the money amount, away from the score entry area — tap it to edit the handicap mid-round. Once a score is entered on the current hole, the card gains a gold border as a quick confirmation.</p>
 
 <h3>The Master Scorecard</h3>
-<p>Below the player cards, the master scorecard shows all players' gross scores in the authentic Derrick Golf &amp; Winter Club card style — charcoal hole column, olive par row, and the Derrick logo in the corner. Stroke holes are pre-marked with red circles:</p>
+<p>Below the player cards, the master scorecard shows all players' gross scores in the authentic Derrick Golf &amp; Winter Club card style — charcoal hole column, olive par row, and the Derrick logo in the corner. Scores are marked with traditional golf notation:</p>
 <table>
   <tr><th>Mark</th><th>Meaning</th></tr>
-  <tr><td>Thin red circle</td><td>Player gets 1 shot on that hole</td></tr>
-  <tr><td>Double red circle</td><td>Player gets 2 shots on that hole</td></tr>
+  <tr><td>Green bold ACE</td><td>Hole in one</td></tr>
+  <tr><td>Double red circle</td><td>Eagle or better</td></tr>
+  <tr><td>Single red circle</td><td>Birdie</td></tr>
+  <tr><td>Plain number</td><td>Par</td></tr>
+  <tr><td>Single black square</td><td>Bogey</td></tr>
+  <tr><td>Double black square</td><td>Double bogey or worse</td></tr>
 </table>
-<p>Once a gross score is entered, it appears inside the red circle on stroke holes. The card also shows OUT, IN, TOT, and NET rows. NET is each player's gross total minus their full handicap index.</p>
+<p>The card also shows OUT, IN, TOT, and NET rows. NET is each player's gross total minus their full handicap index.</p>
+<p>The <b>🖨️ Share / Print</b> button above the scorecard opens the full round as a PDF in a new tab — master scorecard with traditional score markings, Nassau match cards with stroke circles, and Snake 3-Putt results. Tap <b>🖨️ Print / Save PDF</b> in the new tab to print or save.</p>
 
 <h3>Round Timing</h3>
 <p>When you start a round, the start time is recorded. The moment the 18th hole's last score is entered, the finish time is stamped and a pace-of-play line appears — e.g. "⏱️ Round started 12:36 PM · Pace of play 4 hours 10 minutes." Editing a score back to incomplete clears the finish time; it re-stamps when you finish again.</p>
@@ -387,13 +392,14 @@
 <h3>Viewing Past Rounds</h3>
 <p>Tap the 📜 History icon to see all saved rounds. Tap any round for a detailed read-only view showing the Final Totals, a "🌦️ Conditions" card, the full scorecard, Nassau match cards, 6-Point results, and (if played) the Snake 3-Putt Game hole-by-hole log at the bottom. (Money and game cards are skipped for scorecard-only rounds.)
 
-<p>Two share buttons sit in the header:</p><ul><li><b>📋 Text</b> — formats the round as plain text and opens the native iOS share sheet (iMessage, Mail, etc.).</li><li><b>📄 PDF</b> — builds a clean print-ready version and opens the iOS print dialog so you can save as PDF or AirPrint.</li></ul></p>
+<p>A single <b>🖨️ Share / Print</b> button sits in the header. Tapping it opens the round as a clean PDF in a new tab, with a sticky <b>🖨️ Print / Save PDF</b> button at the top. Tap that button to print or save to PDF via your device's native print dialog. The PDF includes the money summary, master scorecard (with traditional birdie circles and bogey squares), each Nassau match card, 6-Point card, and Snake 3-Putt results — each on its own page.</p>
 <h3>Backup &amp; Restore</h3>
 <p>At the top of the History screen, a Backup &amp; Restore card provides two buttons:</p>
 <ul>
   <li><b>📤 Export Backup</b> — downloads a nassau-backup-YYYY-MM-DD.json file to your iPhone's Files app. Contains all saved player contacts, round history, and the current round in progress.</li>
   <li><b>📥 Import Backup</b> — reads a previously exported backup file and restores everything.</li>
 </ul>
+<p><b>Backup reminder:</b> after every 10 rounds saved, the app prompts you to export a backup. Tap <b>Go to History now?</b> to go straight to the History screen and export. The reminder counts rounds since your last export — not total rounds.</p>
 <div class="warn">⚠️ iOS can wipe a web app's local storage when you remove the Home Screen icon, run low on device storage, or in some iOS update scenarios. Export a backup regularly — especially before reinstalling or clearing Safari data. A backup after each round takes seconds.</div>
 <h3>Deleting a Round</h3>
 <p>From the History list, tap the 🗑️ icon next to a round and confirm to permanently delete it.</p>
@@ -402,9 +408,9 @@
 <h2 id="newround">10 · Starting a New Round</h2>
 <p>Tap <b>🔄 New Round</b> in the bottom nav. The confirmation dialog adapts to the situation:</p>
 <ul>
-  <li><b>Round complete and saved</b> — green ✅ dialog, single tap to confirm. No data at risk.</li>
+  <li><b>Round complete and saved</b> — green ✅ dialog with a <b>✅ Hold to Start New Round</b> button. Hold 2 seconds to confirm.</li>
   <li><b>Round complete, not yet saved</b> — the round is saved to History automatically before clearing.</li>
-  <li><b>Round in progress</b> — red ⚠️ dialog with a swipe-to-confirm slider, since unsaved scores will be lost.</li>
+  <li><b>Round in progress</b> — red ⚠️ dialog with a <b>🗑️ Hold to Abandon Round</b> button. Hold it for 2 seconds to confirm — release early to cancel. Works on iPhone, iPad, and desktop.</li>
 </ul>
 <p><b>Blocked on hole 18:</b> if you tap New Round while on hole 18 with scores still missing, the app blocks you and names who still needs to score — finish the hole first.</p>
 <p><b>Emergency restore:</b> even after confirming a New Round, the previous round state is saved as an emergency backup for 24 hours. If you acted by accident, a yellow <b>⚠️ Accidental New Round?</b> banner appears on the Setup and History screens with a <b>↩ Restore Round</b> button.</p>
