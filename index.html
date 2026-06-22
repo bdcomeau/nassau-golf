@@ -994,6 +994,7 @@ async function fetchWeather(){
 //   • VP2 / WeatherLinkIP (data_structure_type 2): temp_out, hum_out, wind_speed, wind_dir, dew_point
 //   • WeatherLink Live (newer): temp, hum, wind_speed_last, wind_dir_last
 
+
 function parseWeather(data){
   let tempF, hum, windMph, windDir, dewF, gustMph, rainDayIn, rainRateIn, barIn, barTrend, heatIndexF, windChillF;
   const pick=(d,keys)=>{ for(const k of keys){ if(d[k]!==undefined && d[k]!==null) return d[k]; } return undefined; };
@@ -6754,6 +6755,8 @@ showEmergencyBanners();
 const CURRENT_VERSION = 'nassau-v31.8';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v31.8 — Removed rain history (WeatherLink historic API incompatible with Cloudflare Workers)',
+  'v31.9 — Weather: rain history using correct 24hr chunks and archive interval summation',
   'v31.8 — Removed rain history feature (WeatherLink historic API not supported)',
   'v31.3 — Fixed: stray backslash before SW template literal closing backtick',
   'v31.2 — Fixed: renderSingles undefined error on setup screen',
