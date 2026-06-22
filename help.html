@@ -49,9 +49,11 @@
 
 <div class="toc">
   <h2>Contents</h2>
+  <a href="#privacy">0 · Privacy &amp; Data Security</a>
   <a href="#install">1 · Installing on Your iPhone</a>
   <a href="#setup">2 · Setting Up a Round</a>
   <a href="#scorecard">3 · Scoring — The Scorecard Screen</a>
+  <a href="#deckchange" style="margin-left:16px;font-size:13px">↳ Round, Match &amp; Player Settings</a>
   <a href="#wheel">4 · The Score Entry Wheel</a>
   <a href="#nassau">5 · The Nassau Tab</a>
   <a href="#international">6 · The International ("The Big I")</a>
@@ -61,9 +63,7 @@
   <a href="#newround">10 · Starting a New Round</a>
   <a href="#snake">11 · The Snake 3-Putt Money Game</a>
   <a href="#typical">12 · Typical Score</a>
-    <a href="#privacy">0 · Privacy &amp; Data Security</a>
-    <a href="#deckchange">13 · Round, Match &amp; Player Settings</a>
-    <a href="#trouble">14 · Troubleshooting</a>
+  <a href="#trouble">13 · Troubleshooting</a>
 </div>
 
 <h2 id="privacy">Privacy &amp; Data Security</h2>
@@ -243,7 +243,7 @@
 <p><b>🐍 Snake 3-Putt Game</b> — Optional money game. Enable it in the purple Snake card on the Setup screen. Set the <b>bet amount per player</b> ($1–$20) and select which players are <b>participating</b> (others are invisible to the game). Settlements happen every 3 holes (holes 3, 6, 9, 12, 15, 18); the snake resets after each one. See <a href="#snake">Section 11</a> for full details.</p>
 
 <h3>Score Entry Options</h3>
-<p>The <b>⚙️ Score Entry Options</b> card (between Round Type and Snake) contains:</p>
+<p>The <b>⚙️ Score Entry Options</b> section on the setup screen contains:</p>
 <ul>
   <li><b>Auto-advance holes</b> — when on (default), the app moves to the next hole automatically after all scores are entered. Turn it off to require a manual <b>Next Hole →</b> tap, useful when you want to review results before moving on.</li>
 </ul>
@@ -270,7 +270,7 @@
 </ul>
 
 <h3>Player Cards</h3>
-<p>Each player card shows the player's name and a live combined money total covering all active games — Nassau (1v1 and 2v2) and 6-Point — in real time (green = winning, red = losing, gold = even). The handicap index and ✏️ edit button sit on the right side of the header beside the money amount, away from the score entry area — tap it to edit the handicap mid-round. Once a score is entered on the current hole, the card gains a gold border as a quick confirmation.</p>
+<p>Each player card shows a live combined money total (green = winning, red = losing, gold = even), the player's name, their handicap index, the Golf Canada logo (or INDEX label for manual players), and their tee deck — all aligned so the logos line up across all cards. Once a score is entered on the current hole, the card gains a gold border as a quick confirmation.</p><p>To change a player's handicap mid-round, use <b>⚙️ Round, Match &amp; Player Settings</b> and select a different Tee Deck in the Players section — the handicap recalculates automatically.</p>
 
 <h3>The Master Scorecard</h3>
 <p>Below the player cards, the master scorecard shows all players' gross scores in the authentic Derrick Golf &amp; Winter Club card style — charcoal hole column, olive par row, and the Derrick logo in the corner. Scores are marked with traditional golf notation:</p>
@@ -287,7 +287,7 @@
 <p>The <b>🖨️ Share / Print</b> button above the scorecard opens the full round as a PDF in a new tab — master scorecard with traditional score markings, Nassau match cards with stroke circles, and Snake 3-Putt results. Tap <b>🖨️ Print / Save PDF</b> in the new tab to print or save.</p>
 
 <h3>Round Timing</h3>
-<p>When you start a round, the start time is recorded. The moment the 18th hole's last score is entered, the finish time is stamped and a pace-of-play line appears — e.g. "⏱️ Round started 12:36 PM · Pace of play 4 hours 10 minutes." Editing a score back to incomplete clears the finish time; it re-stamps when you finish again.</p>
+<p>The round clock starts the moment the <b>first score is entered</b> (plus 12 minutes to account for playing hole 1). The moment the 18th hole's last score is entered, the finish time is stamped and a pace-of-play line appears — e.g. "⏱️ Round started 12:36 PM · Pace of play 4 hours 10 minutes." Editing a score back to incomplete clears the finish time; it re-stamps when you finish again.</p>
 
 <h3>Live Weather</h3>
 <p>A weather strip appears on the Scorecard screen, just below the Front 9 / Back 9 tabs, showing live conditions from a Davis weather station via WeatherLink — for example: "🌡️ 11°C · 💨 calm · 💧 93% · 🌧️ 0 mm today." It refreshes automatically every couple of minutes.</p>
@@ -301,6 +301,42 @@
 <h3>Money Summary</h3>
 <p>Once all 18 holes are scored, three money rows appear at the bottom of the master scorecard (each player's amount in their own column, green for up, red for down): <b>Nassau $</b>, <b>6-Point $</b> (only if there are 6-Point games), and <b>Total $ Today</b> in bold. These don't appear in scorecard-only rounds.</p>
 <a class="top" href="#top">↑ Back to top</a>
+
+<h3 id="deckchange">Round, Match &amp; Player Settings</h3>
+<p>Tap <b>⚙️ Round, Match &amp; Player Settings</b> on the score entry screen to access mid-round adjustments. All sections are collapsible — tap any header to expand it.</p>
+
+<h3>1. ⚡ Auto-Advance Scoring</h3>
+<p>Always visible at the top. Toggle automatic hole progression on or off mid-round without restarting. When ON, the app moves to the next hole automatically once all players have a score entered.</p>
+
+<h3>2. 🚩 Change Starting Hole</h3>
+<p>If you selected the wrong starting hole, fix it here. All scores already entered shift to the correct holes automatically and all matches recalculate. <b>Have no fear!!</b> Works even if scores wrap past hole 18 back to hole 1.</p>
+
+<h3>3. 🏌️ Players — Tee Deck Change</h3>
+<p>Each player row shows their current handicap index (display-only) and a Tee Deck selector. Select a different deck and the handicap recalculates automatically. All Nassau and 6-Point matches update instantly.</p>
+<ul>
+  <li><b>Golf Canada players</b> — recalculates from their stored Golf Canada baseline index</li>
+  <li><b>Manually-entered players</b> — uses the index entered at setup as the baseline</li>
+</ul>
+<p>The handicap field is display-only and cannot be edited directly — change it by selecting a new Tee Deck.</p>
+
+<h3>Adding &amp; Removing Players</h3>
+<p>Within the Players section you can also add or remove players mid-round:</p>
+<ul>
+  <li><b>Add Player</b> — if fewer than 5 players are in the round, a <b>+ Add Player</b> button appears at the bottom of the Players section. The new player starts with no scores entered and is not automatically added to any existing Nassau or 6-Point matches — you can add them manually using the match sections below.</li>
+  <li><b>Remove Player</b> — tap the ✕ button beside any player to remove them. Their scores are deleted and they are removed from all active Nassau and 6-Point matches. This cannot be undone, so use with care.</li>
+</ul>
+
+<h3>4. 2v2 Nassau Games</h3>
+<p>Tap a pairing to add or remove it from the active round. Adding a match starts it from the current hole.</p>
+
+<h3>5. 1v1 Nassau Games</h3>
+<p>Tap a matchup to add or remove it. Removing a match keeps scores but drops it from Nassau totals.</p>
+
+<h3>6. 🎯 6-Point Game</h3>
+<p>Pick any 3 players to add or remove the 6-Point game. Player names reflect the actual golfers in the round.</p>
+
+<h3>7. 🐍 Snake 3-Putt Game</h3>
+<p>Turn the Snake game on or off, adjust the bet amount, and manage which players participate mid-round.</p>
 
 <h2 id="wheel">4 · The Score Entry Wheel</h2>
 <p>Each player card features a drum-roll style score selector. Tapping the centre box sets par. The ◀ and ▶ arrows adjust the score one stroke at a time, and you can also swipe up or down on the centre box. The recorded score highlights brighter on the side panels so you can confirm at a glance.</p>
@@ -452,42 +488,6 @@
 <p>Each saved player can have a <b>Typical Score</b> set in <b>Manage Favorites &amp; Players</b>. Options are <b>Par</b>, <b>Bogey</b>, or <b>Double</b> — all relative to par on each hole.</p>
 <p>When a player has no score entered for a hole, their score wheel automatically centres on their typical score. For example, a player set to Bogey will see 5 in the centre on a par 4, with Par to the left and Double/Triple to the right. Tap to confirm or spin to change.</p>
 <p>The default for all players is Par.</p>
-
-<h2 id="deckchange">Round, Match &amp; Player Settings</h2>
-<p>Tap <b>⚙️ Round, Match &amp; Player Settings</b> on the score entry screen to access mid-round adjustments. All sections are collapsible — tap any header to expand it.</p>
-
-<h3>1. ⚡ Auto-Advance Scoring</h3>
-<p>Always visible at the top. Toggle automatic hole progression on or off mid-round without restarting. When ON, the app moves to the next hole automatically once all players have a score entered.</p>
-
-<h3>2. 🚩 Change Starting Hole</h3>
-<p>If you selected the wrong starting hole, fix it here. All scores already entered shift to the correct holes automatically and all matches recalculate. <b>Have no fear!!</b> Works even if scores wrap past hole 18 back to hole 1.</p>
-
-<h3>3. 🏌️ Players — Tee Deck Change</h3>
-<p>Each player row shows their current handicap index (display-only) and a Tee Deck selector. Select a different deck and the handicap recalculates automatically. All Nassau and 6-Point matches update instantly.</p>
-<ul>
-  <li><b>Golf Canada players</b> — recalculates from their stored Golf Canada baseline index</li>
-  <li><b>Manually-entered players</b> — uses the index entered at setup as the baseline</li>
-</ul>
-<p>The handicap field is display-only and cannot be edited directly — change it by selecting a new Tee Deck.</p>
-
-<h3>Adding &amp; Removing Players</h3>
-<p>Within the Players section you can also add or remove players mid-round:</p>
-<ul>
-  <li><b>Add Player</b> — if fewer than 5 players are in the round, a <b>+ Add Player</b> button appears at the bottom of the Players section. The new player starts with no scores entered and is not automatically added to any existing Nassau or 6-Point matches — you can add them manually using the match sections below.</li>
-  <li><b>Remove Player</b> — tap the ✕ button beside any player to remove them. Their scores are deleted and they are removed from all active Nassau and 6-Point matches. This cannot be undone, so use with care.</li>
-</ul>
-
-<h3>4. 2v2 Nassau Games</h3>
-<p>Tap a pairing to add or remove it from the active round. Adding a match starts it from the current hole.</p>
-
-<h3>5. 1v1 Nassau Games</h3>
-<p>Tap a matchup to add or remove it. Removing a match keeps scores but drops it from Nassau totals.</p>
-
-<h3>6. 🎯 6-Point Game</h3>
-<p>Pick any 3 players to add or remove the 6-Point game. Player names reflect the actual golfers in the round.</p>
-
-<h3>7. 🐍 Snake 3-Putt Game</h3>
-<p>Turn the Snake game on or off, adjust the bet amount, and manage which players participate mid-round.</p>
 
 <h2 id="trouble">13 · Troubleshooting</h2>
 <h3>A player has quit, been injured, or left the round</h3>
