@@ -603,7 +603,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v30.7
+    Nassau Golf · Derrick GWC · v30.8
   </div>
 </div>
 </div>
@@ -686,7 +686,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v30.7</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v30.8</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2509,7 +2509,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v30.7</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v30.8</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2712,7 +2712,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v30.7</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v30.8</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3264,7 +3264,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v30.7</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v30.8</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4278,16 +4278,16 @@ function newRound(){
       <div style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:10px">${title}</div>
       <div style="font-size:13px;color:#666;margin-bottom:16px">${body}</div>
       ${inProgress ? `
-      <div id="holdLabel2" style="font-size:12px;color:#c0392b;font-weight:700;margin-bottom:6px">Hold the button for 2 seconds to confirm</div>
+      <div id="holdLabel2" style="font-size:12px;color:${inProgress?'#c0392b':'#2d6a4f'};font-weight:700;margin-bottom:6px">Hold the button for 2 seconds to ${inProgress?'confirm abandon':'start new round'}</div>
       <div style="background:#eee;border-radius:6px;height:5px;margin-bottom:10px;overflow:hidden">
-        <div id="holdBar2" style="background:#c0392b;height:100%;width:0%;border-radius:6px"></div>
+        <div id="holdBar2" style="background:${inProgress?'#c0392b':'#2d6a4f'};height:100%;width:0%;border-radius:6px"></div>
       </div>
       <button id="holdBtn2"
-        style="width:100%;padding:12px;background:#c0392b;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:none;margin-bottom:8px"
+        style="width:100%;padding:12px;background:${inProgress?'#c0392b':'#2d6a4f'};color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:none;margin-bottom:8px"
         onmousedown="startHoldConfirm2()" ontouchstart="startHoldConfirm2()" onpointerdown="startHoldConfirm2()"
         onmouseup="cancelHoldConfirm2()" ontouchend="cancelHoldConfirm2()" onpointerup="cancelHoldConfirm2()"
         onmouseleave="cancelHoldConfirm2()" onpointercancel="cancelHoldConfirm2()"
-      >🗑️ Hold to Abandon Round</button>
+      >${inProgress?'🗑️ Hold to Abandon Round':'✅ Hold to Start New Round'}</button>
       <button class="export-overlay-btn close" style="width:100%" onclick="document.getElementById('newRoundConfirm').remove()">Cancel</button>
       ` : `
       <div style="display:flex;gap:10px">
@@ -4915,7 +4915,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v30.7</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v30.8</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -5025,7 +5025,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v30.7</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v30.8</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -5147,7 +5147,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v30.7</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v30.8</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5255,7 +5255,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v30.7');
+  lines.push('— Nassau Golf · Derrick GWC · v30.8');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -5510,7 +5510,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v30.7 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v30.8 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -6750,9 +6750,10 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v30.7';
+const CURRENT_VERSION = 'nassau-v30.8';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v30.8 — New round popup: hold button says Start New Round when complete, Abandon when in progress',
   'v30.7 — Mid-round New Round popup: hold-to-confirm button replaces tap for abandon',
   'v30.6 — Abandon round: swipe slider replaced with hold-to-confirm button (2 sec) — works on all devices',
   'v30.5 — Abandon round slider: fixed for iPad and desktop with pointer/mouse events and proper cleanup',
@@ -7024,7 +7025,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode=`
-const CACHE='nassau-v30.7';
+const CACHE='nassau-v30.8';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
