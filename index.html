@@ -505,7 +505,7 @@ input::placeholder{color:#bbb}
     </div>
     <div style="flex:1">
       <div class="card" style="padding:12px;text-align:center;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#1a3a2a;border:1.5px solid rgba(168,213,181,.4);box-shadow:0 3px 8px rgba(0,0,0,.35)">
-        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">Starting Hole</div>
+        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px">Starting Hole</div>
         <select id="startHoleSel" style="width:100%;border:none;background:transparent;color:#fff;font-size:22px;font-weight:800;text-align:center;text-align-last:center;-webkit-appearance:none;appearance:none;padding:0">
       <option value="1">Hole 1</option><option value="2">Hole 2</option><option value="3">Hole 3</option>
       <option value="4">Hole 4</option><option value="5">Hole 5</option><option value="6">Hole 6</option>
@@ -514,6 +514,7 @@ input::placeholder{color:#bbb}
       <option value="13">Hole 13</option><option value="14">Hole 14</option><option value="15">Hole 15</option>
       <option value="16">Hole 16</option><option value="17">Hole 17</option><option value="18">Hole 18</option>
         </select>
+        <div style="font-size:10px;color:rgba(255,255,255,.5);margin-top:4px">Change for shotgun starts</div>
       </div>
     </div>
   </div>
@@ -521,16 +522,16 @@ input::placeholder{color:#bbb}
   <div style="display:flex;gap:10px;margin-bottom:0">
     <div style="flex:1">
       <div class="card" id="roundTypeCard" style="background:#1a3a2a;padding:12px;text-align:center;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1.5px solid rgba(168,213,181,.4);box-shadow:0 3px 8px rgba(0,0,0,.35)">
-        <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">Scorecard only</div>
-        <div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:8px">No Nassau or 6-Point games.</div>
+        <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">Score Keep Only</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:8px">Just keeping score — no Nassau, 6-Point or betting games.</div>
         <input type="checkbox" id="scorecardOnly" onchange="toggleScorecardOnly()" style="width:22px;height:22px;accent-color:#52b788">
       </div>
     </div>
     <div style="flex:1">
       <div class="card" style="background:#1a3a2a;padding:12px;text-align:center;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1.5px solid rgba(168,213,181,.4);box-shadow:0 3px 8px rgba(0,0,0,.35)">
-        <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">Auto-advance</div>
-        <div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:8px">Move to next hole automatically.</div>
-        <input type="checkbox" id="autoAdvanceEnabled" checked style="width:22px;height:22px;accent-color:#52b788">
+        <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">Confirm Score Entry</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:8px">When off, advances to next hole automatically when all scores are entered.</div>
+        <input type="checkbox" id="autoAdvanceEnabled" style="width:22px;height:22px;accent-color:#52b788">
       </div>
     </div>
   </div>
@@ -609,7 +610,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v43.2
+    Nassau Golf · Derrick GWC · v43.6
   </div>
 </div>
 </div>
@@ -691,7 +692,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v43.2</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v43.6</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -1651,7 +1652,7 @@ function startRound(){
   const snakeBox=document.getElementById('snakeEnabled');
   G.snake={ enabled: !!(snakeBox && snakeBox.checked), holder:null, history:[] };
   const aaBox=document.getElementById('autoAdvanceEnabled');
-  G.autoAdvance = aaBox ? aaBox.checked : true;
+  G.autoAdvance = aaBox ? !aaBox.checked : true;
   const snakeBetEl=document.getElementById('snakeBetAmt');
   if(G.snake) G.snake.bet=snakeBetEl?parseFloat(snakeBetEl.value)||5:5;
   if(G.snake) G.snake.settlements=[];
@@ -2521,7 +2522,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v43.2</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v43.6</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2725,7 +2726,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v43.2</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v43.6</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3277,7 +3278,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v43.2</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v43.6</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -5019,7 +5020,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v43.2</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v43.6</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -5129,7 +5130,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v43.2</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v43.6</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -5251,7 +5252,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v43.2</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v43.6</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5359,7 +5360,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v43.2');
+  lines.push('— Nassau Golf · Derrick GWC · v43.6');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -5614,7 +5615,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v43.2 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v43.6 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -6854,12 +6855,12 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v43.2';
+const CURRENT_VERSION = 'nassau-v43.6';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
-  'v43.2 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
+  'v43.6 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
   'v31.9 — Weather: rain history using correct 24hr chunks and archive interval summation',
-  'v43.2 — Removed rain history feature (WeatherLink historic API not supported)',
+  'v43.6 — Removed rain history feature (WeatherLink historic API not supported)',
   'v31.3 — Fixed: stray backslash before SW template literal closing backtick',
   'v31.2 — Fixed: renderSingles undefined error on setup screen',
   'v31.1 — Weather: 7-day rain total added alongside 24hr in setup rain widget (one API call)',
@@ -7107,6 +7108,7 @@ setInterval(checkForUpdate,90000);
     applyScorecardOnlyNav();
     document.getElementById('badge').textContent='HOLE '+(G.hole+1);
     document.getElementById('cntVal').textContent=G.n;
+    const aaBox=document.getElementById('autoAdvanceEnabled'); if(aaBox) aaBox.checked=!G.autoAdvance;
     showS('score'); renderCard();
     updateBirdieJuiceBadge();
     updateInternationalBadge();
@@ -7137,7 +7139,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode=`
-const CACHE='nassau-v43.2';
+const CACHE='nassau-v43.6';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
