@@ -608,7 +608,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v41.6
+    Nassau Golf · Derrick GWC · v41.8
   </div>
 </div>
 </div>
@@ -691,7 +691,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v41.6</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v41.8</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2519,7 +2519,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v41.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v41.8</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2660,19 +2660,17 @@ function renderCard(){
       <div class="pcard-body">
         <div class="drum-row">
           ${(()=>{
-            // LEFT 2: two below typical
-            const bv2=typical-2;
+            // LEFT 2 & 1: anchored to current gross (or typical if unset)
+            const anchor=gross!==null?gross:typical;
+            const bv2=anchor-2;
             const l2=bv2<1?'<div class="drum-side"><div class="drum-side-num"> </div><div class="drum-side-lbl"> </div></div>':(()=>{
               const s2=scoreClass(bv2,par,0);
-              const ia=(gross!==null?gross:typical)===bv2;
-              return '<div class="drum-side drum-far'+(ia?' drum-active':'')+'" onclick="adjustScore('+pi+','+h+','+(bv2-(gross||typical))+')" style="cursor:pointer"><div class="drum-side-num '+s2.lblCls+(ia?' drum-side-bright':'')+'">'+(bv2)+'</div><div class="drum-side-lbl">'+s2.lbl+'</div></div>';
+              return '<div class="drum-side drum-far" onclick="adjustScore('+pi+','+h+',-2)" style="cursor:pointer"><div class="drum-side-num '+s2.lblCls+'">'+bv2+'</div><div class="drum-side-lbl">'+s2.lbl+'</div></div>';
             })();
-            // LEFT 1: one below typical
-            const bv1=typical-1;
+            const bv1=anchor-1;
             const l1=bv1<1?'<div class="drum-side"><div class="drum-side-num"> </div><div class="drum-side-lbl"> </div></div>':(()=>{
               const s1=scoreClass(bv1,par,0);
-              const ia=(gross!==null?gross:typical)===bv1;
-              return '<div class="drum-side'+(ia?' drum-active':'')+'" onclick="adjustScore('+pi+','+h+','+(bv1-(gross||typical))+')" style="cursor:pointer"><div class="drum-side-num '+s1.lblCls+(ia?' drum-side-bright':'')+'">'+(bv1)+'</div><div class="drum-side-lbl">'+s1.lbl+'</div></div>';
+              return '<div class="drum-side" onclick="adjustScore('+pi+','+h+',-1)" style="cursor:pointer"><div class="drum-side-num '+s1.lblCls+'">'+bv1+'</div><div class="drum-side-lbl">'+s1.lbl+'</div></div>';
             })();
             return l2+l1;
           })()}
@@ -2682,7 +2680,7 @@ function renderCard(){
             <div class="sw-score sw-unset" onclick="setTypicalScore(${pi},${h})"
               ontouchstart="setTypicalScore(${pi},${h})">
               <div class="sw-num sw-num-par-hint">${typical}</div>
-              <div class="sw-label sw-lbl-hint ${scoreClass(typical,par,0).lblCls}">${typical===par?'PAR':typical===par+1?'BOGEY':'DBL'}</div>
+              <div class="sw-label sw-lbl-hint ${scoreClass(typical,par,0).lblCls}">${typical===par?'Par':typical===par+1?'Bogey':'Double'}</div>
             </div>`: `
             <div class="sw-score ${sc.box}"
               ontouchstart="swipeStart(${pi},${h},event)"
@@ -2697,13 +2695,14 @@ function renderCard(){
             <button class="sw-btn" ontouchstart="adjustScore(${pi},${h},1)" onclick="adjustScore(${pi},${h},1)">▶</button>
           </div>
           ${(()=>{
-            // RIGHT: typical+1, +2, +3
+            // RIGHT: +1, +2 from current gross (or typical if unset)
+            const anchor=gross!==null?gross:typical;
             return [1,2].map((delta,idx)=>{
-              const v=typical+delta;
+              const v=anchor+delta;
+              if(v>15) return '';
               const sc2=scoreClass(v,par,0);
-              const isActive=(gross!==null?gross:typical)===v;
               const isFar=idx===1;
-              return '<div class="drum-side'+(isFar?' drum-far':'')+(isActive?' drum-active':'')+'" onclick="adjustScore('+pi+','+h+','+(v-(gross||typical))+')" style="cursor:pointer"><div class="drum-side-num '+sc2.lblCls+(isActive?' drum-side-bright':'')+'">'+v+'</div><div class="drum-side-lbl">'+sc2.lbl+'</div></div>';
+              return '<div class="drum-side'+(isFar?' drum-far':'')+'" onclick="adjustScore('+pi+','+h+','+delta+')" style="cursor:pointer"><div class="drum-side-num '+sc2.lblCls+'">'+v+'</div><div class="drum-side-lbl">'+sc2.lbl+'</div></div>';
             }).join('');
           })()}
         </div>
@@ -2722,7 +2721,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v41.6</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v41.8</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3274,7 +3273,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v41.6</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v41.8</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4925,7 +4924,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v41.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v41.8</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -5035,7 +5034,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v41.6</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v41.8</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -5157,7 +5156,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v41.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v41.8</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5265,7 +5264,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v41.6');
+  lines.push('— Nassau Golf · Derrick GWC · v41.8');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -5520,7 +5519,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v41.6 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v41.8 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -6760,12 +6759,12 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v41.6';
+const CURRENT_VERSION = 'nassau-v41.8';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
-  'v41.6 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
+  'v41.8 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
   'v31.9 — Weather: rain history using correct 24hr chunks and archive interval summation',
-  'v41.6 — Removed rain history feature (WeatherLink historic API not supported)',
+  'v41.8 — Removed rain history feature (WeatherLink historic API not supported)',
   'v31.3 — Fixed: stray backslash before SW template literal closing backtick',
   'v31.2 — Fixed: renderSingles undefined error on setup screen',
   'v31.1 — Weather: 7-day rain total added alongside 24hr in setup rain widget (one API call)',
@@ -7043,7 +7042,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode=`
-const CACHE='nassau-v41.6';
+const CACHE='nassau-v41.8';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
