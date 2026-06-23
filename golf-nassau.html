@@ -34,6 +34,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 .setup{padding:16px;padding-bottom:150px}
 .view-history-btn{background:var(--gp);color:var(--gm);border:1.5px solid var(--gm);border-radius:10px;padding:12px;font-size:13px;font-weight:700;width:100%;margin-bottom:14px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .slabel{font-size:11px;font-weight:700;color:var(--gl);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px;margin-top:20px}
+#teamGamesCard,#singlesCard,#sixPointCard{background:#e8eef5}
 .card{background:#fff;border-radius:14px;padding:14px;box-shadow:var(--shadow);margin-bottom:12px}
 
 .p-row-old{display:grid;grid-template-columns:28px 1fr 80px;gap:8px;align-items:center;margin-bottom:10px}
@@ -44,7 +45,7 @@ input[type=text],input[type=number]{border:1.5px solid var(--border);border-radi
 input[type=number]{text-align:center}
 input:focus{outline:none;border-color:var(--gm);background:#fff}
 input::placeholder{color:#bbb}
-.hlbl{font-size:11px;color:var(--inkl);text-align:center;margin-top:2px}
+.hlbl{font-size:11px;color:#1a1a1a;text-align:center;margin-top:2px;font-weight:600}
 .p-row{display:grid;grid-template-columns:28px 1fr 64px 58px;gap:6px;align-items:start;margin-bottom:10px}
 .p-row.p-dup{outline:2px solid var(--red);outline-offset:3px;border-radius:8px}
 .fav-row{display:flex;align-items:flex-start;gap:8px;padding:6px 4px 8px;border-bottom:1px solid #eee}
@@ -59,7 +60,7 @@ input::placeholder{color:#bbb}
 .fav-deck-select{font-size:11px;padding:2px 5px;border:1px solid #ccc;border-radius:5px;background:#fff}
 .p-row.p-dup input[type=text]{border-color:var(--red);background:#fff5f4}
 .p-btnstack{display:flex;flex-direction:column;gap:2px;align-items:center}
-.p-btnlbl{font-size:9px;color:#999;line-height:1;margin-bottom:4px;white-space:nowrap;text-align:center}
+.p-btnlbl{font-size:9px;color:#1a1a1a;line-height:1;margin-bottom:4px;white-space:nowrap;text-align:center;font-weight:600}
 .hdcp-stamp{font-size:10px;color:var(--gm);font-weight:600;margin-top:3px;line-height:1.3;min-height:0}
 .deck-row{display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap}
 .deck-lbl{font-size:11px;color:#666;font-weight:700}
@@ -68,7 +69,7 @@ input::placeholder{color:#bbb}
 .hdcp-stack{display:flex;flex-direction:column;align-items:center;gap:1px}
 .hdcp-box{width:64px;text-align:center}
 .hdcp-adj{background:#f0ece2;font-weight:800;color:var(--gd);border:1px solid #cdbf9a}
-.hlbl-adj{color:var(--gold-d,#9a7a1e);font-weight:700}
+.hlbl-adj{color:#1a3a2a;font-weight:700;text-transform:uppercase}
 .save-btn{width:28px;height:36px;background:var(--gp);border:1.5px solid var(--gm);border-radius:8px;color:var(--gm);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;flex-shrink:0}
 .save-btn:active{background:var(--gm);color:#fff}
 .gc-fetch-btn{width:34px;height:36px;background:#fff;border:1.5px solid var(--bdr);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;flex-shrink:0;font-size:14px}
@@ -486,19 +487,19 @@ input::placeholder{color:#bbb}
   <div id="emergencyBannerSetup"></div>
   <div style="display:flex;gap:10px;margin-bottom:0">
     <div style="flex:1">
-      <div class="card" style="padding:12px;text-align:center;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center">
-        <div style="font-size:10px;font-weight:700;color:#888;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">Number of Players</div>
+      <div class="card" style="padding:12px;text-align:center;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#1a3a2a">
+        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">Number of Players</div>
         <div class="cnt-row" style="justify-content:center">
           <button class="cnt-btn" id="btnMinus">−</button>
-          <div class="cnt-val" id="cntVal" style="font-size:28px;font-weight:800;min-width:44px;text-align:center">4</div>
+          <div class="cnt-val" id="cntVal" style="font-size:28px;font-weight:800;min-width:44px;text-align:center;color:#fff">4</div>
           <button class="cnt-btn" id="btnPlus">+</button>
         </div>
       </div>
     </div>
     <div style="flex:1">
-      <div class="card" style="padding:12px;text-align:center;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center">
-        <div style="font-size:10px;font-weight:700;color:#888;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">Starting Hole</div>
-        <select id="startHoleSel" style="width:100%;border:none;background:transparent;color:var(--ink);font-size:22px;font-weight:800;text-align:center;text-align-last:center;-webkit-appearance:none;appearance:none;padding:0">
+      <div class="card" style="padding:12px;text-align:center;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#1a3a2a">
+        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">Starting Hole</div>
+        <select id="startHoleSel" style="width:100%;border:none;background:transparent;color:#fff;font-size:22px;font-weight:800;text-align:center;text-align-last:center;-webkit-appearance:none;appearance:none;padding:0">
       <option value="1">Hole 1</option><option value="2">Hole 2</option><option value="3">Hole 3</option>
       <option value="4">Hole 4</option><option value="5">Hole 5</option><option value="6">Hole 6</option>
       <option value="7">Hole 7</option><option value="8">Hole 8</option><option value="9">Hole 9</option>
@@ -510,34 +511,32 @@ input::placeholder{color:#bbb}
     </div>
   </div>
 
-  <div class="slabel">Players & Handicap Index (RCGA)</div>
-  <div class="card" id="playerInputs"></div>
-
-  <div class="card" id="roundTypeCard">
-    <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer">
-      <div>
-        <div style="font-size:14px;font-weight:700;color:#222">Scorecard only</div>
-        <div style="font-size:12px;color:#666;margin-top:2px">Just keep score — no Nassau or 6-Point betting games.</div>
+  <div style="display:flex;gap:10px;margin-bottom:0">
+    <div style="flex:1">
+      <div class="card" id="roundTypeCard" style="background:#1a3a2a;padding:12px;text-align:center;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center">
+        <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">Scorecard only</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:8px">No Nassau or 6-Point games.</div>
+        <input type="checkbox" id="scorecardOnly" onchange="toggleScorecardOnly()" style="width:22px;height:22px;accent-color:#52b788">
       </div>
-      <input type="checkbox" id="scorecardOnly" onchange="toggleScorecardOnly()" style="width:22px;height:22px;flex:none">
-    </label>
+    </div>
+    <div style="flex:1">
+      <div class="card" style="background:#1a3a2a;padding:12px;text-align:center;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center">
+        <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">Auto-advance</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:8px">Move to next hole automatically.</div>
+        <input type="checkbox" id="autoAdvanceEnabled" checked style="width:22px;height:22px;accent-color:#52b788">
+      </div>
+    </div>
   </div>
 
-  <div class="card">
-    <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer">
-      <div><div style="font-size:14px;font-weight:700;color:#222">Auto-advance holes</div>
-      <div style="font-size:12px;color:#666;margin-top:2px">Automatically move to next hole when all scores are entered. Turn off to require a manual tap.</div></div>
-      <input type="checkbox" id="autoAdvanceEnabled" checked style="width:22px;height:22px;flex:none">
-    </label>
-  </div>
+  <div class="card" id="playerInputs" style="background:#c9a84c"></div>
 
-  <div onclick="var s=this.nextElementSibling;s.style.display=s.style.display==='none'?'block':'none';this.querySelector('.sc').textContent=s.style.display==='none'?'▶':'▼'" style="display:flex;align-items:center;justify-content:space-between;background:#2a1a3a;border:1.5px solid #6c3483;border-radius:8px;padding:10px 14px;margin:0 0 4px;cursor:pointer"><span class="slabel" style="color:#9b59b6;margin:0;padding:0;background:none;font-size:13px">🐍 Snake 3-Putt Game</span><span class="sc" style="color:#9b59b6;font-size:12px">▼</span></div>
-  <div style="display:block">
-  <div class="card" style="background:#1a1a2e;border:1.5px solid #6c3483">
-    <div style="font-size:12px;color:#ccc;margin:0 0 10px">Whoever holds the 3-putt snake after your 3rd, 6th, 9th, 12th, 15th and 18th holes pays each other participant the selected wager. The Snake resets after each settlement hole.</div>
+  <div onclick="var s=this.nextElementSibling;s.style.display=s.style.display==='none'?'block':'none';this.querySelector('.sc').textContent=s.style.display==='none'?'▶':'▼'" style="display:flex;align-items:center;justify-content:space-between;background:#2a1a3a;border:1.5px solid #6c3483;border-radius:8px 8px 0 0;padding:10px 14px;margin:0;cursor:pointer"><span class="slabel" style="color:#9b59b6;margin:0;padding:0;background:none;font-size:13px">🐍 Snake 3-Putt Game</span><span class="sc" style="color:#9b59b6;font-size:12px">▼</span></div>
+  <div style="display:block;margin-bottom:8px">
+  <div class="card" style="background:#ede8f5;border:1.5px solid #6c3483;border-top:none;border-radius:0 0 8px 8px">
+    <div style="font-size:12px;color:#3a2a4a;margin:0 0 10px">Whoever holds the 3-putt snake after your 3rd, 6th, 9th, 12th, 15th and 18th holes pays each other participant the selected wager. The Snake resets after each settlement hole.</div>
     <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:10px">
       <div><div style="font-size:14px;font-weight:700;color:#f0c040">Enable Snake Game</div>
-      <div style="font-size:12px;color:#aaa;margin-top:2px">Track 3-putts hole by hole on the scorecard.</div></div>
+      <div style="font-size:12px;color:#3a2a4a;margin-top:2px">Track 3-putts hole by hole on the scorecard.</div></div>
       <input type="checkbox" id="snakeEnabled" onchange="renderSnakeSetupOptions()" style="width:22px;height:22px;flex:none;accent-color:#9b59b6">
     </label>
     <div id="snakeSetupOptions" style="display:none">
@@ -562,7 +561,7 @@ input::placeholder{color:#bbb}
     <span class="slabel" style="color:#c9a84c;margin:0;padding:0;background:none;font-size:13px">2v2 Nassau Games (High-Low)</span><span class="sc" style="color:#c9a84c;font-size:12px">▼</span>
   </div>
   <div style="display:block;margin-bottom:8px">
-    <div class="card" id="teamGamesCard">
+    <div class="card" id="teamGamesCard" style="background:#e8eef5">
       <div style="font-size:12px;color:#666;margin:0 0 8px">Select as many pairings as you wish — Nassau Golf will score all of them. Tap a pairing to add it, then set the bet amount.</div>
       <div id="pairGrid"></div>
       <div id="teamGamesList"></div>
@@ -574,7 +573,7 @@ input::placeholder{color:#bbb}
     <span class="slabel" style="color:#c9a84c;margin:0;padding:0;background:none;font-size:13px">1v1 Nassau Games</span><span class="sc" style="color:#c9a84c;font-size:12px">▼</span>
   </div>
   <div style="display:block;margin-bottom:8px">
-    <div class="card" id="singlesCard">
+    <div class="card" id="singlesCard" style="background:#e8eef5">
       <div style="font-size:12px;color:#666;margin:0 0 8px">Select as many matchups as you wish — Nassau Golf will score all of them. Tap a matchup to add it, then set the bet amount.</div>
       <div id="singlesGrid"></div>
       <div id="singleGamesList"></div>
@@ -586,7 +585,7 @@ input::placeholder{color:#bbb}
     <span class="slabel" style="color:#c9a84c;margin:0;padding:0;background:none;font-size:13px">🎯 6-Point Game</span><span class="sc" style="color:#c9a84c;font-size:12px">▼</span>
   </div>
   <div style="display:block;margin-bottom:8px">
-    <div class="card" id="sixPointCard">
+    <div class="card" id="sixPointCard" style="background:#e8eef5">
       <div style="font-size:12px;color:#666;margin:0 0 8px">Pick any 3 players for a separate 6-Point game (lowest player dropped to 0, net, no presses — 6 points up for grabs every hole).</div>
       <div id="sixPointGrid"></div>
       <div id="sixPointGamesList"></div>
@@ -603,7 +602,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v31.8
+    Nassau Golf · Derrick GWC · v40.0
   </div>
 </div>
 </div>
@@ -686,7 +685,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v31.8</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v40.0</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -908,10 +907,10 @@ function renderPlayers(){
           <input type="text" id="gid${i}" placeholder="Golf Canada ID (10 digits)" value="${gid}" inputmode="numeric" pattern="[0-9]*" maxlength="10" class="golfid-input" oninput="highlightDuplicateRows()" ${act?'':'disabled'} ${act&&gid?'readonly style="background:#e8e4d8;color:#888;padding-right:28px"':''}>
           ${act&&gid?`<span style="position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:13px;cursor:pointer;opacity:.6" onclick="unlockGid(${i})" title="Tap to edit Golf Canada ID">🔒</span>`:''}
         </div>
-        <div style="font-size:10px;color:#999;margin-top:2px;line-height:1.3">${act&&gid?'Golf Canada ID (locked — tap 🔒 to edit)':'10 Digit Golf Canada Member ID'}</div>
+        <div style="font-size:10px;color:#1a1a1a;margin-top:2px;line-height:1.3;font-weight:600">${act&&gid?'Golf Canada ID (locked — tap 🔒 to edit)':'10 Digit Golf Canada Member ID'}</div>
         <div id="hdcpStamp${i}" class="hdcp-stamp">${G.players[i]&&G.players[i].hdcpFetchedAt?('🟢 Handicap current as of '+fmtFetchTime(G.players[i].hdcpFetchedAt)):''}</div>
         <div class="deck-row">
-          <span class="deck-lbl">Tee</span>
+          <span class="deck-lbl" style="color:#1a1a1a">Tee</span>
           <select id="deck${i}" class="deck-select" onchange="changeDeck(${i})" ${act?'':'disabled'}>${deckOpts}</select>
         </div>
       </div>
@@ -919,7 +918,7 @@ function renderPlayers(){
         <input type="number" id="ph${i}" placeholder="0.0" step=".1" min="0" max="54" value="${idxShown}" class="hdcp-box" oninput="onHdcpTyped(${i})" ${act?'':'disabled'}>
         <div class="hlbl">Index</div>
         <input type="text" id="phAdj${i}" value="${adjShown}" class="hdcp-box hdcp-adj" readonly tabindex="-1">
-        <div class="hlbl hlbl-adj">DECK adjusted</div>
+        <div class="hlbl hlbl-adj">DECK ADJUSTED</div>
       </div>
       <div class="p-btnstack">
         <button class="gc-fetch-btn" id="gcbtn${i}" onclick="fetchHandicap(${i})" ${act?'':'disabled'} title="Fetch handicap from Golf Canada"><img src="${GC_LOGO}" alt="Golf Canada" class="gc-logo-img"></button>
@@ -2511,7 +2510,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v31.8</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v40.0</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2714,7 +2713,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v31.8</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v40.0</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3266,7 +3265,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v31.8</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v40.0</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4917,7 +4916,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v31.8</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v40.0</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -5027,7 +5026,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v31.8</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v40.0</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -5149,7 +5148,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v31.8</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v40.0</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5257,7 +5256,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v31.8');
+  lines.push('— Nassau Golf · Derrick GWC · v40.0');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -5512,7 +5511,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v31.8 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v40.0 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -6752,12 +6751,12 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v31.8';
+const CURRENT_VERSION = 'nassau-v40.0';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
-  'v31.8 — Removed rain history (WeatherLink historic API incompatible with Cloudflare Workers)',
+  'v40.0 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
   'v31.9 — Weather: rain history using correct 24hr chunks and archive interval summation',
-  'v31.8 — Removed rain history feature (WeatherLink historic API not supported)',
+  'v40.0 — Removed rain history feature (WeatherLink historic API not supported)',
   'v31.3 — Fixed: stray backslash before SW template literal closing backtick',
   'v31.2 — Fixed: renderSingles undefined error on setup screen',
   'v31.1 — Weather: 7-day rain total added alongside 24hr in setup rain widget (one API call)',
@@ -7035,7 +7034,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode=`
-const CACHE='nassau-v31.8';
+const CACHE='nassau-v40.0';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
