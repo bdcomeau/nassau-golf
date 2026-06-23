@@ -35,6 +35,9 @@
   td:first-child{font-weight:700;color:var(--gold)}
   .top{display:inline-block;margin-top:10px;color:var(--gl);font-size:12px;text-decoration:none}
   code{background:rgba(255,255,255,.1);padding:1px 5px;border-radius:4px}
+.mockup{text-align:center;margin:20px 0;padding:12px;background:#f9f7f3;border-radius:12px;border:1px solid #e0d9cc}
+.mockup svg{max-width:100%;height:auto}
+.mockup-caption{font-size:12px;color:#888;margin-top:8px;font-style:italic}
 </style>
 </head>
 <body>
@@ -270,6 +273,128 @@
 </ul>
 
 <h3>Player Cards</h3>
+<div class="mockup">
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="660" viewBox="0 0 360 660">
+  <!-- Phone frame -->
+  <rect x="0" y="0" width="360" height="660" rx="30" ry="30" fill="#1a1a1a"/>
+  <rect x="4" y="4" width="352" height="652" rx="27" ry="27" fill="#2a2a2a"/>
+  <!-- Screen -->
+  <rect x="20" y="20" width="320" height="580" rx="10" ry="10" fill="#1a3a2a"/>
+  <!-- Notch -->
+  <rect x="120" y="20" width="80" height="12" rx="6" ry="6" fill="#1a1a1a"/>
+  
+  <!-- Header -->
+  <rect x="20" y="32" width="320" height="40" fill="#1a3a2a"/>
+  <text x="32" y="50" font-family="Georgia,serif" font-size="14" font-weight="700" fill="#c9a84c">Nassau Golf</text>
+  <text x="32" y="63" font-family="sans-serif" font-size="7" fill="#52b788" letter-spacing="1">DERRICK GWC</text>
+  <rect x="270" y="36" width="56" height="18" rx="9" fill="#c9a84c"/>
+  <text x="298" y="49" font-family="sans-serif" font-size="9" font-weight="700" fill="#1a3a2a" text-anchor="middle">HOLE 5</text>
+
+  <!-- Hole info -->
+  <text x="180" y="88" font-family="sans-serif" font-size="13" font-weight="700" fill="#c9a84c" text-anchor="middle">Hole 5</text>
+  <text x="180" y="100" font-family="sans-serif" font-size="9" fill="#52b788" text-anchor="middle">Par 4 · HCP 3</text>
+
+  <!-- Settings button -->
+  <rect x="30" y="106" width="280" height="24" rx="12" fill="#c9a84c"/>
+  <text x="170" y="122" font-family="sans-serif" font-size="9" font-weight="700" fill="#1a3a2a" text-anchor="middle">⚙️ Round, Match &amp; Player Settings</text>
+
+  <!-- Weather strip -->
+  <rect x="20" y="134" width="320" height="18" fill="#1e4035"/>
+  <text x="180" y="146" font-family="sans-serif" font-size="7" fill="#52b788" text-anchor="middle">🌡️ 14°C · 💨 calm · 💧 72% · 1013 hPa · 10:24 AM</text>
+
+  <!-- Player Card 1 - Bruce -->
+  <rect x="30" y="158" width="300" height="62" rx="8" fill="#ffffff" stroke="#c9a84c" stroke-width="2"/>
+  <rect x="30" y="158" width="300" height="22" rx="8" fill="#1a3a2a"/>
+  <rect x="30" y="168" width="300" height="12" fill="#1a3a2a"/>
+  <text x="42" y="173" font-family="sans-serif" font-size="9" font-weight="700" fill="#c9a84c">$4</text>
+  <text x="68" y="173" font-family="sans-serif" font-size="9" font-weight="700" fill="#ffffff">Bruce Comeau</text>
+  <text x="248" y="173" font-family="sans-serif" font-size="8" fill="#52b788">6.0</text>
+  <image href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Ccircle cx='10' cy='10' r='9' fill='%23c0392b'/%3E%3C/svg%3E" x="266" y="163" width="12" height="12"/>
+  <text x="285" y="173" font-family="sans-serif" font-size="8" fill="#52b788">D2/3</text>
+  <!-- Score wheel -->
+  <text x="80" y="206" font-family="sans-serif" font-size="9" fill="#ccc" text-anchor="middle">3</text>
+  <text x="80" y="216" font-family="sans-serif" font-size="7" fill="#999" text-anchor="middle">BIRDIE</text>
+  <text x="125" y="200" font-family="sans-serif" font-size="8" fill="#aaa">◀</text>
+  <rect x="143" y="188" width="54" height="34" rx="6" fill="#f5f0e8" stroke="#d4c9b0" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="170" y="208" font-family="sans-serif" font-size="16" font-weight="700" fill="#1a1a1a" text-anchor="middle">4</text>
+  <text x="170" y="218" font-family="sans-serif" font-size="7" fill="#888888" text-anchor="middle">TAP FOR PAR</text>
+  <text x="216" y="200" font-family="sans-serif" font-size="8" fill="#aaa">▶</text>
+  <text x="260" y="206" font-family="sans-serif" font-size="9" fill="#c0392b" text-anchor="middle">5</text>
+  <text x="260" y="216" font-family="sans-serif" font-size="7" fill="#c0392b" text-anchor="middle">BOGEY</text>
+
+  <!-- Player Card 2 - Al -->
+  <rect x="30" y="225" width="300" height="62" rx="8" fill="#ffffff" stroke="#d4c9b0" stroke-width="1.5"/>
+  <rect x="30" y="225" width="300" height="22" rx="8" fill="#1a3a2a"/>
+  <rect x="30" y="235" width="300" height="12" fill="#1a3a2a"/>
+  <text x="42" y="240" font-family="sans-serif" font-size="9" font-weight="700" fill="#c0392b">-$2</text>
+  <text x="68" y="240" font-family="sans-serif" font-size="9" font-weight="700" fill="#ffffff">Al Comeau</text>
+  <text x="248" y="240" font-family="sans-serif" font-size="8" fill="#52b788">6.0</text>
+  <text x="285" y="240" font-family="sans-serif" font-size="8" fill="#52b788">D2</text>
+  <text x="80" y="273" font-family="sans-serif" font-size="9" fill="#ccc" text-anchor="middle">3</text>
+  <text x="80" y="283" font-family="sans-serif" font-size="7" fill="#999" text-anchor="middle">BIRDIE</text>
+  <text x="125" y="267" font-family="sans-serif" font-size="8" fill="#aaa">◀</text>
+  <rect x="143" y="255" width="54" height="34" rx="6" fill="#f5f0e8" stroke="#d4c9b0" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="170" y="275" font-family="sans-serif" font-size="16" font-weight="700" fill="#1a1a1a" text-anchor="middle">4</text>
+  <text x="170" y="285" font-family="sans-serif" font-size="7" fill="#888888" text-anchor="middle">TAP FOR PAR</text>
+  <text x="216" y="267" font-family="sans-serif" font-size="8" fill="#aaa">▶</text>
+  <text x="260" y="273" font-family="sans-serif" font-size="9" fill="#c0392b" text-anchor="middle">5</text>
+  <text x="260" y="283" font-family="sans-serif" font-size="7" fill="#c0392b" text-anchor="middle">BOGEY</text>
+
+  <!-- Master Scorecard header -->
+  <rect x="20" y="295" width="320" height="20" fill="#1a3a2a"/>
+  <text x="32" y="309" font-family="Georgia,serif" font-size="10" font-weight="700" fill="#c9a84c">Derrick GWC · Master Scorecard</text>
+  <rect x="260" y="298" width="70" height="14" rx="7" fill="#c9a84c"/>
+  <text x="295" y="309" font-family="sans-serif" font-size="7" font-weight="700" fill="#1a3a2a" text-anchor="middle">🖨️ Share / Print</text>
+
+  <!-- Scorecard mini -->
+  <rect x="20" y="315" width="320" height="120" fill="#ffffff"/>
+  <!-- Header row -->
+  <rect x="20" y="315" width="320" height="16" fill="#e8eaed"/>
+  <text x="35" y="327" font-family="sans-serif" font-size="7" fill="#1a1a1a">HOLE</text>
+  <text x="95" y="327" font-family="sans-serif" font-size="7" fill="#1a1a1a">HCP</text>
+  <text x="118" y="327" font-family="sans-serif" font-size="7" fill="#1a1a1a" font-weight="700">PAR</text>
+  <text x="155" y="327" font-family="sans-serif" font-size="7" fill="#1a1a1a">Bruce</text>
+  <text x="210" y="327" font-family="sans-serif" font-size="7" fill="#1a1a1a">Al</text>
+  <!-- Score rows -->
+  <line x1="20" y1="331" x2="340" y2="331" stroke="#ddd" stroke-width="0.5"/>
+  <text x="35" y="341" font-family="sans-serif" font-size="7" fill="#1a1a1a" font-weight="700">1</text>
+  <text x="95" y="341" font-family="sans-serif" font-size="7" fill="#1a1a1a">6</text>
+  <text x="118" y="341" font-family="sans-serif" font-size="7" fill="#1a1a1a" font-weight="700">4</text>
+  <!-- Birdie circle -->
+  <circle cx="163" cy="338" r="5" fill="none" stroke="#c0392b" stroke-width="0.8"/>
+  <text x="163" y="341" font-family="sans-serif" font-size="6" fill="#1a1a1a" text-anchor="middle">3</text>
+  <text x="218" y="341" font-family="sans-serif" font-size="7" fill="#1a1a1a">4</text>
+  <line x1="20" y1="345" x2="340" y2="345" stroke="#ddd" stroke-width="0.5"/>
+  <text x="35" y="355" font-family="sans-serif" font-size="7" fill="#1a1a1a" font-weight="700">2</text>
+  <text x="95" y="355" font-family="sans-serif" font-size="7" fill="#1a1a1a">18</text>
+  <text x="118" y="355" font-family="sans-serif" font-size="7" fill="#1a1a1a" font-weight="700">3</text>
+  <text x="163" y="355" font-family="sans-serif" font-size="7" fill="#1a1a1a" text-anchor="middle">3</text>
+  <!-- Bogey square -->
+  <rect x="213" y="349" width="10" height="10" fill="none" stroke="#1a1a1a" stroke-width="0.8"/>
+  <text x="218" y="357" font-family="sans-serif" font-size="6" fill="#1a1a1a" text-anchor="middle">4</text>
+  <line x1="20" y1="359" x2="340" y2="359" stroke="#ddd" stroke-width="0.5"/>
+  <text x="35" y="369" font-family="sans-serif" font-size="7" fill="#1a1a1a" font-weight="700">3</text>
+  <text x="95" y="369" font-family="sans-serif" font-size="7" fill="#1a1a1a">4</text>
+  <text x="118" y="369" font-family="sans-serif" font-size="7" fill="#1a1a1a" font-weight="700">4</text>
+  <text x="163" y="369" font-family="sans-serif" font-size="7" fill="#1a1a1a" text-anchor="middle">4</text>
+  <text x="218" y="369" font-family="sans-serif" font-size="7" fill="#1a1a1a">4</text>
+
+  <!-- Nav bar -->
+  <rect x="20" y="530" width="320" height="50" fill="#1a3a2a" stroke="#c9a84c" stroke-width="0.5"/>
+  <text x="60" y="548" font-family="sans-serif" font-size="7" fill="#c9a84c" text-anchor="middle">🏌️</text>
+  <text x="60" y="558" font-family="sans-serif" font-size="6" fill="#c9a84c" text-anchor="middle">Scorecard</text>
+  <text x="120" y="548" font-family="sans-serif" font-size="7" fill="#52b788" text-anchor="middle">💰</text>
+  <text x="120" y="558" font-family="sans-serif" font-size="6" fill="#52b788" text-anchor="middle">Games</text>
+  <text x="180" y="548" font-family="sans-serif" font-size="7" fill="#52b788" text-anchor="middle">🍹</text>
+  <text x="180" y="558" font-family="sans-serif" font-size="6" fill="#52b788" text-anchor="middle">Birdie Juice</text>
+  <text x="240" y="548" font-family="sans-serif" font-size="7" fill="#52b788" text-anchor="middle">📜</text>
+  <text x="240" y="558" font-family="sans-serif" font-size="6" fill="#52b788" text-anchor="middle">History</text>
+  <text x="300" y="548" font-family="sans-serif" font-size="7" fill="#52b788" text-anchor="middle">🔄</text>
+  <text x="300" y="558" font-family="sans-serif" font-size="6" fill="#52b788" text-anchor="middle">New Round</text>
+
+</svg>
+<div class="mockup-caption">Score entry screen — player cards with score wheel, master scorecard below</div>
+</div>
 <p>Each player card shows a live combined money total (green = winning, red = losing, gold = even), the player's name, their handicap index, the Golf Canada logo (or INDEX label for manual players), and their tee deck — all aligned so the logos line up across all cards. Once a score is entered on the current hole, the card gains a gold border as a quick confirmation.</p><p>To change a player's handicap mid-round, use <b>⚙️ Round, Match &amp; Player Settings</b> and select a different Tee Deck in the Players section — the handicap recalculates automatically.</p>
 
 <h3>The Master Scorecard</h3>
@@ -303,6 +428,70 @@
 <a class="top" href="#top">↑ Back to top</a>
 
 <h3 id="deckchange">Round, Match &amp; Player Settings</h3>
+<div class="mockup">
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="660" viewBox="0 0 360 660">
+  <!-- Phone frame -->
+  <rect x="0" y="0" width="360" height="660" rx="30" ry="30" fill="#1a1a1a"/>
+  <rect x="4" y="4" width="352" height="652" rx="27" ry="27" fill="#2a2a2a"/>
+  <!-- Screen -->
+  <rect x="20" y="20" width="320" height="580" rx="10" ry="10" fill="#1a3a2a"/>
+  <!-- Notch -->
+  <rect x="120" y="20" width="80" height="12" rx="6" ry="6" fill="#1a1a1a"/>
+  
+  <rect x="20" y="20" width="320" height="560" fill="#1a3a2a"/>
+  <rect x="20" y="20" width="320" height="560" fill="rgba(0,0,0,0.4)"/>
+  <!-- Overlay panel -->
+  <rect x="20" y="60" width="320" height="520" rx="14" fill="#f5f0e8"/>
+  <text x="180" y="90" font-family="Georgia,serif" font-size="13" font-weight="700" fill="#1a3a2a" text-anchor="middle">⚙️ Round, Match &amp; Player Settings</text>
+
+  <!-- Auto-advance -->
+  <rect x="30" y="100" width="300" height="30" rx="8" fill="#ffffff"/>
+  <text x="45" y="120" font-family="sans-serif" font-size="10" fill="#1a1a1a">⚡ Auto-Advance</text>
+  <rect x="275" y="107" width="44" height="16" rx="8" fill="#2d6a4f"/>
+  <circle cx="311" cy="115" r="7" fill="#ffffff"/>
+  <text x="285" y="119" font-family="sans-serif" font-size="7" fill="#ffffff">ON</text>
+
+  <!-- Players section -->
+  <rect x="30" y="136" width="300" height="24" rx="8" fill="#1a3a2a"/>
+  <text x="45" y="152" font-family="sans-serif" font-size="10" font-weight="700" fill="#c9a84c">🏌️ Players</text>
+  <text x="310" y="152" font-family="sans-serif" font-size="10" fill="#c9a84c" text-anchor="end">▼</text>
+
+  <!-- Player rows -->
+  <rect x="30" y="162" width="300" height="28" fill="#ffffff"/>
+  <text x="45" y="180" font-family="sans-serif" font-size="9" fill="#1a1a1a">Bruce Comeau</text>
+  <text x="230" y="180" font-family="sans-serif" font-size="8" fill="#888888">6.0</text>
+  <rect x="250" y="168" width="72" height="16" rx="4" fill="#1a3a2a"/>
+  <text x="286" y="180" font-family="sans-serif" font-size="8" fill="#c9a84c" text-anchor="middle">DECK2/3 ▾</text>
+  <line x1="30" y1="190" x2="330" y2="190" stroke="#eee" stroke-width="0.5"/>
+  <rect x="30" y="190" width="300" height="28" fill="#ffffff"/>
+  <text x="45" y="208" font-family="sans-serif" font-size="9" fill="#1a1a1a">Al Comeau</text>
+  <text x="230" y="208" font-family="sans-serif" font-size="8" fill="#888888">6.0</text>
+  <rect x="250" y="196" width="72" height="16" rx="4" fill="#1a3a2a"/>
+  <text x="286" y="208" font-family="sans-serif" font-size="8" fill="#c9a84c" text-anchor="middle">DECK2 ▾</text>
+
+  <!-- Nassau 2v2 section -->
+  <rect x="30" y="224" width="300" height="24" rx="8" fill="#1a3a2a"/>
+  <text x="45" y="240" font-family="sans-serif" font-size="10" font-weight="700" fill="#c9a84c">2v2 Nassau Games</text>
+  <text x="310" y="240" font-family="sans-serif" font-size="10" fill="#c9a84c" text-anchor="end">▶</text>
+
+  <!-- 1v1 section -->
+  <rect x="30" y="254" width="300" height="24" rx="8" fill="#1a3a2a"/>
+  <text x="45" y="270" font-family="sans-serif" font-size="10" font-weight="700" fill="#c9a84c">1v1 Nassau Games</text>
+  <text x="310" y="270" font-family="sans-serif" font-size="10" fill="#c9a84c" text-anchor="end">▶</text>
+
+  <!-- 6-Point section -->
+  <rect x="30" y="284" width="300" height="24" rx="8" fill="#1a3a2a"/>
+  <text x="45" y="300" font-family="sans-serif" font-size="10" font-weight="700" fill="#c9a84c">🎯 6-Point Game</text>
+  <text x="310" y="300" font-family="sans-serif" font-size="10" fill="#c9a84c" text-anchor="end">▶</text>
+
+  <!-- Snake section -->
+  <rect x="30" y="314" width="300" height="24" rx="8" fill="#2a1a3a"/>
+  <text x="45" y="330" font-family="sans-serif" font-size="10" font-weight="700" fill="#9b59b6">🐍 Snake 3-Putt Game</text>
+  <text x="310" y="330" font-family="sans-serif" font-size="10" fill="#9b59b6" text-anchor="end">▶</text>
+
+</svg>
+<div class="mockup-caption">Round, Match &amp; Player Settings overlay — collapsible sections for players, games, and Snake</div>
+</div>
 <p>Tap <b>⚙️ Round, Match &amp; Player Settings</b> on the score entry screen to access mid-round adjustments. All sections are collapsible — tap any header to expand it.</p>
 
 <h3>1. ⚡ Auto-Advance Scoring</h3>
@@ -442,6 +631,44 @@
 <a class="top" href="#top">↑ Back to top</a>
 
 <h2 id="newround">10 · Starting a New Round</h2>
+<div class="mockup">
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="660" viewBox="0 0 360 660">
+  <!-- Phone frame -->
+  <rect x="0" y="0" width="360" height="660" rx="30" ry="30" fill="#1a1a1a"/>
+  <rect x="4" y="4" width="352" height="652" rx="27" ry="27" fill="#2a2a2a"/>
+  <!-- Screen -->
+  <rect x="20" y="20" width="320" height="580" rx="10" ry="10" fill="#1a3a2a"/>
+  <!-- Notch -->
+  <rect x="120" y="20" width="80" height="12" rx="6" ry="6" fill="#1a1a1a"/>
+  
+  <!-- Background scorecard -->
+  <rect x="20" y="20" width="320" height="560" fill="#1a3a2a"/>
+  <!-- Dimmed overlay -->
+  <rect x="20" y="20" width="320" height="560" fill="rgba(0,0,0,0.5)"/>
+  <!-- Dialog -->
+  <rect x="60" y="180" width="240" height="220" rx="14" fill="#ffffff"/>
+  <!-- Icon -->
+  <text x="180" y="220" font-family="sans-serif" font-size="28" text-anchor="middle">✅</text>
+  <!-- Title -->
+  <text x="180" y="245" font-family="sans-serif" font-size="13" font-weight="700" fill="#1a1a1a" text-anchor="middle">Start New Round?</text>
+  <!-- Body -->
+  <text x="180" y="262" font-family="sans-serif" font-size="9" fill="#888888" text-anchor="middle">Your completed round has been</text>
+  <text x="180" y="274" font-family="sans-serif" font-size="9" fill="#888888" text-anchor="middle">saved to History.</text>
+  <!-- Label -->
+  <text x="180" y="294" font-family="sans-serif" font-size="9" font-weight="700" fill="#2d6a4f" text-anchor="middle">Hold the button for 2 seconds</text>
+  <!-- Progress bar -->
+  <rect x="80" y="300" width="200" height="5" rx="2.5" fill="#eee"/>
+  <rect x="80" y="300" width="60" height="5" rx="2.5" fill="#2d6a4f"/>
+  <!-- Button -->
+  <rect x="75" y="312" width="210" height="36" rx="10" fill="#2d6a4f"/>
+  <text x="180" y="335" font-family="sans-serif" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">✅ Hold to Start New Round</text>
+  <!-- Cancel -->
+  <rect x="75" y="354" width="210" height="30" rx="10" fill="#eee"/>
+  <text x="180" y="373" font-family="sans-serif" font-size="10" fill="#1a1a1a" text-anchor="middle">Cancel</text>
+
+</svg>
+<div class="mockup-caption">New Round confirmation — hold button for 2 seconds to confirm</div>
+</div>
 <p>Tap <b>🔄 New Round</b> in the bottom nav. The confirmation dialog adapts to the situation:</p>
 <ul>
   <li><b>Round complete and saved</b> — green ✅ dialog with a <b>✅ Hold to Start New Round</b> button. Hold 2 seconds to confirm.</li>
