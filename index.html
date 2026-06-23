@@ -610,7 +610,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v43.6
+    Nassau Golf · Derrick GWC · v43.7
   </div>
 </div>
 </div>
@@ -692,7 +692,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v43.6</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v43.7</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2522,7 +2522,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v43.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v43.7</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2540,20 +2540,37 @@ function redeemBirdieJuice(){
 // Touch swipe support on scroll wheel
 let _touch={pi:null,h:null,y0:null};
 function swipeStart(pi,h,e){
-  _touch={pi,h,y0:(e.touches?e.touches[0].clientY:e.clientY)};
+  const touch=e.touches?e.touches[0]:e;
+  _touch={pi,h,x0:touch.clientX,y0:touch.clientY,axis:null};
   e.preventDefault();
 }
 function swipeMove(e){
   if(_touch.pi===null)return;
   e.preventDefault();
-  const y=(e.touches?e.touches[0].clientY:e.clientY);
-  const dy=_touch.y0-y;
-  if(Math.abs(dy)>18){
-    adjustScore(_touch.pi,_touch.h,dy>0?1:-1);
-    _touch.y0=y;
+  const touch=e.touches?e.touches[0]:e;
+  const dx=touch.clientX-_touch.x0;
+  const dy=_touch.y0-touch.clientY;
+  // Lock axis on first significant movement
+  if(!_touch.axis){
+    if(Math.abs(dx)>6||Math.abs(dy)>6){
+      _touch.axis=Math.abs(dx)>=Math.abs(dy)?'x':'y';
+    }
+    return;
+  }
+  const THRESHOLD=22;
+  if(_touch.axis==='x'){
+    if(Math.abs(dx)>THRESHOLD){
+      adjustScore(_touch.pi,_touch.h,dx>0?1:-1);
+      _touch.x0=touch.clientX;
+    }
+  } else {
+    if(Math.abs(dy)>THRESHOLD){
+      adjustScore(_touch.pi,_touch.h,dy>0?1:-1);
+      _touch.y0=touch.clientY;
+    }
   }
 }
-function swipeEnd(){_touch={pi:null,h:null,y0:null};}
+function swipeEnd(){_touch={pi:null,h:null,x0:null,y0:null,axis:null};}
 
 /* ═══════════════════════════════════════════════
    SCORECARD RENDER
@@ -2682,7 +2699,10 @@ function renderCard(){
             <button class="sw-btn" ontouchstart="adjustScore(${pi},${h},-1)" onclick="adjustScore(${pi},${h},-1)">◀</button>
             ${gross===null ? `
             <div class="sw-score sw-unset" onclick="setTypicalScore(${pi},${h})"
-              ontouchstart="setTypicalScore(${pi},${h})">
+              ontouchstart="setTypicalScore(${pi},${h})"
+              onmousedown="swipeStart(${pi},${h},event)" ontouchstart="swipeStart(${pi},${h},event)"
+              onmouseup="swipeEnd()" ontouchend="swipeEnd()"
+              onmouseleave="swipeEnd()" onpointercancel="swipeEnd()">
               <div class="sw-num sw-num-par-hint">${typical}</div>
               <div class="sw-label sw-lbl-hint ${scoreClass(typical,par,0).lblCls}">${typical===par?'Par':typical===par+1?'Bogey':'Double'}</div>
             </div>`: `
@@ -2692,7 +2712,9 @@ function renderCard(){
               ontouchend="swipeEnd()"
               onmousedown="swipeStart(${pi},${h},event)"
               onmousemove="swipeMove(event)"
-              onmouseup="swipeEnd()">
+              onmouseup="swipeEnd()"
+              onmouseleave="swipeEnd()"
+              onpointercancel="swipeEnd()">
               <div class="sw-num">${gross}</div>
               <div class="sw-label ${sc.lblCls}">${sc.lbl}</div>
             </div>`}
@@ -2726,7 +2748,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v43.6</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v43.7</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3278,7 +3300,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v43.6</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v43.7</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -5020,7 +5042,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v43.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v43.7</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -5130,7 +5152,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v43.6</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v43.7</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -5252,7 +5274,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v43.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v43.7</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5360,7 +5382,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v43.6');
+  lines.push('— Nassau Golf · Derrick GWC · v43.7');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -5615,7 +5637,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v43.6 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v43.7 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -6855,12 +6877,12 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v43.6';
+const CURRENT_VERSION = 'nassau-v43.7';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
-  'v43.6 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
+  'v43.7 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
   'v31.9 — Weather: rain history using correct 24hr chunks and archive interval summation',
-  'v43.6 — Removed rain history feature (WeatherLink historic API not supported)',
+  'v43.7 — Removed rain history feature (WeatherLink historic API not supported)',
   'v31.3 — Fixed: stray backslash before SW template literal closing backtick',
   'v31.2 — Fixed: renderSingles undefined error on setup screen',
   'v31.1 — Weather: 7-day rain total added alongside 24hr in setup rain widget (one API call)',
@@ -7139,7 +7161,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode=`
-const CACHE='nassau-v43.6';
+const CACHE='nassau-v43.7';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
