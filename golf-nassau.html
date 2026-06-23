@@ -429,7 +429,7 @@ input::placeholder{color:#bbb}
 .wi-vs{font-size:14px;color:#333;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
 .wi-vs span{color:var(--inkl);font-size:11px;font-style:italic}
 .wi-res{font-size:15px;font-weight:800;margin-top:5px}
-.ni{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 2px 6px;cursor:pointer;-webkit-tap-highlight-color:transparent;min-width:0;overflow:hidden;border-top:2.5px solid transparent;transition:border-color .15s}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 2px 6px;cursor:pointer;-webkit-tap-highlight-color:transparent;min-width:0;overflow:hidden}
 .ni-icon{font-size:20px;position:relative;display:inline-block}
 .ni-badge{position:absolute;top:-4px;right:-8px;background:var(--red);color:#fff;font-size:9px;font-weight:800;line-height:1;border-radius:8px;min-width:14px;height:14px;display:flex;align-items:center;justify-content:center;padding:0 3px}
 .ni-badge.ni-badge-gold{background:var(--gold);color:var(--gd)}
@@ -442,7 +442,8 @@ input::placeholder{color:#bbb}
 .ni-badge.ni-badge-globe{background:transparent;font-size:13px;min-width:0;height:auto;padding:0;top:-6px;right:-10px}
 .ni-lbl{font-size:8.5px;color:var(--gl);margin-top:2px;white-space:nowrap;text-align:center}
 .ni.active .ni-lbl{color:var(--gold)}
-.ni.active{border-top-color:var(--gold)}
+.ni.active::after{content:'';display:block;width:18px;height:2.5px;background:var(--gold);border-radius:2px;margin-top:2px}
+.ni.ni-games-active .ni-lbl{color:var(--gold)}
 /* ── Print iframe (hidden; used by printHistoryRound) ── */
 #printFrame{
   position:fixed;left:-9999px;top:0;width:1px;height:1px;border:none;visibility:hidden;
@@ -658,7 +659,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v48.0
+    Nassau Golf · Derrick GWC · v48.3
   </div>
 </div>
 </div>
@@ -740,7 +741,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v48.0</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v48.3</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -1909,9 +1910,9 @@ function matchSideNet(idxs, playHdcps, h, ball){
 function scoreClass(gross,par,strokes){
   const net=gross-strokes, toPar=net-par;
   if(gross===10)return{box:'moose',lbl:'Moose',lblCls:'moose-lbl'};
+  if(gross===1)return{box:'eagle',lbl:'Ace',lblCls:'eagle-lbl'};
   if(toPar<=-2){
-    if((par===3&&toPar===-2)||(par===4&&gross===1)) return{box:'eagle',lbl:'Ace',lblCls:'eagle-lbl'};
-    if(par===5&&toPar===-3) return{box:'eagle',lbl:'Albatross',lblCls:'albatross-lbl'};
+    if(par===5&&toPar<=-3) return{box:'eagle',lbl:'Albatross',lblCls:'albatross-lbl'};
     return{box:'eagle',lbl:'Eagle',lblCls:'eagle-lbl'};
   }
   if(toPar===-1)return{box:'birdie',lbl:'Birdie',lblCls:'birdie-lbl'};
@@ -2594,6 +2595,8 @@ function checkBirdieJuice(pi, h, prevGross){
     }
     if(isType==='hole-in-one'){
       showHoleInOnePopup(G.players[pi].name, h+1);
+    } else if(isType==='albatross'){
+      showAlbatrossPopup(G.players[pi].name, h+1);
     } else if(isType==='eagle'){
       showEaglePopup(G.players[pi].name, h+1, newGross, par);
     } else {
@@ -2630,6 +2633,20 @@ function showBirdieJuicePopup(playerName, actualHole){
       <div style="font-size:18px;font-weight:800;color:var(--ink);margin-bottom:8px">Birdie Juice Earned!</div>
       <div style="font-size:13px;color:#666;margin-bottom:16px"><b>${playerName}</b> made a birdie on hole ${actualHole}.</div>
       <button class="export-overlay-btn save" style="width:100%" onclick="document.getElementById('birdieJuicePopup').remove()">🍻 Cheers!</button>
+    </div>`);
+}
+
+function showAlbatrossPopup(playerName, actualHole){
+  _showBJOverlay('birdieJuicePopup',`
+    <div style="background:linear-gradient(160deg,#1a0a2e,#4a1060);border-radius:14px;padding:28px 24px;max-width:340px;text-align:center;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;opacity:.08;font-size:120px;line-height:1;pointer-events:none;overflow:hidden">🦤</div>
+      <div style="font-size:56px;margin-bottom:6px">🦤</div>
+      <div style="font-size:11px;font-weight:800;color:rgba(201,168,76,.7);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Extraordinary</div>
+      <div style="font-size:24px;font-weight:800;color:#d4a0ff;margin-bottom:10px">Albatross!</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.85);margin-bottom:6px"><b>${playerName}</b> scored a 2 on hole ${actualHole}.</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.55);margin-bottom:6px">3 under par — one of the rarest shots in golf.</div>
+      <div style="font-size:13px;font-weight:800;color:#d4a0ff;margin-bottom:20px">🍺🍺🍺🍺 Birdie Juice × 4 — the bar is yours tonight!</div>
+      <button class="export-overlay-btn save" style="width:100%;background:#7b1fa2;color:#fff;border:none" onclick="document.getElementById('birdieJuicePopup').remove()">🦤 Legendary!</button>
     </div>`);
 }
 
@@ -2710,7 +2727,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v48.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v48.3</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2938,7 +2955,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v48.0</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v48.3</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3502,7 +3519,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v48.0</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v48.3</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4427,10 +4444,11 @@ function showS(name){
   document.getElementById(`screen-${name}`).classList.add('active');
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
   { const _ni=document.getElementById(`ni-${name}`); if(_ni) _ni.classList.add('active'); }
-  // Highlight Games hub when viewing any game screen
+  // Highlight Games hub when viewing any game screen — use separate class so indicator doesn't double up
   const _gameScreens=['bets','sixpoint','snake','birdiejuice'];
   const _gamesTab=document.getElementById('ni-games');
-  if(_gamesTab && _gameScreens.includes(name)) _gamesTab.classList.add('active');
+  if(_gamesTab) _gamesTab.classList.remove('active','ni-games-active');
+  if(_gamesTab && _gameScreens.includes(name)) _gamesTab.classList.add('ni-games-active');
   if(name==='setup') startNamesPoll(); else stopNamesPoll();
   if(name==='bets')renderBets();
   if(name==='score')renderCard();
@@ -5439,7 +5457,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v48.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v48.3</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -5571,7 +5589,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v48.0</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v48.3</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -5693,7 +5711,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v48.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v48.3</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5801,7 +5819,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v48.0');
+  lines.push('— Nassau Golf · Derrick GWC · v48.3');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -6057,7 +6075,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v48.0 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v48.3 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -7315,12 +7333,12 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v48.0';
+const CURRENT_VERSION = 'nassau-v48.3';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
-  'v48.0 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
+  'v48.3 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
   'v31.9 — Weather: rain history using correct 24hr chunks and archive interval summation',
-  'v48.0 — Removed rain history feature (WeatherLink historic API not supported)',
+  'v48.3 — Removed rain history feature (WeatherLink historic API not supported)',
   'v31.3 — Fixed: stray backslash before SW template literal closing backtick',
   'v31.2 — Fixed: renderSingles undefined error on setup screen',
   'v31.1 — Weather: 7-day rain total added alongside 24hr in setup rain widget (one API call)',
@@ -7626,7 +7644,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v48.0';
+const CACHE='nassau-v48.3';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
