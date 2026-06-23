@@ -435,6 +435,7 @@ input::placeholder{color:#bbb}
 .ni-badge.ni-badge-inprogress{background:#e67e22;animation:pulse-dot 1.5s ease-in-out infinite}
 @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
 @keyframes pulse-ring{0%,100%{box-shadow:inset 0 2px 5px rgba(0,0,0,.15),inset 0 1px 2px rgba(0,0,0,.1),0 0 0 2px rgba(201,168,76,.9)}50%{box-shadow:inset 0 2px 5px rgba(0,0,0,.15),inset 0 1px 2px rgba(0,0,0,.1),0 0 0 4px rgba(201,168,76,.25)}}
+@keyframes pulse-snake{0%,100%{box-shadow:0 0 0 2px rgba(108,52,131,.9)}50%{box-shadow:0 0 0 5px rgba(108,52,131,.2)}}
 .ni-badge.ni-badge-globe{background:transparent;font-size:13px;min-width:0;height:auto;padding:0;top:-6px;right:-10px}
 .ni-lbl{font-size:8.5px;color:var(--gl);margin-top:2px;white-space:nowrap;text-align:center}
 .ni.active .ni-lbl{color:var(--gold)}
@@ -632,7 +633,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v44.7
+    Nassau Golf · Derrick GWC · v44.8
   </div>
 </div>
 </div>
@@ -714,7 +715,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v44.7</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v44.8</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2618,7 +2619,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v44.7</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v44.8</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2844,7 +2845,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v44.7</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v44.8</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2878,7 +2879,11 @@ function renderSnakePanel(){
   }
   const stretchStart=curStretch.length?curStretch[0]+1:1;
   const stretchEnd=curStretch.length?curStretch[curStretch.length-1]+1:3;
-  return '<div style="background:#1a1a2e;border-radius:8px;padding:6px 10px;margin-bottom:6px;display:flex;align-items:center;gap:8px">'
+  const needsAttention = !thisHoleVal;
+  const pulseStyle = needsAttention
+    ? 'animation:pulse-snake 1.8s ease-in-out infinite;border:1.5px solid rgba(108,52,131,.9);box-shadow:0 0 0 2px rgba(108,52,131,.7)'
+    : 'border:1.5px solid #6c3483';
+  return '<div style="background:#1a1a2e;border-radius:8px;padding:6px 10px;margin-bottom:6px;display:flex;align-items:center;gap:8px;'+pulseStyle+'">'
     +'<span style="font-size:13px;flex-shrink:0">🐍</span>'
     +'<span style="font-size:11px;color:#aaa;flex-shrink:0;white-space:nowrap">H'+(h+1)+' 3-putt:</span>'
     +'<select style="flex:1;min-width:0;padding:5px 8px;border-radius:6px;border:1.5px solid #6c3483;background:#2a2a3e;color:#fff;font-size:13px;font-weight:600" onchange="setSnakeHolder(this.value,'+h+')">'+opts+'</select>'
@@ -3396,7 +3401,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v44.7</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v44.8</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -5139,7 +5144,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v44.7</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v44.8</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -5249,7 +5254,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v44.7</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v44.8</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -5371,7 +5376,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v44.7</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v44.8</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5479,7 +5484,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v44.7');
+  lines.push('— Nassau Golf · Derrick GWC · v44.8');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -5734,7 +5739,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v44.7 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v44.8 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -6984,12 +6989,12 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v44.7';
+const CURRENT_VERSION = 'nassau-v44.8';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
-  'v44.7 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
+  'v44.8 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
   'v31.9 — Weather: rain history using correct 24hr chunks and archive interval summation',
-  'v44.7 — Removed rain history feature (WeatherLink historic API not supported)',
+  'v44.8 — Removed rain history feature (WeatherLink historic API not supported)',
   'v31.3 — Fixed: stray backslash before SW template literal closing backtick',
   'v31.2 — Fixed: renderSingles undefined error on setup screen',
   'v31.1 — Weather: 7-day rain total added alongside 24hr in setup rain widget (one API call)',
@@ -7272,7 +7277,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode=`
-const CACHE='nassau-v44.7';
+const CACHE='nassau-v44.8';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))

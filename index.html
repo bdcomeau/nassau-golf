@@ -435,6 +435,7 @@ input::placeholder{color:#bbb}
 .ni-badge.ni-badge-inprogress{background:#e67e22;animation:pulse-dot 1.5s ease-in-out infinite}
 @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
 @keyframes pulse-ring{0%,100%{box-shadow:inset 0 2px 5px rgba(0,0,0,.15),inset 0 1px 2px rgba(0,0,0,.1),0 0 0 2px rgba(201,168,76,.9)}50%{box-shadow:inset 0 2px 5px rgba(0,0,0,.15),inset 0 1px 2px rgba(0,0,0,.1),0 0 0 4px rgba(201,168,76,.25)}}
+@keyframes pulse-snake{0%,100%{box-shadow:0 0 0 2px rgba(108,52,131,.9)}50%{box-shadow:0 0 0 5px rgba(108,52,131,.2)}}
 .ni-badge.ni-badge-globe{background:transparent;font-size:13px;min-width:0;height:auto;padding:0;top:-6px;right:-10px}
 .ni-lbl{font-size:8.5px;color:var(--gl);margin-top:2px;white-space:nowrap;text-align:center}
 .ni.active .ni-lbl{color:var(--gold)}
@@ -521,23 +522,44 @@ input::placeholder{color:#bbb}
 
   <div style="display:flex;gap:10px;margin-bottom:0">
     <div style="flex:1">
-      <div class="card" id="roundTypeCard" style="background:#1a3a2a;padding:12px;text-align:center;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1.5px solid rgba(168,213,181,.4);box-shadow:0 3px 8px rgba(0,0,0,.35)">
-        <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">Score Keep Only</div>
-        <div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:8px">Just keeping score — no Nassau, 6-Point or betting games.</div>
-        <input type="checkbox" id="scorecardOnly" onchange="toggleScorecardOnly()" style="width:22px;height:22px;accent-color:#52b788">
+      <div class="card" id="roundTypeCard" style="background:#1a3a2a;padding:12px;text-align:center;height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1.5px solid rgba(168,213,181,.4);box-shadow:0 3px 8px rgba(0,0,0,.35)">
+        <div style="font-size:11px;font-weight:700;color:#fff;margin-bottom:5px;letter-spacing:.2px">Scores Only or Games?</div>
+        <div style="font-size:9px;color:rgba(255,255,255,.5);margin-bottom:8px;line-height:1.3">Record scores only, or include Nassau, 6-Point & betting games.</div>
+        <div style="display:flex;background:rgba(0,0,0,.35);border-radius:8px;padding:3px;gap:3px;width:100%">
+          <button id="segScoreOnly" onclick="setScorecardMode(true)"
+            style="flex:1;padding:6px 4px;border:none;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;transition:all .15s;background:transparent;color:rgba(255,255,255,.4)">
+            SCORES ONLY
+          </button>
+          <button id="segWithGames" onclick="setScorecardMode(false)"
+            style="flex:1;padding:6px 4px;border:none;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;transition:all .15s;background:var(--gp);color:var(--gd);box-shadow:0 2px 4px rgba(0,0,0,.3)">
+            ✓ WITH GAMES
+          </button>
+        </div>
+        <input type="hidden" id="scorecardOnly">
       </div>
     </div>
     <div style="flex:1">
-      <div class="card" style="background:#1a3a2a;padding:12px;text-align:center;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1.5px solid rgba(168,213,181,.4);box-shadow:0 3px 8px rgba(0,0,0,.35)">
-        <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">Confirm Score Entry</div>
-        <div style="font-size:11px;color:rgba(255,255,255,.6);margin-bottom:8px">When off, advances to next hole automatically when all scores are entered.</div>
-        <input type="checkbox" id="autoAdvanceEnabled" style="width:22px;height:22px;accent-color:#52b788">
+      <div class="card" style="background:#1a3a2a;padding:12px;text-align:center;height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1.5px solid rgba(168,213,181,.4);box-shadow:0 3px 8px rgba(0,0,0,.35)">
+        <div style="font-size:11px;font-weight:700;color:#fff;margin-bottom:5px;letter-spacing:.2px">Auto-Advance or Confirm?</div>
+        <div style="font-size:9px;color:rgba(255,255,255,.5);margin-bottom:8px;line-height:1.3">Auto-advance moves to next hole when all scores entered. Confirm lets you review first.</div>
+        <div style="display:flex;background:rgba(0,0,0,.35);border-radius:8px;padding:3px;gap:3px;width:100%">
+          <button id="segAuto" onclick="setAdvanceMode(true)"
+            style="flex:1;padding:6px 4px;border:none;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;transition:all .15s;background:var(--gp);color:var(--gd);box-shadow:0 2px 4px rgba(0,0,0,.3)">
+            ✓ AUTO-ADVANCE
+          </button>
+          <button id="segConfirm" onclick="setAdvanceMode(false)"
+            style="flex:1;padding:6px 4px;border:none;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;transition:all .15s;background:transparent;color:rgba(255,255,255,.4)">
+            CONFIRM SCORES
+          </button>
+        </div>
+        <input type="hidden" id="autoAdvanceEnabled">
       </div>
     </div>
   </div>
 
   <div class="card" id="playerInputs" style="background:#c9a84c"></div>
 
+  <div id="snakeSection">
   <div onclick="var s=this.nextElementSibling;s.style.display=s.style.display==='none'?'block':'none';this.querySelector('.sc').textContent=s.style.display==='none'?'▶':'▼'" style="display:flex;align-items:center;justify-content:space-between;background:#2a1a3a;border:1.5px solid #6c3483;border-radius:8px 8px 0 0;padding:10px 14px;margin:0;cursor:pointer"><span class="slabel" style="color:#9b59b6;margin:0;padding:0;background:none;font-size:13px">🐍 Snake 3-Putt Game</span><span class="sc" style="color:#9b59b6;font-size:12px">▼</span></div>
   <div style="display:block;margin-bottom:8px">
   <div class="card" style="background:#ede8f5;border:1.5px solid #6c3483;border-top:none;border-radius:0 0 8px 8px">
@@ -562,6 +584,7 @@ input::placeholder{color:#bbb}
     </div>
   </div>
   </div>
+  </div><!-- /snakeSection -->
 
   <div id="bettingSections">
 
@@ -610,7 +633,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v43.7
+    Nassau Golf · Derrick GWC · v44.8
   </div>
 </div>
 </div>
@@ -692,7 +715,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v43.7</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v44.8</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -798,6 +821,8 @@ const BET_OPTIONS=[1,2,5,10];
 function initSetup(){
   renderPlayers();
   renderFavPreview();
+  initAdvanceMode();
+  setScorecardMode(false);
 }
 
 function renderFavPreview(){
@@ -1548,7 +1573,7 @@ function confirmResetSetup(){
   G.teamGames=[]; G.singleGames=[]; G.sixPointGames=[];
   G.players=[];
   G.scorecardOnly=false;
-  const soBox=document.getElementById('scorecardOnly'); if(soBox){ soBox.checked=false; toggleScorecardOnly(); }
+  setScorecardMode(false);
   // Reset to 4 players
   G.n=4;
   document.getElementById('cntVal').textContent=G.n;
@@ -1559,18 +1584,88 @@ function confirmResetSetup(){
 }
 
 // Show/hide the betting setup sections based on the Scorecard-only checkbox.
+function setAdvanceMode(autoAdv){
+  const segAuto=document.getElementById('segAuto');
+  const segConfirm=document.getElementById('segConfirm');
+  const hidden=document.getElementById('autoAdvanceEnabled');
+  if(!segAuto||!segConfirm) return;
+  if(autoAdv){
+    segAuto.style.background='var(--gp)'; segAuto.style.color='var(--gd)'; segAuto.style.boxShadow='0 2px 4px rgba(0,0,0,.3)';
+    segAuto.textContent='✓ AUTO-ADVANCE';
+    segConfirm.style.background='transparent'; segConfirm.style.color='rgba(255,255,255,.4)'; segConfirm.style.boxShadow='none';
+    segConfirm.textContent='CONFIRM SCORES';
+  } else {
+    segConfirm.style.background='#c9a84c'; segConfirm.style.color='#1a3a2a'; segConfirm.style.boxShadow='0 2px 4px rgba(0,0,0,.3)';
+    segConfirm.textContent='✓ CONFIRM SCORES';
+    segAuto.style.background='transparent'; segAuto.style.color='rgba(255,255,255,.4)'; segAuto.style.boxShadow='none';
+    segAuto.textContent='AUTO-ADVANCE';
+  }
+  if(hidden) hidden.value=autoAdv?'1':'0';
+  try{ localStorage.setItem('nassau_pref_autoAdvance', autoAdv?'1':'0'); }catch(_){}
+}
+
+function initAdvanceMode(){
+  try{
+    const pref=localStorage.getItem('nassau_pref_autoAdvance');
+    // Default to false (confirm) for first-timers
+    setAdvanceMode(pref==='1');
+  }catch(_){ setAdvanceMode(false); }
+}
+
+function mmSetAdvanceMode(autoAdv){
+  G.autoAdvance = autoAdv;
+  saveG();
+  try{ localStorage.setItem('nassau_pref_autoAdvance', autoAdv?'1':'0'); }catch(_){}
+  const mmAuto=document.getElementById('mmSegAuto');
+  const mmConf=document.getElementById('mmSegConfirm');
+  if(mmAuto && mmConf){
+    if(autoAdv){
+      mmAuto.style.cssText='flex:1;padding:8px 4px;border:none;border-radius:6px;font-size:11px;font-weight:800;cursor:pointer;background:var(--gp);color:var(--gd);box-shadow:0 2px 4px rgba(0,0,0,.3)';
+      mmAuto.textContent='✓ AUTO-ADVANCE';
+      mmConf.style.cssText='flex:1;padding:8px 4px;border:none;border-radius:6px;font-size:11px;font-weight:800;cursor:pointer;background:transparent;color:rgba(255,255,255,.4)';
+      mmConf.textContent='CONFIRM SCORES';
+    } else {
+      mmConf.style.cssText='flex:1;padding:8px 4px;border:none;border-radius:6px;font-size:11px;font-weight:800;cursor:pointer;background:#c9a84c;color:#1a3a2a;box-shadow:0 2px 4px rgba(0,0,0,.3)';
+      mmConf.textContent='✓ CONFIRM SCORES';
+      mmAuto.style.cssText='flex:1;padding:8px 4px;border:none;border-radius:6px;font-size:11px;font-weight:800;cursor:pointer;background:transparent;color:rgba(255,255,255,.4)';
+      mmAuto.textContent='AUTO-ADVANCE';
+    }
+  }
+  // Sync setup screen segmented control too
+  setAdvanceMode(autoAdv);
+  renderCard();
+}
+
+function setScorecardMode(scoresOnly){
+  const segScoreOnly=document.getElementById('segScoreOnly');
+  const segWithGames=document.getElementById('segWithGames');
+  const hidden=document.getElementById('scorecardOnly');
+  if(!segScoreOnly||!segWithGames) return;
+  if(scoresOnly){
+    segScoreOnly.style.background='#c9a84c'; segScoreOnly.style.color='#1a3a2a'; segScoreOnly.style.boxShadow='0 2px 4px rgba(0,0,0,.3)';
+    segScoreOnly.textContent='✓ SCORES ONLY';
+    segWithGames.style.background='transparent'; segWithGames.style.color='rgba(255,255,255,.4)'; segWithGames.style.boxShadow='none';
+    segWithGames.textContent='WITH GAMES';
+  } else {
+    segWithGames.style.background='var(--gp)'; segWithGames.style.color='var(--gd)'; segWithGames.style.boxShadow='0 2px 4px rgba(0,0,0,.3)';
+    segWithGames.textContent='✓ WITH GAMES';
+    segScoreOnly.style.background='transparent'; segScoreOnly.style.color='rgba(255,255,255,.4)'; segScoreOnly.style.boxShadow='none';
+    segScoreOnly.textContent='SCORES ONLY';
+  }
+  if(hidden) hidden.value=scoresOnly?'1':'0';
+  toggleScorecardOnly();
+}
+
 function toggleScorecardOnly(){
   const soBox = document.getElementById('scorecardOnly');
-  const on = G.n === 1 ? true : !!(soBox && soBox.checked);
+  const on = G.n === 1 ? true : !!(soBox && soBox.value==='1');
   G.scorecardOnly = on;
-  if(soBox){ soBox.checked = on; soBox.disabled = G.n === 1; }
+  if(soBox) soBox.value = on?'1':'0';
   const sec = document.getElementById('bettingSections');
   if(sec) sec.style.display = on ? 'none' : 'block';
-  const snakeBox = document.getElementById('snakeEnabled');
-  const snakeCard = snakeBox ? snakeBox.closest('.card') : null;
-  const snakeLabel = snakeCard ? snakeCard.previousElementSibling : null;
-  if(snakeCard)  snakeCard.style.display  = G.n === 1 ? 'none' : '';
-  if(snakeLabel) snakeLabel.style.display = G.n === 1 ? 'none' : '';
+  const snakeSection = document.getElementById('snakeSection');
+  const hideSnake = G.n === 1 || on;
+  if(snakeSection) snakeSection.style.display = hideSnake ? 'none' : '';
   let soloNote = document.getElementById('soloModeNote');
   if(G.n === 1){
     if(!soloNote){
@@ -1629,7 +1724,7 @@ function startRound(){
     return;
   }
   G.par=[...DERRICK_PAR]; G.si=[...DERRICK_SI];
-  G.scorecardOnly = !!document.getElementById('scorecardOnly').checked;
+  G.scorecardOnly = document.getElementById('scorecardOnly')?.value==='1';
   if(G.scorecardOnly){
     // No betting games in scorecard-only mode.
     G.teamGames=[]; G.singleGames=[]; G.sixPointGames=[];
@@ -1652,7 +1747,9 @@ function startRound(){
   const snakeBox=document.getElementById('snakeEnabled');
   G.snake={ enabled: !!(snakeBox && snakeBox.checked), holder:null, history:[] };
   const aaBox=document.getElementById('autoAdvanceEnabled');
-  G.autoAdvance = aaBox ? !aaBox.checked : true;
+  G.autoAdvance = aaBox ? aaBox.value==='1' : false;
+  // Persist preference for next round
+  try{ localStorage.setItem('nassau_pref_autoAdvance', G.autoAdvance ? '1' : '0'); }catch(_){}
   const snakeBetEl=document.getElementById('snakeBetAmt');
   if(G.snake) G.snake.bet=snakeBetEl?parseFloat(snakeBetEl.value)||5:5;
   if(G.snake) G.snake.settlements=[];
@@ -2522,7 +2619,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v43.7</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v44.8</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2649,7 +2746,7 @@ function renderCard(){
     if(allIn && playOrderIdx(G.hole)<17){
       html+='<button onclick="confirmNextHole()" style="width:100%;padding:14px;'
         +'margin-bottom:8px;background:#c9a84c;color:#1a3a2a;font-size:16px;'
-        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">Next Hole &#8594;</button>';
+        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">'+(G.autoAdvance?'Next Hole &#8594;':'&#10003; Confirm &amp; Next Hole &#8594;')+'</button>';
     }
   }
 
@@ -2748,7 +2845,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v43.7</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v44.8</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -2782,7 +2879,11 @@ function renderSnakePanel(){
   }
   const stretchStart=curStretch.length?curStretch[0]+1:1;
   const stretchEnd=curStretch.length?curStretch[curStretch.length-1]+1:3;
-  return '<div style="background:#1a1a2e;border-radius:8px;padding:6px 10px;margin-bottom:6px;display:flex;align-items:center;gap:8px">'
+  const needsAttention = !thisHoleVal;
+  const pulseStyle = needsAttention
+    ? 'animation:pulse-snake 1.8s ease-in-out infinite;border:1.5px solid rgba(108,52,131,.9);box-shadow:0 0 0 2px rgba(108,52,131,.7)'
+    : 'border:1.5px solid #6c3483';
+  return '<div style="background:#1a1a2e;border-radius:8px;padding:6px 10px;margin-bottom:6px;display:flex;align-items:center;gap:8px;'+pulseStyle+'">'
     +'<span style="font-size:13px;flex-shrink:0">🐍</span>'
     +'<span style="font-size:11px;color:#aaa;flex-shrink:0;white-space:nowrap">H'+(h+1)+' 3-putt:</span>'
     +'<select style="flex:1;min-width:0;padding:5px 8px;border-radius:6px;border:1.5px solid #6c3483;background:#2a2a3e;color:#fff;font-size:13px;font-weight:600" onchange="setSnakeHolder(this.value,'+h+')">'+opts+'</select>'
@@ -3300,7 +3401,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v43.7</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v44.8</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3462,7 +3563,7 @@ function renderMasterScorecard(){
     if(allIn && playOrderIdx(G.hole)<17){
       html+='<button onclick="confirmNextHole()" style="width:100%;padding:14px;'
         +'margin-bottom:8px;background:#c9a84c;color:#1a3a2a;font-size:16px;'
-        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">Next Hole &#8594;</button>';
+        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">'+(G.autoAdvance?'Next Hole &#8594;':'&#10003; Confirm &amp; Next Hole &#8594;')+'</button>';
     }
   }
 
@@ -3490,7 +3591,7 @@ function renderMasterScorecard(){
     if(allIn && playOrderIdx(G.hole)<17){
       html+='<button onclick="confirmNextHole()" style="width:100%;padding:14px;'
         +'margin-bottom:8px;background:#c9a84c;color:#1a3a2a;font-size:16px;'
-        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">Next Hole &#8594;</button>';
+        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">'+(G.autoAdvance?'Next Hole &#8594;':'&#10003; Confirm &amp; Next Hole &#8594;')+'</button>';
     }
   }
 
@@ -3532,7 +3633,7 @@ function netRow(){
     if(allIn && playOrderIdx(G.hole)<17){
       html+='<button onclick="confirmNextHole()" style="width:100%;padding:14px;'
         +'margin-bottom:8px;background:#c9a84c;color:#1a3a2a;font-size:16px;'
-        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">Next Hole &#8594;</button>';
+        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">'+(G.autoAdvance?'Next Hole &#8594;':'&#10003; Confirm &amp; Next Hole &#8594;')+'</button>';
     }
   }
 
@@ -3559,7 +3660,7 @@ function netRow(){
     if(allIn && playOrderIdx(G.hole)<17){
       html+='<button onclick="confirmNextHole()" style="width:100%;padding:14px;'
         +'margin-bottom:8px;background:#c9a84c;color:#1a3a2a;font-size:16px;'
-        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">Next Hole &#8594;</button>';
+        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">'+(G.autoAdvance?'Next Hole &#8594;':'&#10003; Confirm &amp; Next Hole &#8594;')+'</button>';
     }
   }
 
@@ -3920,7 +4021,7 @@ function renderVerticalScorecard(){
     if(allIn && playOrderIdx(G.hole)<17){
       html+='<button onclick="confirmNextHole()" style="width:100%;padding:14px;'
         +'margin-bottom:8px;background:#c9a84c;color:#1a3a2a;font-size:16px;'
-        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">Next Hole &#8594;</button>';
+        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">'+(G.autoAdvance?'Next Hole &#8594;':'&#10003; Confirm &amp; Next Hole &#8594;')+'</button>';
     }
   }
 
@@ -3955,7 +4056,7 @@ function renderVerticalScorecard(){
     if(allIn && playOrderIdx(G.hole)<17){
       html+='<button onclick="confirmNextHole()" style="width:100%;padding:14px;'
         +'margin-bottom:8px;background:#c9a84c;color:#1a3a2a;font-size:16px;'
-        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">Next Hole &#8594;</button>';
+        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">'+(G.autoAdvance?'Next Hole &#8594;':'&#10003; Confirm &amp; Next Hole &#8594;')+'</button>';
     }
   }
 
@@ -3985,7 +4086,7 @@ function renderVerticalScorecard(){
     if(allIn && playOrderIdx(G.hole)<17){
       html+='<button onclick="confirmNextHole()" style="width:100%;padding:14px;'
         +'margin-bottom:8px;background:#c9a84c;color:#1a3a2a;font-size:16px;'
-        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">Next Hole &#8594;</button>';
+        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">'+(G.autoAdvance?'Next Hole &#8594;':'&#10003; Confirm &amp; Next Hole &#8594;')+'</button>';
     }
   }
 
@@ -4013,7 +4114,7 @@ function renderVerticalScorecard(){
     if(allIn && playOrderIdx(G.hole)<17){
       html+='<button onclick="confirmNextHole()" style="width:100%;padding:14px;'
         +'margin-bottom:8px;background:#c9a84c;color:#1a3a2a;font-size:16px;'
-        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">Next Hole &#8594;</button>';
+        +'font-weight:800;border:none;border-radius:12px;cursor:pointer">'+(G.autoAdvance?'Next Hole &#8594;':'&#10003; Confirm &amp; Next Hole &#8594;')+'</button>';
     }
   }
 
@@ -4485,7 +4586,7 @@ function saveAndEndRound(){
   document.getElementById('screen-setup').classList.add('active');
   document.getElementById('cntVal').textContent=G.n;
   document.getElementById('startHoleSel').value='1';
-  const soBox=document.getElementById('scorecardOnly'); if(soBox){ soBox.checked=false; toggleScorecardOnly(); }
+  setScorecardMode(false);
   renderPlayers();
   renderAllPairOptions();
 }
@@ -4515,6 +4616,7 @@ function abandonRound(){
   G.firstScoreAt=null;
   showS('setup');
   renderSetup();
+  initAdvanceMode();
 }
 
 function confirmNewRound(){
@@ -4561,7 +4663,7 @@ function confirmNewRound(){
   // Reset setup UI: player count, name/handicap fields, and game selections
   document.getElementById('cntVal').textContent=G.n;
   document.getElementById('startHoleSel').value='1';
-  const soBox=document.getElementById('scorecardOnly'); if(soBox){ soBox.checked=false; toggleScorecardOnly(); }
+  setScorecardMode(false);
   renderPlayers();
   renderAllPairOptions();
   renderSinglesOptions();
@@ -5042,7 +5144,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v43.7</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v44.8</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -5152,7 +5254,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v43.7</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v44.8</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -5274,7 +5376,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v43.7</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v44.8</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5382,7 +5484,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v43.7');
+  lines.push('— Nassau Golf · Derrick GWC · v44.8');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -5637,7 +5739,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v43.7 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v44.8 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -6023,15 +6125,25 @@ function openMatchManager(){
         <div class="mm-title">Round, Match &amp; Player Settings</div>
         <button class="mm-close" onclick="closeMatchManager()">Done</button>
       </div>
-      <div style="background:#1a2a1a;border:1.5px solid rgba(168,213,181,.3);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
-        <div>
-          <div style="font-size:13px;font-weight:700;color:#a8d5b5">⚡ Auto-Advance Scoring</div>
-          <div style="font-size:10px;color:#888;margin-top:2px">Auto move to next hole when all scores entered</div>
+      <div onclick="var s=this.nextElementSibling;s.style.display=s.style.display==='none'?'block':'none';this.querySelector('.mmc').textContent=s.style.display==='none'?'▶':'▼'"
+        style="display:flex;align-items:center;justify-content:space-between;background:#1a2a1a;border:1.5px solid rgba(168,213,181,.3);border-radius:8px;padding:10px 14px;margin-bottom:4px;cursor:pointer">
+        <span style="font-size:13px;font-weight:700;color:#a8d5b5">⚡ Auto-Advance or Confirm Scores?</span><span class="mmc" style="color:#a8d5b5;font-size:12px">▶</span>
+      </div>
+      <div style="display:none;margin-bottom:8px">
+        <div style="background:#1a2a1a;border:1.5px solid rgba(168,213,181,.3);border-radius:0 0 10px 10px;padding:12px 14px">
+          <div style="font-size:10px;color:#a8d5b5;margin-bottom:10px;line-height:1.4">Auto-advance moves to next hole when all scores entered. Confirm lets you review first.</div>
+          <div style="display:flex;background:rgba(0,0,0,.35);border-radius:8px;padding:3px;gap:3px">
+            <button id="mmSegAuto" onclick="mmSetAdvanceMode(true)"
+              style="flex:1;padding:8px 4px;border:none;border-radius:6px;font-size:11px;font-weight:800;cursor:pointer;transition:all .15s;background:${G.autoAdvance!==false?'var(--gp)':'transparent'};color:${G.autoAdvance!==false?'var(--gd)':'rgba(255,255,255,.4)'};box-shadow:${G.autoAdvance!==false?'0 2px 4px rgba(0,0,0,.3)':'none'}">
+              ${G.autoAdvance!==false?'✓ AUTO-ADVANCE':'AUTO-ADVANCE'}
+            </button>
+            <button id="mmSegConfirm" onclick="mmSetAdvanceMode(false)"
+              style="flex:1;padding:8px 4px;border:none;border-radius:6px;font-size:11px;font-weight:800;cursor:pointer;transition:all .15s;background:${G.autoAdvance===false?'#c9a84c':'transparent'};color:${G.autoAdvance===false?'#1a3a2a':'rgba(255,255,255,.4)'};box-shadow:${G.autoAdvance===false?'0 2px 4px rgba(0,0,0,.3)':'none'}">
+              ${G.autoAdvance===false?'✓ CONFIRM SCORES':'CONFIRM SCORES'}
+            </button>
+          </div>
         </div>
-        <button id="mmAutoBtn" onclick="G.autoAdvance=!G.autoAdvance;saveG();this.textContent=G.autoAdvance?'ON':'OFF';this.style.background=G.autoAdvance?'#52b788':'#555';"
-          style="background:${G.autoAdvance!==false?'#52b788':'#555'};color:#fff;border:none;border-radius:8px;padding:6px 16px;font-size:13px;font-weight:800;cursor:pointer;min-width:52px">
-          ${G.autoAdvance!==false?'ON':'OFF'}
-        </button>
+        <button onclick="this.parentElement.style.display='none';this.parentElement.previousElementSibling.querySelector('.mmc').textContent='▶'" style="width:100%;margin-top:6px;padding:6px;background:rgba(255,255,255,.06);border:none;border-radius:6px;color:#888;font-size:11px;cursor:pointer">▲ Collapse</button>
       </div>
       <div onclick="var s=this.nextElementSibling;s.style.display=s.style.display==='none'?'block':'none';this.querySelector('.mmc').textContent=s.style.display==='none'?'▶':'▼'"
         style="display:flex;align-items:center;justify-content:space-between;background:#1a1a2e;border:1.5px solid rgba(201,168,76,.3);border-radius:8px;padding:10px 14px;margin-bottom:4px;cursor:pointer">
@@ -6877,12 +6989,12 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v43.7';
+const CURRENT_VERSION = 'nassau-v44.8';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
-  'v43.7 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
+  'v44.8 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
   'v31.9 — Weather: rain history using correct 24hr chunks and archive interval summation',
-  'v43.7 — Removed rain history feature (WeatherLink historic API not supported)',
+  'v44.8 — Removed rain history feature (WeatherLink historic API not supported)',
   'v31.3 — Fixed: stray backslash before SW template literal closing backtick',
   'v31.2 — Fixed: renderSingles undefined error on setup screen',
   'v31.1 — Weather: 7-day rain total added alongside 24hr in setup rain widget (one API call)',
@@ -7130,7 +7242,9 @@ setInterval(checkForUpdate,90000);
     applyScorecardOnlyNav();
     document.getElementById('badge').textContent='HOLE '+(G.hole+1);
     document.getElementById('cntVal').textContent=G.n;
-    const aaBox=document.getElementById('autoAdvanceEnabled'); if(aaBox) aaBox.checked=!G.autoAdvance;
+    const aaBox=document.getElementById('autoAdvanceEnabled'); if(aaBox) aaBox.value=G.autoAdvance?'1':'0';
+    setAdvanceMode(!!G.autoAdvance);
+    setScorecardMode(!!G.scorecardOnly);
     showS('score'); renderCard();
     updateBirdieJuiceBadge();
     updateInternationalBadge();
@@ -7143,6 +7257,8 @@ setInterval(checkForUpdate,90000);
   } else {
     // Fresh launch on the setup screen — pre-fill the player rows from favorites.
     autofillFavorites(true);
+    // Restore autoAdvance preference
+    initAdvanceMode();
   }
 })();
 
@@ -7161,7 +7277,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode=`
-const CACHE='nassau-v43.7';
+const CACHE='nassau-v44.8';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
