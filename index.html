@@ -147,12 +147,12 @@ input::placeholder{color:#bbb}
 .sbody{padding:6px 10px;padding-bottom:130px}
 
 /* ── PLAYER SCORE CARD ── */
-.pcard{background:#fff;border-radius:10px;margin-bottom:6px;overflow:hidden;box-shadow:var(--shadow);border:2px solid transparent;transition:border-color .2s}
-.pcard-scored{border-color:var(--gold)}
-.pcard-hdr{display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:var(--gd)}
+.pcard{background:#fff;border-radius:10px;margin-bottom:6px;overflow:hidden;box-shadow:var(--shadow);border:2px solid rgba(201,168,76,.35);transition:border-color .2s,box-shadow .2s}
+.pcard-scored{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,168,76,.15),var(--shadow)}
+.pcard-hdr{display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:linear-gradient(135deg,var(--gd) 0%,var(--gm) 100%)}
 .pcard-name{font-size:14px;font-weight:700;color:#fff}
 .pcard-hdcp{font-size:10px;color:var(--gl)}
-.pcard-mon{font-size:13px;font-weight:700}
+.pcard-mon{font-size:12px;font-weight:800;padding:2px 8px;border-radius:10px;background:rgba(0,0,0,.25);white-space:nowrap}
 .pcard-body{padding:5px 10px 6px}
 
 /* ── SCROLL WHEEL SCORE ── */
@@ -169,10 +169,10 @@ input::placeholder{color:#bbb}
 
 /* Horizontal score wheel: ◀ [score] ▶ */
 .scroll-wheel{display:flex;flex-direction:row;align-items:center;gap:4px;flex-shrink:0;user-select:none;-webkit-user-select:none}
-.sw-btn{width:36px;height:44px;background:var(--gp);border:none;border-radius:8px;font-size:20px;font-weight:700;color:var(--gm);cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:background .1s}
-.sw-btn:active{background:var(--gm);color:#fff}
+.sw-btn{width:36px;height:44px;background:linear-gradient(180deg,#e8f8ee 0%,var(--gp) 50%,#b8e0c4 100%);border:none;border-top:1.5px solid rgba(255,255,255,.8);border-bottom:2.5px solid rgba(0,0,0,.18);border-radius:8px;font-size:20px;font-weight:700;color:var(--gm);cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:all .1s;box-shadow:0 3px 6px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.6)}
+.sw-btn:active{background:linear-gradient(180deg,#b8e0c4 0%,var(--gp) 100%);box-shadow:0 1px 2px rgba(0,0,0,.2),inset 0 2px 4px rgba(0,0,0,.15);border-top:1.5px solid rgba(0,0,0,.1);border-bottom:1px solid rgba(0,0,0,.1);transform:translateY(1px);color:var(--gd)}
 .sw-score{width:60px;height:44px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;position:relative;-webkit-tap-highlight-color:transparent}
-.sw-unset{background:#f5f2ec;border:2px dashed #ccc}
+.sw-unset{background:#ece8e0;border:2px solid #c0bab0;box-shadow:inset 0 2px 5px rgba(0,0,0,.15),inset 0 1px 2px rgba(0,0,0,.1)}
 .sw-unset:active{background:#eae6df;border-color:#aaa}
 .sw-num-par-hint{font-size:22px;font-weight:700;color:#bbb;line-height:1}
 .sw-lbl-hint{font-size:8.5px;font-weight:600;color:#bbb;text-transform:uppercase;letter-spacing:.5px;margin-top:2px;text-align:center;line-height:1.1}
@@ -188,9 +188,9 @@ input::placeholder{color:#bbb}
 .sw-label{font-size:8px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:1px}
 .sw-label.par-lbl,.drum-side-num.par-lbl{color:var(--gm)}
 .sw-label.birdie-lbl,.drum-side-num.birdie-lbl{color:#2e7d32}
-.sw-label.eagle-lbl,.drum-side-num.eagle-lbl{color:#1b5e20}
+.sw-label.eagle-lbl,.drum-side-num.eagle-lbl{color:#b8860b;font-weight:800}
 .sw-label.bogey-lbl,.drum-side-num.bogey-lbl{color:var(--red)}
-.sw-label.double-lbl,.drum-side-num.double-lbl{color:#b71c1c}
+.sw-label.double-lbl,.drum-side-num.double-lbl{color:#8b0000;font-weight:800}
 .sw-label.triple-lbl,.drum-side-num.triple-lbl{color:#880e4f}
 .sw-label.other-lbl{color:var(--inkl)}
 
@@ -602,7 +602,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v40.1
+    Nassau Golf · Derrick GWC · v40.8
   </div>
 </div>
 </div>
@@ -621,7 +621,7 @@ input::placeholder{color:#bbb}
     <button class="manage-matches-btn" id="manageBtn" onclick="openMatchManager()">⚙️ Round, Match &amp; Player Settings</button>
   </div>
   <div id="holeErr" onclick="openMatchManager()" style="display:none;background:#e74c3c;color:#fff;text-align:center;font-size:13px;font-weight:700;padding:8px 12px;margin:0 10px 6px;border-radius:8px;cursor:pointer"></div>
-  <div id="wxStrip" onclick="onWeatherStripTap()" style="display:none;margin:0 10px 6px;padding:7px 12px;background:rgba(255,255,255,.08);border-radius:8px;font-size:12px;font-weight:600;color:#dce8e0;text-align:center;cursor:pointer">…</div>
+  <div id="wxStrip" onclick="onWeatherStripTap()" style="display:none;margin:0 10px 6px;padding:7px 12px;background:var(--gm);border-radius:8px;font-size:12px;font-weight:600;color:#dce8e0;text-align:center;cursor:pointer">…</div>
   <div class="sbody" id="sbody"></div>
 </div>
 
@@ -685,7 +685,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v40.1</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v40.8</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2510,7 +2510,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v40.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v40.8</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2713,7 +2713,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v40.1</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v40.8</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3265,7 +3265,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v40.1</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v40.8</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4916,7 +4916,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v40.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v40.8</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -5026,7 +5026,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v40.1</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v40.8</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -5148,7 +5148,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v40.1</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v40.8</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5256,7 +5256,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v40.1');
+  lines.push('— Nassau Golf · Derrick GWC · v40.8');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -5511,7 +5511,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v40.1 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v40.8 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -6751,12 +6751,12 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v40.1';
+const CURRENT_VERSION = 'nassau-v40.8';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
-  'v40.1 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
+  'v40.8 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
   'v31.9 — Weather: rain history using correct 24hr chunks and archive interval summation',
-  'v40.1 — Removed rain history feature (WeatherLink historic API not supported)',
+  'v40.8 — Removed rain history feature (WeatherLink historic API not supported)',
   'v31.3 — Fixed: stray backslash before SW template literal closing backtick',
   'v31.2 — Fixed: renderSingles undefined error on setup screen',
   'v31.1 — Weather: 7-day rain total added alongside 24hr in setup rain widget (one API call)',
@@ -7034,7 +7034,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode=`
-const CACHE='nassau-v40.1';
+const CACHE='nassau-v40.8';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
