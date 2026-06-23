@@ -608,7 +608,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v42.3
+    Nassau Golf · Derrick GWC · v42.5
   </div>
 </div>
 </div>
@@ -690,7 +690,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v42.3</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v42.5</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2518,7 +2518,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v42.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v42.5</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2647,14 +2647,14 @@ function renderCard(){
     const monCls=money[pi]>0?'color:var(--gl)':money[pi]<0?'color:#e74c3c':'color:var(--gold)';
 
     html+=`<div class="pcard${gross!==null?' pcard-scored':''}">
-      <div class="pcard-hdr" style="display:flex;align-items:center;gap:6px;flex-wrap:nowrap;min-width:0">
-        <div class="pcard-mon" style="white-space:nowrap;flex-shrink:0;min-width:48px;text-align:right;${monCls}">${fmt(money[pi])}</div>
+      <div class="pcard-hdr" style="display:flex;align-items:center;gap:4px;flex-wrap:nowrap;min-width:0">
+        <div class="pcard-mon" style="white-space:nowrap;flex-shrink:0;min-width:44px;text-align:right;${monCls}">${fmt(money[pi])}</div>
         <div class="pcard-name" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</div>
-        <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;white-space:nowrap">
-          <span style="font-size:11px;font-weight:700;color:#fff">${p.idx.toFixed ? p.idx.toFixed(1) : p.idx}</span>
-          <div style="width:20px;text-align:center;flex-shrink:0">${p.golfId ? `<img src="${GC_LOGO}" style="height:14px;width:auto;vertical-align:middle">` : `<span style="font-size:9px;font-weight:700;color:#52b788">GC</span>`}</div>
+        <div style="display:flex;align-items:center;gap:3px;flex-shrink:0;white-space:nowrap">
+          <span style="font-size:11px;font-weight:700;color:#fff;min-width:32px;text-align:right">${p.idx.toFixed ? p.idx.toFixed(1) : p.idx}</span>
+          <div style="width:20px;flex-shrink:0;text-align:center">${p.golfId ? `<img src="${GC_LOGO}" style="height:14px;width:20px;object-fit:contain;vertical-align:middle">` : `<span style="font-size:9px;font-weight:700;color:#52b788;display:inline-block;width:20px;text-align:center">GC</span>`}</div>
           <span style="font-size:9px;font-weight:600;color:rgba(255,255,255,.5);letter-spacing:.3px">FROM</span>
-          <div style="font-size:11px;font-weight:700;color:var(--gold);white-space:nowrap;min-width:58px;text-align:left">${p.deck||'DECK2'}</div>
+          <div style="font-size:11px;font-weight:700;color:var(--gold);white-space:nowrap;min-width:56px">${p.deck||'DECK2'}</div>
         </div>
       </div>
       <div class="pcard-body">
@@ -2722,7 +2722,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v42.3</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v42.5</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3274,7 +3274,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v42.3</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v42.5</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4925,7 +4925,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v42.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v42.5</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -5035,7 +5035,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v42.3</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v42.5</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -5157,7 +5157,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v42.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v42.5</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5265,7 +5265,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v42.3');
+  lines.push('— Nassau Golf · Derrick GWC · v42.5');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -5520,7 +5520,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v42.3 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v42.5 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -6760,12 +6760,12 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v42.3';
+const CURRENT_VERSION = 'nassau-v42.5';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
-  'v42.3 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
+  'v42.5 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
   'v31.9 — Weather: rain history using correct 24hr chunks and archive interval summation',
-  'v42.3 — Removed rain history feature (WeatherLink historic API not supported)',
+  'v42.5 — Removed rain history feature (WeatherLink historic API not supported)',
   'v31.3 — Fixed: stray backslash before SW template literal closing backtick',
   'v31.2 — Fixed: renderSingles undefined error on setup screen',
   'v31.1 — Weather: 7-day rain total added alongside 24hr in setup rain widget (one API call)',
@@ -7043,7 +7043,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode=`
-const CACHE='nassau-v42.3';
+const CACHE='nassau-v42.5';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
