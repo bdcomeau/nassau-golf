@@ -608,7 +608,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v42.6
+    Nassau Golf · Derrick GWC · v42.8
   </div>
 </div>
 </div>
@@ -690,7 +690,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v42.6</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v42.8</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2518,7 +2518,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v42.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v42.8</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2722,7 +2722,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v42.6</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v42.8</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3274,7 +3274,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v42.6</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v42.8</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4272,9 +4272,32 @@ function newRound(){
     body='Your round is complete and will be saved to History before starting the new one.';
     confirmLabel='Save & Start New Round'; confirmStyle='background:#2d6a4f;color:#fff';
   } else if(inProgress){
-    icon='⚠️'; title='Round in Progress';
-    body='You still have holes to score. Are you sure you want to abandon this round and start fresh?';
-    confirmLabel='Abandon & Start New'; confirmStyle='background:var(--red);color:#fff';
+    // Count scored holes
+    const scoredHoles = G.par.filter((_,h) => G.players.every((_,pi) => G.scores[pi] && G.scores[pi][h] !== null)).length;
+    // Show two-path dialog inline
+    overlay.innerHTML=`
+      <div style="background:#fff;border-radius:14px;padding:20px;max-width:320px;text-align:center">
+        <div style="font-size:28px;margin-bottom:6px">⛳</div>
+        <div style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:6px">End Round Early?</div>
+        <div style="font-size:13px;color:#888;margin-bottom:16px">You've completed ${scoredHoles} of 18 holes.</div>
+        <button onclick="saveAndEndRound()" style="width:100%;padding:12px;background:#2d6a4f;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:8px">🌧️ Save &amp; End Round</button>
+        <div style="font-size:11px;color:#888;margin-bottom:14px">Saves ${scoredHoles} holes to History — use this if you were rained out or called off.</div>
+        <div id="holdLabel2" style="font-size:12px;color:#c0392b;font-weight:700;margin-bottom:6px">Hold 2 seconds to abandon</div>
+        <div style="background:#eee;border-radius:6px;height:5px;margin-bottom:10px;overflow:hidden">
+          <div id="holdBar2" style="background:#c0392b;height:100%;width:0%;border-radius:6px"></div>
+        </div>
+        <button id="holdBtn2"
+          style="width:100%;padding:12px;background:#c0392b;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:none;margin-bottom:8px"
+          onmousedown="startHoldConfirm2()" ontouchstart="startHoldConfirm2()" onpointerdown="startHoldConfirm2()"
+          onmouseup="cancelHoldConfirm2()" ontouchend="cancelHoldConfirm2()" onpointerup="cancelHoldConfirm2()"
+          onmouseleave="cancelHoldConfirm2()" onpointercancel="cancelHoldConfirm2()"
+        >🗑️ Hold to Abandon Round</button>
+        <div style="font-size:11px;color:#888;margin-bottom:14px">Discards the round entirely. No record saved.</div>
+        <button class="export-overlay-btn close" style="width:100%" onclick="document.getElementById('newRoundConfirm').remove()">Cancel</button>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+    return;
   } else {
     icon='🔄'; title='New Round?';
     body='This will reset the current setup and start fresh.';
@@ -4363,7 +4386,7 @@ function startHoldConfirm2(){
       clearInterval(_holdInterval2); _holdInterval2=null;
       if(label) label.textContent='Abandoning...';
       if(btn){ btn.style.background='#888'; btn.disabled=true; }
-      setTimeout(()=>{ document.getElementById('newRoundConfirm')&&document.getElementById('newRoundConfirm').remove(); confirmNewRound(); },200);
+      setTimeout(()=>{ document.getElementById('newRoundConfirm')&&document.getElementById('newRoundConfirm').remove(); abandonRound(); },200);
     }
   },30);
 }
@@ -4406,6 +4429,36 @@ function cancelHoldConfirm(){
 
 function initSwipeConfirm(){
   // No-op — replaced by hold-to-confirm
+}
+
+function saveAndEndRound(){
+  const overlay=document.getElementById('newRoundConfirm');
+  if(overlay) overlay.remove();
+  G.roundEnd = new Date().toISOString();
+  saveG();
+  confirmNewRound();
+}
+
+function abandonRound(){
+  // Write emergency backup so the restore prompt can offer recovery
+  try{
+    const _eb=JSON.parse(localStorage.getItem('nassau_G')||'null');
+    if(_eb) localStorage.setItem('nassau_emergency_backup',JSON.stringify({savedAt:Date.now(),G:_eb}));
+  }catch(_){}
+  // Discard the round — do NOT save to history, just reset
+  localStorage.removeItem('nassau_G');
+  G.n=4; G.players=[]; G.par=[]; G.si=[];
+  G.teamGames=[]; G.singleGames=[]; G.sixPointGames=[];
+  G.birdieJuice={earned:[],redeemed:0};
+  G.scores=[]; G.hole=0; G.roundDate=null; G.roundEnd=null;
+  G.weatherStart=null; G.weatherEnd=null;
+  G.internationals={}; G.scorecardOnly=false;
+  G.startHole=1;
+  G.snake={enabled:false,holder:null,history:[],bet:5,settlements:[],participants:[]};
+  G.autoAdvance=true;
+  G.firstScoreAt=null;
+  showS('setup');
+  renderSetup();
 }
 
 function confirmNewRound(){
@@ -4924,7 +4977,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v42.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v42.8</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -5034,7 +5087,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v42.6</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v42.8</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -5156,7 +5209,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v42.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v42.8</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5264,7 +5317,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v42.6');
+  lines.push('— Nassau Golf · Derrick GWC · v42.8');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -5519,7 +5572,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 ${wxLine?`<div style="margin-top:12px;padding:8px 10px;background:#e8f4f8;border-radius:6px;font-size:11px;color:#234">🌦️ ${wxLine}</div>`:''}
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v42.6 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v42.8 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -6759,12 +6812,12 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v42.6';
+const CURRENT_VERSION = 'nassau-v42.8';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
-  'v42.6 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
+  'v42.8 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
   'v31.9 — Weather: rain history using correct 24hr chunks and archive interval summation',
-  'v42.6 — Removed rain history feature (WeatherLink historic API not supported)',
+  'v42.8 — Removed rain history feature (WeatherLink historic API not supported)',
   'v31.3 — Fixed: stray backslash before SW template literal closing backtick',
   'v31.2 — Fixed: renderSingles undefined error on setup screen',
   'v31.1 — Weather: 7-day rain total added alongside 24hr in setup rain widget (one API call)',
@@ -7042,7 +7095,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode=`
-const CACHE='nassau-v42.6';
+const CACHE='nassau-v42.8';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
