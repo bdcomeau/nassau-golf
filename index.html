@@ -637,7 +637,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v46.6
+    Nassau Golf · Derrick GWC · v46.7
   </div>
 </div>
 </div>
@@ -719,7 +719,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v46.6</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v46.7</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -788,9 +788,7 @@ function saveG(){
   // wait for the player to confirm via the snake panel before saving.
   try{
     if(isRoundComplete() && !isCurrentRoundSaved()){
-      const snakePending = G.snake && G.snake.enabled && !G.snake.h18confirmed &&
-        !G.snake.history.find(e => e.hole === actualHoleIdx(17));
-      if(!snakePending) saveRoundToHistory();
+      saveRoundToHistory();
     }
   }catch(e){}
 }
@@ -2431,13 +2429,6 @@ function maybeAutoAdvance(){
   const curPlay = playOrderIdx(G.hole);
   const allScored = !G.players.some((_,pi)=>G.scores[pi][G.hole]===null);
 
-  // On hole 18 with snake active — prompt to confirm snake before saving
-  if(curPlay >= 17 && allScored && G.snake && G.snake.enabled && !G.snake.h18confirmed &&
-     !G.snake.history.find(e => e.hole === actualHoleIdx(17))){
-    renderCard(); // re-render to show snake panel + confirm button
-    return;
-  }
-
   if(curPlay >= 17) return;
   if(!allScored) return;
   clearTimeout(maybeAutoAdvance._t);
@@ -2639,7 +2630,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v46.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v46.7</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2753,11 +2744,7 @@ function renderCard(){
     // No internationals called — show nothing
   }
 
-  // Save Round button — suppressed if snake hole 18 not yet assigned
-  const _snakePending = G.snake && G.snake.enabled && !G.snake.h18confirmed &&
-    isRoundComplete() && G.scores && G.scores.length > 0 &&
-    !G.snake.history.find(e => e.hole === actualHoleIdx(17));
-  if(isRoundComplete() && !isCurrentRoundSaved() && !_snakePending){
+  if(isRoundComplete() && !isCurrentRoundSaved()){
     html += `<button class="save-round-btn" onclick="manualSaveRound()">💾 Save Round</button>`;
   } else if(isCurrentRoundSaved()){
     html += `<div class="save-round-done">✓ Round saved to History</div>`;
@@ -2775,14 +2762,7 @@ function renderCard(){
 
   // ── Snake 3-Putt panel ──
   if(G.snake && G.snake.enabled){
-    const _h18assigned = G.snake.h18confirmed || G.snake.history.find(e => e.hole === actualHoleIdx(17));
-    const _roundDone = isRoundComplete();
-    if(_roundDone && !_h18assigned){
-      html += renderSnakePanel();
-      html += `<button onclick="confirmSnakeAndFinish()" style="width:100%;padding:14px;margin-top:6px;background:#6c3483;color:#fff;font-size:15px;font-weight:800;border:none;border-radius:12px;cursor:pointer">🐍 Confirm Snake &amp; Finish Round</button>`;
-    } else {
-      html += _roundDone ? renderSnakeResult() : renderSnakePanel();
-    }
+    html += renderSnakePanel();
   }
 
   G.players.forEach((p,pi)=>{
@@ -2875,7 +2855,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v46.6</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v46.7</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3426,11 +3406,7 @@ function renderBets(){
   const money=computeMoney();
   let html='<div style="padding:12px 16px;padding-bottom:170px">';
 
-  // Save Round button — suppressed if snake hole 18 not yet assigned
-  const _snakePending = G.snake && G.snake.enabled && !G.snake.h18confirmed &&
-    isRoundComplete() && G.scores && G.scores.length > 0 &&
-    !G.snake.history.find(e => e.hole === actualHoleIdx(17));
-  if(isRoundComplete() && !isCurrentRoundSaved() && !_snakePending){
+  if(isRoundComplete() && !isCurrentRoundSaved()){
     html += `<button class="save-round-btn" onclick="manualSaveRound()">💾 Save Round</button>`;
   } else if(isCurrentRoundSaved()){
     html += `<div class="save-round-done">✓ Round saved to History</div>`;
@@ -3443,7 +3419,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v46.6</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v46.7</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3611,14 +3587,7 @@ function renderMasterScorecard(){
 
   // ── Snake 3-Putt panel ──
   if(G.snake && G.snake.enabled){
-    const _h18assigned = G.snake.h18confirmed || G.snake.history.find(e => e.hole === actualHoleIdx(17));
-    const _roundDone = isRoundComplete();
-    if(_roundDone && !_h18assigned){
-      html += renderSnakePanel();
-      html += `<button onclick="confirmSnakeAndFinish()" style="width:100%;padding:14px;margin-top:6px;background:#6c3483;color:#fff;font-size:15px;font-weight:800;border:none;border-radius:12px;cursor:pointer">🐍 Confirm Snake &amp; Finish Round</button>`;
-    } else {
-      html += _roundDone ? renderSnakeResult() : renderSnakePanel();
-    }
+    html += renderSnakePanel();
   }
 
   G.players.forEach((p,pi)=>{
@@ -3646,14 +3615,7 @@ function renderMasterScorecard(){
 
   // ── Snake 3-Putt panel ──
   if(G.snake && G.snake.enabled){
-    const _h18assigned = G.snake.h18confirmed || G.snake.history.find(e => e.hole === actualHoleIdx(17));
-    const _roundDone = isRoundComplete();
-    if(_roundDone && !_h18assigned){
-      html += renderSnakePanel();
-      html += `<button onclick="confirmSnakeAndFinish()" style="width:100%;padding:14px;margin-top:6px;background:#6c3483;color:#fff;font-size:15px;font-weight:800;border:none;border-radius:12px;cursor:pointer">🐍 Confirm Snake &amp; Finish Round</button>`;
-    } else {
-      html += _roundDone ? renderSnakeResult() : renderSnakePanel();
-    }
+    html += renderSnakePanel();
   }
 
   G.players.forEach((p,pi)=>{
@@ -3695,14 +3657,7 @@ function netRow(){
 
   // ── Snake 3-Putt panel ──
   if(G.snake && G.snake.enabled){
-    const _h18assigned = G.snake.h18confirmed || G.snake.history.find(e => e.hole === actualHoleIdx(17));
-    const _roundDone = isRoundComplete();
-    if(_roundDone && !_h18assigned){
-      html += renderSnakePanel();
-      html += `<button onclick="confirmSnakeAndFinish()" style="width:100%;padding:14px;margin-top:6px;background:#6c3483;color:#fff;font-size:15px;font-weight:800;border:none;border-radius:12px;cursor:pointer">🐍 Confirm Snake &amp; Finish Round</button>`;
-    } else {
-      html += _roundDone ? renderSnakeResult() : renderSnakePanel();
-    }
+    html += renderSnakePanel();
   }
 
   G.players.forEach((p,pi)=>{
@@ -3729,14 +3684,7 @@ function netRow(){
 
   // ── Snake 3-Putt panel ──
   if(G.snake && G.snake.enabled){
-    const _h18assigned = G.snake.h18confirmed || G.snake.history.find(e => e.hole === actualHoleIdx(17));
-    const _roundDone = isRoundComplete();
-    if(_roundDone && !_h18assigned){
-      html += renderSnakePanel();
-      html += `<button onclick="confirmSnakeAndFinish()" style="width:100%;padding:14px;margin-top:6px;background:#6c3483;color:#fff;font-size:15px;font-weight:800;border:none;border-radius:12px;cursor:pointer">🐍 Confirm Snake &amp; Finish Round</button>`;
-    } else {
-      html += _roundDone ? renderSnakeResult() : renderSnakePanel();
-    }
+    html += renderSnakePanel();
   }
 
   G.players.forEach((p,pi)=>{
@@ -4097,14 +4045,7 @@ function renderVerticalScorecard(){
 
   // ── Snake 3-Putt panel ──
   if(G.snake && G.snake.enabled){
-    const _h18assigned = G.snake.h18confirmed || G.snake.history.find(e => e.hole === actualHoleIdx(17));
-    const _roundDone = isRoundComplete();
-    if(_roundDone && !_h18assigned){
-      html += renderSnakePanel();
-      html += `<button onclick="confirmSnakeAndFinish()" style="width:100%;padding:14px;margin-top:6px;background:#6c3483;color:#fff;font-size:15px;font-weight:800;border:none;border-radius:12px;cursor:pointer">🐍 Confirm Snake &amp; Finish Round</button>`;
-    } else {
-      html += _roundDone ? renderSnakeResult() : renderSnakePanel();
-    }
+    html += renderSnakePanel();
   }
 
   G.players.forEach((p,pi)=>{
@@ -4139,14 +4080,7 @@ function renderVerticalScorecard(){
 
   // ── Snake 3-Putt panel ──
   if(G.snake && G.snake.enabled){
-    const _h18assigned = G.snake.h18confirmed || G.snake.history.find(e => e.hole === actualHoleIdx(17));
-    const _roundDone = isRoundComplete();
-    if(_roundDone && !_h18assigned){
-      html += renderSnakePanel();
-      html += `<button onclick="confirmSnakeAndFinish()" style="width:100%;padding:14px;margin-top:6px;background:#6c3483;color:#fff;font-size:15px;font-weight:800;border:none;border-radius:12px;cursor:pointer">🐍 Confirm Snake &amp; Finish Round</button>`;
-    } else {
-      html += _roundDone ? renderSnakeResult() : renderSnakePanel();
-    }
+    html += renderSnakePanel();
   }
 
   G.players.forEach((p,pi)=>{
@@ -4176,14 +4110,7 @@ function renderVerticalScorecard(){
 
   // ── Snake 3-Putt panel ──
   if(G.snake && G.snake.enabled){
-    const _h18assigned = G.snake.h18confirmed || G.snake.history.find(e => e.hole === actualHoleIdx(17));
-    const _roundDone = isRoundComplete();
-    if(_roundDone && !_h18assigned){
-      html += renderSnakePanel();
-      html += `<button onclick="confirmSnakeAndFinish()" style="width:100%;padding:14px;margin-top:6px;background:#6c3483;color:#fff;font-size:15px;font-weight:800;border:none;border-radius:12px;cursor:pointer">🐍 Confirm Snake &amp; Finish Round</button>`;
-    } else {
-      html += _roundDone ? renderSnakeResult() : renderSnakePanel();
-    }
+    html += renderSnakePanel();
   }
 
   G.players.forEach((p,pi)=>{
@@ -4211,14 +4138,7 @@ function renderVerticalScorecard(){
 
   // ── Snake 3-Putt panel ──
   if(G.snake && G.snake.enabled){
-    const _h18assigned = G.snake.h18confirmed || G.snake.history.find(e => e.hole === actualHoleIdx(17));
-    const _roundDone = isRoundComplete();
-    if(_roundDone && !_h18assigned){
-      html += renderSnakePanel();
-      html += `<button onclick="confirmSnakeAndFinish()" style="width:100%;padding:14px;margin-top:6px;background:#6c3483;color:#fff;font-size:15px;font-weight:800;border:none;border-radius:12px;cursor:pointer">🐍 Confirm Snake &amp; Finish Round</button>`;
-    } else {
-      html += _roundDone ? renderSnakeResult() : renderSnakePanel();
-    }
+    html += renderSnakePanel();
   }
 
   G.players.forEach((p,pi)=>{
@@ -5436,7 +5356,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v46.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v46.7</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -5546,7 +5466,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v46.6</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v46.7</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -5668,7 +5588,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v46.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v46.7</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5776,7 +5696,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v46.6');
+  lines.push('— Nassau Golf · Derrick GWC · v46.7');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -6032,7 +5952,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v46.6 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v46.7 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -7288,12 +7208,12 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v46.6';
+const CURRENT_VERSION = 'nassau-v46.7';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
-  'v46.6 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
+  'v46.7 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
   'v31.9 — Weather: rain history using correct 24hr chunks and archive interval summation',
-  'v46.6 — Removed rain history feature (WeatherLink historic API not supported)',
+  'v46.7 — Removed rain history feature (WeatherLink historic API not supported)',
   'v31.3 — Fixed: stray backslash before SW template literal closing backtick',
   'v31.2 — Fixed: renderSingles undefined error on setup screen',
   'v31.1 — Weather: 7-day rain total added alongside 24hr in setup rain widget (one API call)',
@@ -7599,7 +7519,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator){
   const swCode=`
-const CACHE='nassau-v46.6';
+const CACHE='nassau-v46.7';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
