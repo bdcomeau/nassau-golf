@@ -659,7 +659,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v49.6
+    Nassau Golf · Derrick GWC · v49.7
   </div>
 </div>
 </div>
@@ -716,6 +716,7 @@ input::placeholder{color:#bbb}
     <button class="hnav-btn" onclick="closeHistoryDetail()">‹</button>
     <div class="hnum" id="historyDetailTitle" style="font-size:16px;flex:1">Round</div>
         <button class="hpdf-btn" id="historyPdfBtn" onclick="printHistoryRound()" title="Share or print round">🖨️ Share / Print</button>
+        <button class="hpdf-btn" id="historyEditBtn" onclick="editHistoryRound()" title="Edit this round" style="background:#1a3a2a;color:#c9a84c;border:1.5px solid #c9a84c;margin-left:6px">✏️ Edit</button>
   </div>
   <div class="sbody" id="historyDetailBody"></div>
 </div>
@@ -741,7 +742,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v49.6</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v49.7</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2728,7 +2729,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v49.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v49.7</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2845,7 +2846,9 @@ function renderCard(){
     // No internationals called — show nothing
   }
 
-  if(isRoundComplete() && !isCurrentRoundSaved()){
+  if(G._editingHistoryIdx !== undefined && G._editingHistoryIdx >= 0){
+    html += `<button class="save-round-btn" onclick="updateHistoryRound()" style="background:#1a3a2a;border:2px solid #c9a84c;color:#c9a84c">💾 Update History</button>`;
+  } else if(isRoundComplete() && !isCurrentRoundSaved()){
     html += `<button class="save-round-btn" onclick="manualSaveRound()">💾 Save Round</button>`;
   } else if(isCurrentRoundSaved()){
     html += `<div class="save-round-done">✓ Round saved to History</div>`;
@@ -2956,7 +2959,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v49.6</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v49.7</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3507,7 +3510,9 @@ function renderBets(){
   const money=computeMoney();
   let html='<div style="padding:12px 16px;padding-bottom:170px">';
 
-  if(isRoundComplete() && !isCurrentRoundSaved()){
+  if(G._editingHistoryIdx !== undefined && G._editingHistoryIdx >= 0){
+    html += `<button class="save-round-btn" onclick="updateHistoryRound()" style="background:#1a3a2a;border:2px solid #c9a84c;color:#c9a84c">💾 Update History</button>`;
+  } else if(isRoundComplete() && !isCurrentRoundSaved()){
     html += `<button class="save-round-btn" onclick="manualSaveRound()">💾 Save Round</button>`;
   } else if(isCurrentRoundSaved()){
     html += `<div class="save-round-done">✓ Round saved to History</div>`;
@@ -3520,7 +3525,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v49.6</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v49.7</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -5441,7 +5446,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v49.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v49.7</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -5613,7 +5618,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v49.6</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v49.7</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -5657,6 +5662,7 @@ let _liveGBackup=null;
 let _renderReadOnly=false;   // true while rendering a saved/exported round (suppresses Big I offer)
 
 function openHistoryDetail(i){
+  _currentHistoryIdx = i;
   const hist=loadHistory();
   const r=hist[i];
   if(!r) return;
@@ -5735,7 +5741,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v49.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v49.7</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5843,13 +5849,131 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v49.6');
+  lines.push('— Nassau Golf · Derrick GWC · v49.7');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
 }
 
 /* ── 📄 PDF via clean iframe ── */
+let _currentHistoryIdx = -1;
+
+function editHistoryRound(){
+  // Block if active round has scores
+  const hasActiveRound = G.scores && G.scores.length && G.scores[0] && G.scores[0].some(s=>s!==null);
+  if(hasActiveRound){
+    alert('You have an active round in progress — finish or abandon it before editing a history round.');
+    return;
+  }
+
+  const hist = loadHistory();
+  const r = hist[_currentHistoryIdx];
+  if(!r) return;
+
+  // Freeze the fields we never want to change
+  const frozen = {
+    weatherStart: r.weatherStart,
+    weatherEnd:   r.weatherEnd,
+    roundDate:    r.roundDate,
+    roundEnd:     r.roundEnd,
+    savedAt:      r.savedAt
+  };
+
+  // Load history round into G
+  G.n          = r.n;
+  G.players    = r.players.map(p=>({...p, playHdcp:0, strokes:Array(18).fill(0)}));
+  G.par        = r.par;
+  G.si         = r.si;
+  G.scores     = r.scores.map(s=>[...s]);
+  G.teamGames  = r.teamGames||[];
+  G.singleGames= r.singleGames||[];
+  G.sixPointGames = r.sixPointGames||[];
+  G.internationals = r.internationals||{};
+  G.scorecardOnly = !!r.scorecardOnly;
+  G.startHole  = r.startHole||1;
+  G.hole       = (r.startHole||1)-1;
+  G.snake      = r.snake ? JSON.parse(JSON.stringify(r.snake)) : {enabled:false,holder:null,history:[],bet:5,settlements:[],participants:[],h18confirmed:false};
+  G.birdieJuice= r.birdieJuice||{earned:[],redeemed:0};
+  G.weatherStart = frozen.weatherStart;
+  G.weatherEnd   = frozen.weatherEnd;
+  G.roundDate    = frozen.roundDate;
+  G.roundEnd     = frozen.roundEnd;
+  G._editingHistoryIdx = _currentHistoryIdx;
+  G._frozenFields = frozen;
+
+  // Go to hole 18 (last hole in play order)
+  G.hole = actualHoleIdx(17);
+
+  saveG();
+
+  // Switch to scorecard
+  document.getElementById('badge').textContent='HOLE '+(G.hole+1);
+  document.getElementById('holeBadge').style.display='';
+  document.getElementById('bnav').style.display='flex';
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-score').classList.add('active');
+  showS('score');
+  renderCard();
+}
+
+function updateHistoryRound(){
+  if(G._editingHistoryIdx === undefined || G._editingHistoryIdx < 0) return;
+
+  const hist = loadHistory();
+  const idx = G._editingHistoryIdx;
+  if(!hist[idx]) return;
+
+  // Preserve frozen fields
+  const frozen = G._frozenFields || {};
+
+  // Build updated entry — recalculate money
+  const updatedEntry = {
+    ...hist[idx],
+    scores:        G.scores.map(s=>[...s]),
+    snake:         JSON.parse(JSON.stringify(G.snake||{})),
+    birdieJuice:   G.birdieJuice||{earned:[],redeemed:0},
+    // Recalculate money
+    money:         computeCombinedMoney ? computeCombinedMoney() : (hist[idx].money||[]),
+    // Preserve frozen
+    weatherStart:  frozen.weatherStart,
+    weatherEnd:    frozen.weatherEnd,
+    roundDate:     frozen.roundDate,
+    roundEnd:      frozen.roundEnd,
+    savedAt:       frozen.savedAt
+  };
+
+  hist[idx] = updatedEntry;
+  try{ localStorage.setItem('nassau_history', JSON.stringify(hist)); }catch(e){}
+
+  // Clear edit state
+  G._editingHistoryIdx = undefined;
+  G._frozenFields = null;
+
+  // Reset active round
+  G.scores=[]; G.players=[]; G.n=4; G.par=[]; G.si=[];
+  G.teamGames=[]; G.singleGames=[]; G.sixPointGames=[];
+  G.snake={enabled:false,holder:null,history:[],bet:5,settlements:[],participants:[],h18confirmed:false};
+  G.birdieJuice={earned:[],redeemed:0};
+  G.roundDate=null; G.roundEnd=null; G.weatherStart=null; G.weatherEnd=null;
+  G.scorecardOnly=false; G.startHole=1; G.hole=0;
+  saveG();
+
+  // Go back to history
+  document.getElementById('bnav').style.display='flex';
+  document.getElementById('badge').textContent='SETUP';
+  document.getElementById('holeBadge').style.display='none';
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-history').classList.add('active');
+  showS('history');
+
+  // Show confirmation
+  const t=document.createElement('div');
+  t.textContent='✓ Round updated in History';
+  t.style.cssText='position:fixed;top:72px;left:50%;transform:translateX(-50%);background:#2d6a4f;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;z-index:999;pointer-events:none;white-space:nowrap';
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3000);
+}
+
 function printHistoryRound(){
   const snap=_historySnapshot; if(!snap) return;
   const bk=JSON.parse(JSON.stringify(G));
@@ -6099,7 +6223,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v49.6 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v49.7 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -7357,12 +7481,12 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v49.6';
+const CURRENT_VERSION = 'nassau-v49.7';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
-  'v49.6 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
+  'v49.7 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
   'v31.9 — Weather: rain history using correct 24hr chunks and archive interval summation',
-  'v49.6 — Removed rain history feature (WeatherLink historic API not supported)',
+  'v49.7 — Removed rain history feature (WeatherLink historic API not supported)',
   'v31.3 — Fixed: stray backslash before SW template literal closing backtick',
   'v31.2 — Fixed: renderSingles undefined error on setup screen',
   'v31.1 — Weather: 7-day rain total added alongside 24hr in setup rain widget (one API call)',
@@ -7668,7 +7792,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v49.6';
+const CACHE='nassau-v49.7';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
