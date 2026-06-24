@@ -5561,9 +5561,13 @@ function renderHistory(){
         ? `<div style="font-size:11px;font-weight:800;padding:3px 8px;border-radius:8px;background:${netTotal>0?'rgba(82,183,136,.2)':netTotal<0?'rgba(192,57,43,.2)':'rgba(255,255,255,.1)'};color:${netTotal>0?'#52b788':netTotal<0?'#e74c3c':'rgba(255,255,255,.5)'};white-space:nowrap;margin-left:8px">${netTotal>0?'+$'+netTotal:netTotal<0?'-$'+Math.abs(netTotal):'$0'}</div>`
         : '';
 
+      const isSolo = r.players.length === 1;
+      const soloScore = isSolo && r.scores && r.scores[0] ? r.scores[0].reduce((a,b)=>a+(b||0),0) : null;
+      const scorePill = soloScore ? `<div style="font-size:13px;font-weight:800;color:var(--ink);padding:2px 8px;border-radius:8px;background:#f0ebe0;white-space:nowrap;margin-left:8px">${soloScore}</div>` : '';
+
       html+=`<div class="hist-row" onclick="openHistoryDetail(${i})">
         <div class="hist-main">
-          <div class="hist-date" style="display:flex;align-items:center;gap:6px">${dateStr}${wxLine?'<span style="color:rgba(255,255,255,.4)">·</span>'+wxLine:''}</div>
+          <div class="hist-date" style="display:flex;align-items:center;gap:6px">${dateStr}${wxLine?'<span style="color:rgba(255,255,255,.4)">·</span>'+wxLine:''}${scorePill}</div>
           <div class="hist-players">${names}</div>
         </div>
         <div style="display:flex;align-items:center;gap:4px">
