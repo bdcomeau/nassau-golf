@@ -267,7 +267,7 @@ input::placeholder{color:#bbb}
 .intl-available-banner{background:linear-gradient(135deg,#0d1b2a 0%,#1a2a4a 60%,#0d1b2a 100%);color:#fff;border-radius:10px;border:1.5px solid rgba(201,168,76,.6);padding:12px 16px;font-size:13px;font-weight:700;width:100%;margin-bottom:10px;text-align:center;cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 4px 12px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.08);letter-spacing:.2px}
 .save-round-btn{background:var(--gold);color:var(--gd);border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:800;width:100%;margin-bottom:10px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .save-round-done{background:#e8f5e9;color:#1b5e20;border:1.5px solid var(--gm);border-radius:10px;padding:10px;font-size:13px;font-weight:700;width:100%;margin-bottom:10px;text-align:center}
-.hist-row{display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.hist-row{display:flex;align-items:flex-start;justify-content:space-between;background:#fff;border-radius:10px;padding:12px 14px 10px 12px;margin-bottom:8px;cursor:pointer;-webkit-tap-highlight-color:transparent;border-left:4px solid #e0dbd2}
 .hist-main{flex:1}
 .hist-date{font-size:14px;font-weight:700;color:var(--ink)}
 .hist-players{font-size:11px;color:var(--inkl);margin-top:2px}
@@ -659,7 +659,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v48.9
+    Nassau Golf · Derrick GWC · v49.1
   </div>
 </div>
 </div>
@@ -741,7 +741,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v48.9</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v49.1</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2728,7 +2728,7 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v48.9</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v49.1</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2956,7 +2956,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v48.9</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v49.1</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3520,7 +3520,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v48.9</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v49.1</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -5441,7 +5441,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v48.9</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v49.1</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -5562,31 +5562,60 @@ function renderHistory(){
         : '';
 
       const isSolo = r.players.length === 1;
-      // Build score pills for all players
+
+      // 1. Left border colour based on performance vs par (70)
+      const meContact2 = loadContacts().find(ct=>ct.me);
+      const meIdx2 = meContact2 ? r.players.findIndex(p=>p.name===meContact2.name) : 0;
+      const meScore = (r.scores && r.scores[meIdx2>=0?meIdx2:0]) ? r.scores[meIdx2>=0?meIdx2:0].reduce((a,b)=>a+(b||0),0) : null;
+      const totalPar = r.par ? r.par.reduce((a,b)=>a+b,0) : 70;
+      const myHdcp = r.players[meIdx2>=0?meIdx2:0]?.idx || 0;
+      const borderCol = meScore===null ? '#e0dbd2'
+        : meScore <= totalPar + Math.round(myHdcp*0.9) ? '#52b788'
+        : meScore <= totalPar + Math.round(myHdcp*1.1) + 3 ? '#c9a84c'
+        : '#e74c3c';
+
+      // 3. Score pills — highlight me in gold
       const scorePills = r.players.map((p, pi) => {
         const s = r.scores && r.scores[pi] ? r.scores[pi].reduce((a,b)=>a+(b||0),0) : null;
         if(!s) return '';
         const firstName = p.name.split(' ')[0];
         const label = isSolo ? `${s}` : `${firstName} ${s}`;
-        return `<span style="font-size:12px;font-weight:800;color:var(--ink);padding:2px 8px;border-radius:8px;background:#f0ebe0;white-space:nowrap;margin-right:4px">${label}</span>`;
+        const isMe = meContact2 && p.name === meContact2.name;
+        const bg = isMe ? '#1a3a2a' : '#f0ebe0';
+        const col = isMe ? '#c9a84c' : 'var(--ink)';
+        return `<span style="font-size:12px;font-weight:800;color:${col};padding:3px 9px;border-radius:8px;background:${bg};white-space:nowrap">${label}</span>`;
       }).join('');
-      const scoreLine = scorePills ? `<div style="margin-top:3px">${scorePills}</div>` : '';
+      const scoreLine = scorePills ? `<div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px">${scorePills}</div>` : '';
 
-      html+=`<div class="hist-row" onclick="openHistoryDetail(${i})">
+      // 5. Game summary line
+      const gameParts = [];
+      if(r.teamGames&&r.teamGames.length) gameParts.push(`${r.teamGames.length} Nassau`);
+      if(r.singleGames&&r.singleGames.length) gameParts.push(`${r.singleGames.length} 1v1`);
+      if(r.sixPointGames&&r.sixPointGames.length) gameParts.push(`6-Point`);
+      if(r.snake&&r.snake.enabled) gameParts.push(`Snake`);
+      if(r.scorecardOnly||gameParts.length===0) gameParts.push('Score Keep');
+      const gameSum = `<div style="font-size:10px;color:#aaa;margin-top:4px;letter-spacing:.2px">${r.players.length} player${r.players.length>1?'s':''} · ${gameParts.join(' · ')}</div>`;
+
+      // 2. Weather on its own line, smaller
+      const wxBlock = wxLine ? `<div style="font-size:11px;color:#888;margin-top:1px">${wxLine}</div>` : '';
+
+      // 6. Subtle delete button
+      const delBtn = `<button onclick="event.stopPropagation();confirmDeleteHistory(${i})" style="background:none;border:none;color:#ccc;font-size:11px;cursor:pointer;padding:2px 4px;margin-left:2px;-webkit-tap-highlight-color:transparent">✕</button>`;
+
+      html+=`<div class="hist-row" style="border-left-color:${borderCol}" onclick="openHistoryDetail(${i})">
         <div class="hist-main" style="flex:1;min-width:0">
-          <div class="hist-date" style="display:flex;align-items:center;justify-content:space-between;gap:6px">
-            <span style="display:flex;align-items:center;gap:6px">${dateStr}${wxLine?'<span style="color:rgba(255,255,255,.4)">·</span>'+wxLine:''}</span>
-            <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
-              ${netBadge}
-              <button class="hist-del" onclick="event.stopPropagation();confirmDeleteHistory(${i})">🗑️</button>
-            </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div class="hist-date">${dateStr}</div>
+            <div style="display:flex;align-items:center;gap:2px">${netBadge}${delBtn}</div>
           </div>
+          ${wxBlock}
           ${scoreLine}
+          ${gameSum}
         </div>
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v48.9</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v49.1</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -5708,7 +5737,7 @@ function openHistoryDetail(i){
     html+='</div>';
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v48.9</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v49.1</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5816,7 +5845,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v48.9');
+  lines.push('— Nassau Golf · Derrick GWC · v49.1');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -6072,7 +6101,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v48.9 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v49.1 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -7330,12 +7359,12 @@ showEmergencyBanners();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v48.9';
+const CURRENT_VERSION = 'nassau-v49.1';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
-  'v48.9 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
+  'v49.1 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
   'v31.9 — Weather: rain history using correct 24hr chunks and archive interval summation',
-  'v48.9 — Removed rain history feature (WeatherLink historic API not supported)',
+  'v49.1 — Removed rain history feature (WeatherLink historic API not supported)',
   'v31.3 — Fixed: stray backslash before SW template literal closing backtick',
   'v31.2 — Fixed: renderSingles undefined error on setup screen',
   'v31.1 — Weather: 7-day rain total added alongside 24hr in setup rain widget (one API call)',
@@ -7641,7 +7670,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v48.9';
+const CACHE='nassau-v49.1';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
