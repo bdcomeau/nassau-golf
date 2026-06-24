@@ -435,6 +435,7 @@ input::placeholder{color:#bbb}
 .ni-badge.ni-badge-gold{background:var(--gold);color:var(--gd)}
 .ni-badge.ni-badge-inprogress{background:#e67e22;animation:pulse-dot 1.5s ease-in-out infinite}
 @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes wobble{0%{transform:rotate(-8deg) scale(1.05)}100%{transform:rotate(8deg) scale(1.1)}}
 @keyframes spin-gold{to{transform:rotate(360deg)}}
 .spin-gold{display:inline-block;width:14px;height:14px;border:2px solid rgba(201,168,76,.3);border-top-color:var(--gold);border-radius:50%;animation:spin-gold .7s linear infinite;vertical-align:middle}
 @keyframes pulse-ring{0%,100%{box-shadow:inset 0 2px 5px rgba(0,0,0,.15),inset 0 1px 2px rgba(0,0,0,.1),0 0 0 2px rgba(201,168,76,.9)}50%{box-shadow:inset 0 2px 5px rgba(0,0,0,.15),inset 0 1px 2px rgba(0,0,0,.1),0 0 0 4px rgba(201,168,76,.25)}}
@@ -658,7 +659,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v52.5
+    Nassau Golf · Derrick GWC · v52.6
   </div>
 </div>
 </div>
@@ -742,7 +743,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v52.5</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v52.6</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2605,6 +2606,8 @@ function checkBirdieJuice(pi, h, prevGross){
     } else {
       showBirdieJuicePopup(G.players[pi].name, h+1);
     }
+    // Check for consecutive birdie streak (gross birdies in play order)
+    checkBirdieStreak(pi, h);
   }
   updateBirdieJuiceBadge();
 }
@@ -2636,6 +2639,72 @@ function showBirdieJuicePopup(playerName, actualHole){
       <div style="font-size:18px;font-weight:800;color:var(--ink);margin-bottom:8px">Birdie Juice Earned!</div>
       <div style="font-size:13px;color:#666;margin-bottom:16px"><b>${playerName}</b> made a birdie on hole ${actualHole}.</div>
       <button class="export-overlay-btn save" style="width:100%" onclick="document.getElementById('birdieJuicePopup').remove()">🍻 Cheers!</button>
+    </div>`);
+}
+
+function checkBirdieStreak(pi, h){
+  // Count consecutive gross birdies ending at this hole (in play order)
+  const playIdx = playOrderIdx(h);
+  let streak = 0;
+  for(let i = playIdx; i >= 0; i--){
+    const ah = actualHoleIdx(i);
+    const score = G.scores[pi][ah];
+    const par = G.par[ah];
+    if(score !== null && score <= par - 1) streak++;
+    else break;
+  }
+  const name = G.players[pi].name.split(' ')[0];
+  if(streak === 3) showTurkeyPopup(name);
+  else if(streak === 4) showOnFirePopup(name);
+  else if(streak >= 5) showLegendPopup(name, streak);
+}
+
+function showTurkeyPopup(name){
+  _showBJOverlay('streakPopup',`
+    <div style="background:linear-gradient(160deg,#7d3200,#e65c00,#f9a825);border-radius:16px;padding:30px 24px;max-width:340px;text-align:center;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-10px;left:0;right:0;font-size:60px;opacity:.1;pointer-events:none">🦃🦃🦃</div>
+      <div style="font-size:72px;margin-bottom:4px;animation:wobble 0.6s ease infinite alternate">🦃</div>
+      <div style="font-size:12px;font-weight:800;color:rgba(255,255,255,.7);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">3 Birdies in a Row</div>
+      <div style="font-size:28px;font-weight:800;color:#fff;margin-bottom:10px">TURKEY! 🦃</div>
+      <div style="font-size:14px;color:rgba(255,255,255,.9);margin-bottom:20px"><b>${name}</b> is cooking! Three birdies in a row — gobble gobble! 🍗</div>
+      <button class="export-overlay-btn save" style="width:100%;background:rgba(255,255,255,.2);color:#fff;border:1.5px solid rgba(255,255,255,.4)" onclick="document.getElementById('streakPopup').remove()">🦃 Gobble!</button>
+    </div>`);
+}
+
+function showOnFirePopup(name){
+  _showBJOverlay('streakPopup',`
+    <div style="background:linear-gradient(160deg,#1a0500,#c0392b,#e74c3c,#ff6b35);border-radius:16px;padding:30px 24px;max-width:340px;text-align:center;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;opacity:.08;font-size:80px;pointer-events:none;display:flex;flex-wrap:wrap;justify-content:center">🔥🔥🔥🔥🔥🔥</div>
+      <div style="font-size:72px;margin-bottom:4px">🔥</div>
+      <div style="font-size:12px;font-weight:800;color:rgba(255,220,150,.8);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">4 Birdies in a Row</div>
+      <div style="font-size:28px;font-weight:800;color:#fff;margin-bottom:10px">ON FIRE! 🔥🔥</div>
+      <div style="font-size:14px;color:rgba(255,255,255,.9);margin-bottom:20px"><b>${name}</b> is absolutely on fire! Four in a row — nobody can stop this round! 🏌️‍♂️💨</div>
+      <button class="export-overlay-btn save" style="width:100%;background:rgba(255,255,255,.15);color:#fff;border:1.5px solid rgba(255,255,255,.3)" onclick="document.getElementById('streakPopup').remove()">🔥 Keep it going!</button>
+    </div>`);
+}
+
+function showLegendPopup(name, streak){
+  // Confetti effect via CSS
+  const style = document.createElement('style');
+  style.textContent = `@keyframes confetti-fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(320px) rotate(720deg);opacity:0}} .confetti-piece{position:absolute;width:8px;height:8px;border-radius:2px;animation:confetti-fall 1.8s linear infinite}`;
+  document.head.appendChild(style);
+  const colours = ['#c9a84c','#fff','#f9a825','#52b788','#e74c3c'];
+  let confettiHTML = '';
+  for(let i=0;i<16;i++){
+    const col = colours[i%colours.length];
+    const left = (i*6.25)+'%';
+    const delay = (i*0.12).toFixed(2)+'s';
+    confettiHTML += `<div class="confetti-piece" style="left:${left};top:0;background:${col};animation-delay:${delay}"></div>`;
+  }
+  _showBJOverlay('streakPopup',`
+    <div style="background:linear-gradient(160deg,#0d0520,#2d1b4e,#1a3a2a);border-radius:16px;padding:30px 24px;max-width:340px;text-align:center;position:relative;overflow:hidden;border:2px solid #c9a84c">
+      ${confettiHTML}
+      <div style="font-size:72px;margin-bottom:4px">👑</div>
+      <div style="font-size:12px;font-weight:800;color:#c9a84c;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">${streak} Birdies in a Row</div>
+      <div style="font-size:28px;font-weight:800;color:#c9a84c;margin-bottom:6px">LEGEND! 👑</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.85);margin-bottom:6px"><b>${name}</b> has made <b>${streak} birdies in a row</b>.</div>
+      <div style="font-size:13px;color:rgba(201,168,76,.8);margin-bottom:20px">This is the stuff of Derrick GWC folklore. Buy the whole bar a round — you've earned it. 🍺🍺🍺</div>
+      <button class="export-overlay-btn save" style="width:100%;background:#c9a84c;color:#1a3a2a;border:none;font-size:15px" onclick="document.getElementById('streakPopup').remove()">👑 Hall of Fame!</button>
     </div>`);
 }
 
@@ -2730,7 +2799,8 @@ function renderBirdieJuice(){
   }
   html+='</div>';
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v52.5</div>';
+
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v52.6</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -2963,7 +3033,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v52.5</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v52.6</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3532,7 +3602,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v52.5</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v52.6</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -5464,7 +5534,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v52.5</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v52.6</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -5654,7 +5724,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v52.5</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v52.6</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -5815,7 +5885,7 @@ function openHistoryDetail(i){
     html+=`</div>`; // close card
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v52.5</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v52.6</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5923,7 +5993,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v52.5');
+  lines.push('— Nassau Golf · Derrick GWC · v52.6');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -6402,7 +6472,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v52.5 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v52.6 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -7679,12 +7749,12 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v52.5';
+const CURRENT_VERSION = 'nassau-v52.6';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
-  'v52.5 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
+  'v52.6 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
   'v31.9 — Weather: rain history using correct 24hr chunks and archive interval summation',
-  'v52.5 — Removed rain history feature (WeatherLink historic API not supported)',
+  'v52.6 — Removed rain history feature (WeatherLink historic API not supported)',
   'v31.3 — Fixed: stray backslash before SW template literal closing backtick',
   'v31.2 — Fixed: renderSingles undefined error on setup screen',
   'v31.1 — Weather: 7-day rain total added alongside 24hr in setup rain widget (one API call)',
@@ -7991,7 +8061,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v52.5';
+const CACHE='nassau-v52.6';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
