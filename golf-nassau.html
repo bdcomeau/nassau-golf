@@ -197,6 +197,9 @@ input::placeholder{color:#bbb}
 .sw-score{width:60px;height:44px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;position:relative;-webkit-tap-highlight-color:transparent}
 .sw-unset{background:#ece8e0;border:2px solid rgba(201,168,76,.8);box-shadow:inset 0 2px 5px rgba(0,0,0,.15),inset 0 1px 2px rgba(0,0,0,.1),0 0 0 2px rgba(201,168,76,.9);animation:pulse-ring 1.8s ease-in-out infinite}
 .sw-unset:active{background:#eae6df;border-color:#c9a84c;animation:none}
+.sw-score.sw-pending{background:#fffaf0;border:2.5px solid #c9a84c;box-shadow:0 0 0 2px rgba(201,168,76,.45);animation:none}
+.sw-score.sw-pending .sw-num{color:#1a1a1a}
+.sw-score.sw-pending .sw-label{color:#9a7d2e}
 .sw-num-par-hint{font-size:26px;font-weight:800;color:#666;line-height:1}
 .sw-tap-hint{display:none}
 .sw-lbl-hint{font-size:10px;font-weight:800;color:#555;text-transform:uppercase;letter-spacing:.6px;margin-top:3px;text-align:center;line-height:1.1}
@@ -715,7 +718,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v67.6
+    Nassau Golf · Derrick GWC · v67.7
   </div>
 </div>
 </div>
@@ -804,7 +807,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.6</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.7</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2960,7 +2963,7 @@ function printStablefordCard(gi){
       <div style="font-size:11px;font-weight:800;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Points Table</div>
       <table style="border-collapse:collapse;font-size:12px">${ptTableRows}</table>
     </div>
-    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.6</div>
+    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.7</div>
   </body></html>`;
 
   const blob = new Blob([html],{type:'text/html'});
@@ -3256,6 +3259,52 @@ function adjustScore(pi, h, delta){
   maybeAutoAdvance();
 }
 
+// Arrow buttons: scroll the wheel to a PENDING candidate score (gold border, not committed).
+// Starting point: the existing score if set, otherwise the player's typical score.
+// Does NOT enter the score — the user taps the centre to commit it.
+function arrowStep(pi, h, dir){
+  // Base the first step on the current pending value, else the entered score, else typical.
+  let base;
+  if(_pending && _pending.pi===pi && _pending.h===h){
+    base=_pending.val;
+  } else if(G.scores[pi][h]!==null){
+    base=G.scores[pi][h];
+  } else {
+    base=G.par[h]+(G.players[pi]?G.players[pi].typicalScore||0:0);
+  }
+  const next=base+dir;
+  if(next<1||next>15)return;
+  _pending={pi,h,val:next};
+  renderCard();
+}
+
+// Commit the pending preview score for this player as the actual score.
+function commitPending(pi, h){
+  if(!(_pending && _pending.pi===pi && _pending.h===h)) return;
+  const val=_pending.val;
+  const prev=G.scores[pi][h];
+  _pending=null;
+  G.scores[pi][h]=val;
+  if(!G.firstScoreAt) { G.firstScoreAt=new Date().toISOString(); }
+  checkBirdieJuice(pi,h,prev);
+  saveG();
+  renderCard();
+  maybeAutoAdvance();
+}
+
+// Tapping a specific visible side number commits that exact score directly.
+function setScoreDirect(pi, h, val){
+  if(val<1||val>15)return;
+  const prev=G.scores[pi][h];
+  _pending=null;
+  G.scores[pi][h]=val;
+  if(!G.firstScoreAt) { G.firstScoreAt=new Date().toISOString(); }
+  checkBirdieJuice(pi,h,prev);
+  saveG();
+  renderCard();
+  maybeAutoAdvance();
+}
+
 // Auto-advance to the next hole once every player has a score on the current hole.
 // Never advances past the final hole of the round (holes 1–17 only; stays on 18).
 function maybeAutoAdvance(){
@@ -3271,6 +3320,7 @@ function maybeAutoAdvance(){
       if(cp >= 17) return;
       if(G.players.some((_,pi)=>G.scores[pi][G.hole]===null)) return;
       const err=document.getElementById('holeErr'); if(err) err.style.display='none';
+      _pending=null;
       G.hole = actualHoleIdx(cp + 1);
       saveG(); renderCard();
     }, 550);
@@ -3284,6 +3334,7 @@ function confirmNextHole(){
   if(cp >= 17) return;
   if(G.players.some((_,pi)=>G.scores[pi][G.hole]===null)) return;
   const err=document.getElementById('holeErr'); if(err) err.style.display='none';
+  _pending=null;
   G.hole = actualHoleIdx(cp + 1);
   saveG(); renderCard();
 }
@@ -3549,7 +3600,7 @@ function renderBirdieJuice(){
   html+='</div>';
 
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.7</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -3566,6 +3617,9 @@ function redeemBirdieJuice(){
 
 // Touch swipe support on scroll wheel
 let _touch={pi:null,h:null,y0:null};
+// Pending (preview) score state — the wheel scrolls to a candidate without committing.
+// Shape: {pi, h, val} or null. Cleared on hole change or commit.
+let _pending=null;
 function swipeStart(pi,h,e){
   const touch=e.touches?e.touches[0]:e;
   _touch={pi,h,x0:touch.clientX,y0:touch.clientY,axis:null};
@@ -3587,13 +3641,13 @@ function swipeMove(e){
   const THRESHOLD=22;
   if(_touch.axis==='x'){
     if(Math.abs(dx)>THRESHOLD){
-      adjustScore(_touch.pi,_touch.h,dx>0?1:-1);
+      arrowStep(_touch.pi,_touch.h,dx>0?1:-1);
       _touch.x0=touch.clientX;
       _touch.moved=true;
     }
   } else {
     if(Math.abs(dy)>THRESHOLD){
-      adjustScore(_touch.pi,_touch.h,dy>0?1:-1);
+      arrowStep(_touch.pi,_touch.h,dy>0?1:-1);
       _touch.y0=touch.clientY;
       _touch.moved=true;
     }
@@ -3721,23 +3775,39 @@ function renderCard(){
       <div class="pcard-body">
         <div class="drum-row">
           ${(()=>{
-            // LEFT 2 & 1: anchored to current gross (or typical if unset)
-            const anchor=gross!==null?gross:typical;
+            // LEFT 2 & 1: anchored to pending preview if active, else current gross (or typical if unset)
+            const anchor=(_pending && _pending.pi===pi && _pending.h===h)?_pending.val:(gross!==null?gross:typical);
             const bv2=anchor-2;
             const l2=bv2<1?'<div class="drum-side"><div class="drum-side-num"> </div><div class="drum-side-lbl"> </div></div>':(()=>{
               const s2=scoreClass(bv2,par,0);
-              return '<div class="drum-side drum-far" onclick="adjustScore('+pi+','+h+',-2)" style="cursor:pointer"><div class="drum-side-num '+s2.lblCls+'">'+bv2+'</div><div class="drum-side-lbl">'+s2.lbl+'</div></div>';
+              return '<div class="drum-side drum-far" onclick="setScoreDirect('+pi+','+h+','+bv2+')" style="cursor:pointer"><div class="drum-side-num '+s2.lblCls+'">'+bv2+'</div><div class="drum-side-lbl">'+s2.lbl+'</div></div>';
             })();
             const bv1=anchor-1;
             const l1=bv1<1?'<div class="drum-side"><div class="drum-side-num"> </div><div class="drum-side-lbl"> </div></div>':(()=>{
               const s1=scoreClass(bv1,par,0);
-              return '<div class="drum-side" onclick="adjustScore('+pi+','+h+',-1)" style="cursor:pointer"><div class="drum-side-num '+s1.lblCls+'">'+bv1+'</div><div class="drum-side-lbl">'+s1.lbl+'</div></div>';
+              return '<div class="drum-side" onclick="setScoreDirect('+pi+','+h+','+bv1+')" style="cursor:pointer"><div class="drum-side-num '+s1.lblCls+'">'+bv1+'</div><div class="drum-side-lbl">'+s1.lbl+'</div></div>';
             })();
             return l2+l1;
           })()}
           <div class="drum-center">
-            <button class="sw-btn" ontouchstart="adjustScore(${pi},${h},-1)" onclick="adjustScore(${pi},${h},-1)">◀</button>
-            ${gross===null ? `
+            <button class="sw-btn" ontouchstart="arrowStep(${pi},${h},-1)" onclick="arrowStep(${pi},${h},-1)">◀</button>
+            ${(_pending && _pending.pi===pi && _pending.h===h) ? (()=>{
+              const pv=_pending.val;
+              const psc=scoreClass(pv,par,0);
+              return `
+            <div class="sw-score sw-pending" title="Tap to enter this score"
+              ontouchstart="swipeStart(${pi},${h},event)"
+              ontouchmove="swipeMove(event)"
+              ontouchend="if(swipeEnd()===false)commitPending(${pi},${h})"
+              onmousedown="swipeStart(${pi},${h},event)"
+              onmousemove="swipeMove(event)"
+              onmouseup="if(swipeEnd()===false)commitPending(${pi},${h})"
+              onmouseleave="swipeEnd()"
+              onpointercancel="swipeEnd()">
+              <div class="sw-num">${pv}</div>
+              <div class="sw-label">${psc.lbl||'TAP TO ENTER'}</div>
+            </div>`;
+            })() : gross===null ? `
             <div class="sw-score sw-unset" onclick="setTypicalScore(${pi},${h})"
               ontouchstart="swipeStart(${pi},${h},event)"
               ontouchmove="swipeMove(event)"
@@ -3761,17 +3831,17 @@ function renderCard(){
               <div class="sw-num">${gross}</div>
               <div class="sw-label ${sc.lblCls}">${sc.lbl}</div>
             </div>`}
-            <button class="sw-btn" ontouchstart="adjustScore(${pi},${h},1)" onclick="adjustScore(${pi},${h},1)">▶</button>
+            <button class="sw-btn" ontouchstart="arrowStep(${pi},${h},1)" onclick="arrowStep(${pi},${h},1)">▶</button>
           </div>
           ${(()=>{
-            // RIGHT: +1, +2 from current gross (or typical if unset)
-            const anchor=gross!==null?gross:typical;
+            // RIGHT: +1, +2 from pending preview if active, else current gross (or typical if unset)
+            const anchor=(_pending && _pending.pi===pi && _pending.h===h)?_pending.val:(gross!==null?gross:typical);
             return [1,2].map((delta,idx)=>{
               const v=anchor+delta;
               if(v>15) return '';
               const sc2=scoreClass(v,par,0);
               const isFar=idx===1;
-              return '<div class="drum-side'+(isFar?' drum-far':'')+'" onclick="adjustScore('+pi+','+h+','+delta+')" style="cursor:pointer"><div class="drum-side-num '+sc2.lblCls+'">'+v+'</div><div class="drum-side-lbl">'+sc2.lbl+'</div></div>';
+              return '<div class="drum-side'+(isFar?' drum-far':'')+'" onclick="setScoreDirect('+pi+','+h+','+v+')" style="cursor:pointer"><div class="drum-side-num '+sc2.lblCls+'">'+v+'</div><div class="drum-side-lbl">'+sc2.lbl+'</div></div>';
             }).join('');
           })()}
         </div>
@@ -3791,7 +3861,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.6</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.7</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -4360,7 +4430,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.6</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.7</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -5259,6 +5329,7 @@ function showHoleWheel(){
 
 function goH(d){
   clearTimeout(maybeAutoAdvance._t); // cancel any pending auto-advance so manual nav can't double-step
+  _pending=null; // drop any uncommitted preview when leaving the hole
   const curPlay=playOrderIdx(G.hole);
   const n=curPlay+d;
   if(n<0||n>17)return;
@@ -6478,7 +6549,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.7</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -6710,7 +6781,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.6</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.7</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -6880,7 +6951,7 @@ function openHistoryDetail(i){
     html+=`</div>`; // close card
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.7</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -7014,7 +7085,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v67.6');
+  lines.push('— Nassau Golf · Derrick GWC · v67.7');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -7585,7 +7656,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v67.6 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v67.7 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -9095,9 +9166,10 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v67.6';
+const CURRENT_VERSION = 'nassau-v67.7';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v67.7 — Score wheel arrows now scroll to a gold-bordered preview score instead of entering it immediately; tap the centre to confirm and enter it in that score\u2019s colour.',
   'v67.6 — Fixed IDX/ADJ alignment on empty player rows: both handicap boxes are now anchored to the card so IDX always lines up with Fetch and ADJ with the tee deck pill, filled or empty.',
   'v67.5 — Handicap boxes aligned with the pills: IDX lines up with Fetch, and ADJ lines up with the tee deck pill (which drives it) in every row state.',
   'v67.4 — Fetch, Save, Clear and the tee deck are now matching equal-width pills, aligned in a single right-hand stack.',
@@ -9450,7 +9522,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v67.6';
+const CACHE='nassau-v67.7';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
