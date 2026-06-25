@@ -46,7 +46,7 @@ input[type=number]{text-align:center}
 input:focus{outline:none;border-color:var(--gm);background:#fff}
 input::placeholder{color:#bbb}
 .hlbl{font-size:11px;color:#1a1a1a;text-align:center;margin-top:2px;font-weight:600}
-.p-row{display:grid;grid-template-columns:1fr 64px 96px;gap:6px 8px;align-items:start;margin-bottom:8px;padding:9px 10px;background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.35);border-radius:12px;box-shadow:0 2px 5px rgba(0,0,0,.15);position:relative}
+.p-row{display:grid;grid-template-columns:1fr 64px 96px;gap:6px 8px;align-items:start;margin-bottom:8px;padding:9px 10px;background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.35);border-radius:12px;box-shadow:0 2px 5px rgba(0,0,0,.15);position:relative;min-height:185px}
 .p-row:last-child{margin-bottom:0}
 .p-deckbar{grid-column:1/-1;display:flex;align-items:flex-start;gap:8px;margin-top:2px;margin-bottom:6px}
 .p-label{grid-column:1/-1;font-size:11px;font-weight:800;letter-spacing:1px;color:var(--gd);text-transform:uppercase;margin-bottom:4px}
@@ -713,7 +713,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v67.2
+    Nassau Golf · Derrick GWC · v67.3
   </div>
 </div>
 </div>
@@ -802,7 +802,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.2</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.3</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -1081,9 +1081,8 @@ function renderPlayers(){
         <button class="p-pill p-pill-save" id="savebtn${i}" onclick="saveContact(${i})" ${act?'':'disabled'} title="Save player">💾 Save</button>
         ${act&&(nm||gid)?`<button class="p-pill p-pill-clear" onclick="clearPlayerRow(${i})" title="Clear this player">✕ Clear</button>`:''}
       </div>
-      <div class="p-deckbar" style="padding-right:98px">
-        <span style="flex:1"></span>
-        <select id="deck${i}" class="deck-select" onchange="changeDeck(${i})" ${act?'':'disabled'} style="width:160px">${deckOpts}</select>
+      <div class="p-deckbar" style="position:absolute;top:135px;right:10px;width:90px;margin:0">
+        <select id="deck${i}" class="deck-select" onchange="changeDeck(${i})" ${act?'':'disabled'} style="width:90px">${deckOpts}</select>
       </div>
     </div>`;
   }
@@ -2961,7 +2960,7 @@ function printStablefordCard(gi){
       <div style="font-size:11px;font-weight:800;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Points Table</div>
       <table style="border-collapse:collapse;font-size:12px">${ptTableRows}</table>
     </div>
-    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.2</div>
+    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.3</div>
   </body></html>`;
 
   const blob = new Blob([html],{type:'text/html'});
@@ -3550,7 +3549,7 @@ function renderBirdieJuice(){
   html+='</div>';
 
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.2</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.3</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -3792,7 +3791,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.2</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.3</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -4361,7 +4360,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.2</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.3</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -6479,7 +6478,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.2</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.3</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -6711,7 +6710,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.2</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.3</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -6881,7 +6880,7 @@ function openHistoryDetail(i){
     html+=`</div>`; // close card
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.2</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.3</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -7015,7 +7014,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v67.2');
+  lines.push('— Nassau Golf · Derrick GWC · v67.3');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -7586,7 +7585,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v67.2 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v67.3 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -9096,9 +9095,10 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v67.2';
+const CURRENT_VERSION = 'nassau-v67.3';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v67.3 — Deck pill moved to the right edge of the player card, tucked just below the Clear button.',
   'v67.2 — Reverted player setup pill spacing back to Fetch / Save / Clear stacked together at the top.',
   'v67.1 — Player setup action pills re-spaced: Fetch stays at top, Clear drops to the bottom-right, and Save sits centered between them.',
   'v67.0 — Deck pill in player setup nudged up with breathing room below the player card.',
@@ -9447,7 +9447,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v67.2';
+const CACHE='nassau-v67.3';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
