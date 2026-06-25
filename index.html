@@ -618,6 +618,7 @@ input::placeholder{color:#bbb}
 
   <div id="bettingSections">
 
+  <div id="teamSection">
   <div onclick="var s=this.nextElementSibling;s.style.display=s.style.display==='none'?'block':'none';this.querySelector('.sc').textContent=s.style.display==='none'?'▶':'▼'" style="display:flex;align-items:center;justify-content:space-between;background:#1a2a3a;border:1px solid rgba(201,168,76,.3);border-radius:8px;padding:10px 14px;margin:0 0 4px;cursor:pointer">
     <span class="slabel" style="color:#c9a84c;margin:0;padding:0;background:none;font-size:13px">2v2 Nassau Games (High-Low)</span><span class="sc" style="color:#c9a84c;font-size:12px">▼</span>
   </div>
@@ -628,6 +629,7 @@ input::placeholder{color:#bbb}
       <div id="teamGamesList"></div>
       <button onclick="this.closest('div[style*=display]').style.display='none';this.closest('div[style*=display]').previousElementSibling.querySelector('.sc').textContent='▶'" style="width:100%;margin-top:8px;padding:6px;background:rgba(255,255,255,.06);border:none;border-radius:6px;color:#888;font-size:11px;cursor:pointer">▲ Collapse</button>
     </div>
+  </div>
   </div>
 
   <div onclick="var s=this.nextElementSibling;s.style.display=s.style.display==='none'?'block':'none';this.querySelector('.sc').textContent=s.style.display==='none'?'▶':'▼'" style="display:flex;align-items:center;justify-content:space-between;background:#1a2a3a;border:1px solid rgba(201,168,76,.3);border-radius:8px;padding:10px 14px;margin:0 0 4px;cursor:pointer">
@@ -642,6 +644,7 @@ input::placeholder{color:#bbb}
     </div>
   </div>
 
+  <div id="sixPointSection">
   <div onclick="var s=this.nextElementSibling;s.style.display=s.style.display==='none'?'block':'none';this.querySelector('.sc').textContent=s.style.display==='none'?'▶':'▼'" style="display:flex;align-items:center;justify-content:space-between;background:#1a2a3a;border:1px solid rgba(201,168,76,.3);border-radius:8px;padding:10px 14px;margin:0 0 4px;cursor:pointer">
     <span class="slabel" style="color:#c9a84c;margin:0;padding:0;background:none;font-size:13px">🎯 6-Point Game</span><span class="sc" style="color:#c9a84c;font-size:12px">▼</span>
   </div>
@@ -652,6 +655,7 @@ input::placeholder{color:#bbb}
       <div id="sixPointGamesList"></div>
       <button onclick="this.closest('div[style*=display]').style.display='none';this.closest('div[style*=display]').previousElementSibling.querySelector('.sc').textContent='▶'" style="width:100%;margin-top:8px;padding:6px;background:rgba(255,255,255,.06);border:none;border-radius:6px;color:#888;font-size:11px;cursor:pointer">▲ Collapse</button>
     </div>
+  </div>
   </div>
 
 </div>
@@ -696,7 +700,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v65.8
+    Nassau Golf · Derrick GWC · v66.0
   </div>
 </div>
 </div>
@@ -785,7 +789,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v65.8</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v66.0</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2403,6 +2407,7 @@ function renderMatchCardsSetupVisibility(){
 
 // When only 1 player, the only selectable game is Match Cards.
 // Hide Snake + the multiplayer betting sections (Nassau/6-Point). Stableford self-hides.
+// 2v2 Nassau needs 4 players; 6-Point needs 3.
 function renderGameSectionsVisibility(){
   const soBox = document.getElementById('scorecardOnly');
   const scoresOnly = !!(soBox && soBox.value==='1');
@@ -2411,6 +2416,11 @@ function renderGameSectionsVisibility(){
   const betting = document.getElementById('bettingSections');
   if(snake) snake.style.display = multi ? 'block' : 'none';
   if(betting) betting.style.display = multi ? 'block' : 'none';
+  // Within the betting sections, gate by minimum player counts
+  const team = document.getElementById('teamSection');
+  if(team) team.style.display = (multi && G.n >= 4) ? 'block' : 'none';
+  const sixPt = document.getElementById('sixPointSection');
+  if(sixPt) sixPt.style.display = (multi && G.n >= 3) ? 'block' : 'none';
 }
 
 function toggleMatchCards(){
@@ -2879,7 +2889,7 @@ function printStablefordCard(gi){
       <div style="font-size:11px;font-weight:800;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Points Table</div>
       <table style="border-collapse:collapse;font-size:12px">${ptTableRows}</table>
     </div>
-    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v65.8</div>
+    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v66.0</div>
   </body></html>`;
 
   const blob = new Blob([html],{type:'text/html'});
@@ -3468,7 +3478,7 @@ function renderBirdieJuice(){
   html+='</div>';
 
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v65.8</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v66.0</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -3710,7 +3720,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v65.8</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v66.0</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -4279,7 +4289,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v65.8</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v66.0</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -6383,7 +6393,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v65.8</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v66.0</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -6539,6 +6549,21 @@ function renderHistory(){
       }).join('');
       const scoreLine = scorePills ? `<div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px">${scorePills}</div>` : '';
 
+      // Match Cards (before scoring): show who's in the match, since opponents have no scores yet
+      let mcNamesLine = '';
+      if(r.isMatchCards){
+        const needsScore = r.scores && r.scores.some((s,pi)=> pi>=1 && (!s || !s.some(v=>v!==null)));
+        if(needsScore){
+          const namePills = r.players.map((p,pi)=>{
+            const isMe = pi===0;
+            const bg = isMe ? '#1a3a2a' : '#efe8f5';
+            const col = isMe ? '#c9a84c' : '#6a4c93';
+            return `<span style="font-size:12px;font-weight:700;color:${col};padding:3px 9px;border-radius:8px;background:${bg};white-space:nowrap">${p.name}</span>`;
+          }).join('');
+          mcNamesLine = `<div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px;align-items:center"><span style="font-size:10px;color:#aaa;margin-right:2px">vs</span>${namePills}</div>`;
+        }
+      }
+
       // 5. Game summary line
       const gameParts = [];
       if(r.teamGames&&r.teamGames.length) gameParts.push(`${r.teamGames.length} Nassau`);
@@ -6588,6 +6613,7 @@ function renderHistory(){
             <div style="display:flex;align-items:center;gap:2px">${netBadge}${delBtn}</div>
           </div>
           ${scoreLine}
+          ${mcNamesLine}
           ${gameSum}
           ${resumeBtn}
           ${scoreRoundBtn}
@@ -6595,7 +6621,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v65.8</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v66.0</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -6765,7 +6791,7 @@ function openHistoryDetail(i){
     html+=`</div>`; // close card
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v65.8</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v66.0</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -6899,7 +6925,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v65.8');
+  lines.push('— Nassau Golf · Derrick GWC · v66.0');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -7468,7 +7494,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v65.8 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v66.0 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -8929,9 +8955,11 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v65.8';
+const CURRENT_VERSION = 'nassau-v66.0';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v66.0 — Game sections now gate by player count: 2v2 Nassau hidden below 4 players, 6-Point hidden below 3. With 2 players you see 1v1 Nassau, Snake, Stableford, Match Cards only.',
+  'v65.9 — Unscored Match Cards history entries now list the match participants (you + opponents) so you can see who the match is against before scoring.',
   'v65.8 — Scorecard-only mode now hides every game including Stableford and Match Cards; choosing Scores Only also clears any Match Cards selection.',
   'v65.7 — With 1 player, Match Cards is the only game offered (Nassau, 6-Point, Snake, Stableford hidden until a 2nd player is added).',
   'v65.6 — Fresh starts now load just the "Me" favorite at 1 player (new round, fresh launch). Match Cards opponents now pull their default tee deck from favorites.',
@@ -9266,7 +9294,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v65.8';
+const CACHE='nassau-v66.0';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
