@@ -71,8 +71,9 @@ input::placeholder{color:#bbb}
 .deck-select{font-size:12px;padding:3px 6px;border:1px solid #ccc;border-radius:6px;background:#fff;height:38px;box-sizing:border-box}
 .p-pill-deck{width:100%;height:30px;border-radius:7px;border:1.5px solid var(--gold);background:#fffaf0 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='8' height='6' viewBox='0 0 8 6'><path d='M0 0l4 5 4-5z' fill='%23c9a84c'/></svg>") no-repeat right 7px center;color:#1a3a2a;font-size:12px;font-weight:700;text-align:center;text-align-last:center;box-sizing:border-box;padding:0 16px 0 8px;-webkit-appearance:none;appearance:none;cursor:pointer}
 .deck-note{font-size:10px;color:var(--gold-d,#9a7a1e);font-weight:600;line-height:1.2}
-.hdcp-stack{display:flex;flex-direction:column;align-items:center;gap:1px}
+.hdcp-stack{display:flex;flex-direction:column;align-items:center;gap:1px;position:relative;margin-top:-6px}
 .hdcp-wrap{position:relative;width:64px}
+.hdcp-wrap-adj{position:absolute;top:104px;left:50%;transform:translateX(-50%);width:64px;margin:0}
 .hdcp-tag{position:absolute;top:3px;left:5px;font-size:8px;font-weight:800;color:#888;letter-spacing:.3px;pointer-events:none;z-index:1}
 .hdcp-tag-adj{color:#1a3a2a}
 .hdcp-box{width:64px;height:36px;text-align:center;box-sizing:border-box;padding-top:8px}
@@ -714,7 +715,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v67.4
+    Nassau Golf · Derrick GWC · v67.5
   </div>
 </div>
 </div>
@@ -803,7 +804,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.4</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.5</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -1072,7 +1073,7 @@ function renderPlayers(){
           <input type="number" id="ph${i}" placeholder="0.0" step=".1" min="0" max="54" value="${idxShown}" class="hdcp-box" oninput="onHdcpTyped(${i})" ${act?'':'disabled'}>
         </div>
         <span class="hdcp-delta" id="idxlbl${i}"></span>
-        <div class="hdcp-wrap" style="margin-top:6px">
+        <div class="hdcp-wrap hdcp-wrap-adj">
           <span class="hdcp-tag hdcp-tag-adj">ADJ</span>
           <input type="text" id="phAdj${i}" value="${adjShown}" class="hdcp-box hdcp-adj" readonly tabindex="-1">
         </div>
@@ -1080,7 +1081,7 @@ function renderPlayers(){
       <div class="p-btnstack">
         <button class="p-pill p-pill-gc" id="gcbtn${i}" onclick="fetchHandicap(${i})" ${act?'':'disabled'} title="Fetch handicap from Golf Canada"><img src="${GC_LOGO}" alt="Golf Canada"> Fetch</button>
         <button class="p-pill p-pill-save" id="savebtn${i}" onclick="saveContact(${i})" ${act?'':'disabled'} title="Save player">💾 Save</button>
-        ${act&&(nm||gid)?`<button class="p-pill p-pill-clear" onclick="clearPlayerRow(${i})" title="Clear this player">✕ Clear</button>`:''}
+        ${act&&(nm||gid)?`<button class="p-pill p-pill-clear" onclick="clearPlayerRow(${i})" title="Clear this player">✕ Clear</button>`:`<div class="p-pill" style="visibility:hidden" aria-hidden="true"></div>`}
         <select id="deck${i}" class="p-pill-deck" onchange="changeDeck(${i})" ${act?'':'disabled'} title="Tee deck">${deckOpts}</select>
       </div>
     </div>`;
@@ -2959,7 +2960,7 @@ function printStablefordCard(gi){
       <div style="font-size:11px;font-weight:800;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Points Table</div>
       <table style="border-collapse:collapse;font-size:12px">${ptTableRows}</table>
     </div>
-    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.4</div>
+    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.5</div>
   </body></html>`;
 
   const blob = new Blob([html],{type:'text/html'});
@@ -3548,7 +3549,7 @@ function renderBirdieJuice(){
   html+='</div>';
 
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.4</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.5</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -3790,7 +3791,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.4</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.5</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -4359,7 +4360,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.4</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.5</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -6477,7 +6478,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.4</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.5</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -6709,7 +6710,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.4</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.5</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -6879,7 +6880,7 @@ function openHistoryDetail(i){
     html+=`</div>`; // close card
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.4</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.5</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -7013,7 +7014,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v67.4');
+  lines.push('— Nassau Golf · Derrick GWC · v67.5');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -7584,7 +7585,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v67.4 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v67.5 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -9094,9 +9095,10 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v67.4';
+const CURRENT_VERSION = 'nassau-v67.5';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v67.5 — Handicap boxes aligned with the pills: IDX lines up with Fetch, and ADJ lines up with the tee deck pill (which drives it) in every row state.',
   'v67.4 — Fetch, Save, Clear and the tee deck are now matching equal-width pills, aligned in a single right-hand stack.',
   'v67.3 — Deck pill moved to the right edge of the player card, tucked just below the Clear button.',
   'v67.2 — Reverted player setup pill spacing back to Fetch / Save / Clear stacked together at the top.',
@@ -9447,7 +9449,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v67.4';
+const CACHE='nassau-v67.5';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
