@@ -696,7 +696,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v65.6
+    Nassau Golf · Derrick GWC · v65.8
   </div>
 </div>
 </div>
@@ -785,7 +785,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v65.6</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v65.8</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -1502,7 +1502,7 @@ function promptGcSetup(){
   return true;
 }
 document.getElementById('btnMinus').onclick=()=>{if(G.n>1){harvestPlayerInputs();G.n--;document.getElementById('cntVal').textContent=G.n;renderPlayers();renderAllPairOptions();toggleScorecardOnly();renderSnakeSetupOptions();}};
-document.getElementById('btnPlus').onclick=()=>{if(G.n<5){harvestPlayerInputs();G.n++;document.getElementById('cntVal').textContent=G.n;renderPlayers();renderAllPairOptions();renderSnakeSetupOptions();}};
+document.getElementById('btnPlus').onclick=()=>{if(G.n<5){harvestPlayerInputs();G.n++;document.getElementById('cntVal').textContent=G.n;renderPlayers();renderAllPairOptions();toggleScorecardOnly();renderSnakeSetupOptions();}};
 
 // Generate all unique 2v2 pairings for current players
 function allPairCombos(){
@@ -1548,6 +1548,7 @@ function renderAllPairOptions(){
   renderStablefordGamesList();
   renderMatchCardsSetupVisibility();
   renderMatchCardsConfig();
+  renderGameSectionsVisibility();
 }
 
 function renderTeamOptions(){
@@ -1797,28 +1798,34 @@ function setScorecardMode(scoresOnly){
 
 function toggleScorecardOnly(){
   const soBox = document.getElementById('scorecardOnly');
-  const on = G.n === 1 ? true : !!(soBox && soBox.value==='1');
+  const on = !!(soBox && soBox.value==='1');
   G.scorecardOnly = on;
   if(soBox) soBox.value = on?'1':'0';
+  const solo = G.n === 1;
   const sec = document.getElementById('bettingSections');
-  if(sec) sec.style.display = on ? 'none' : 'block';
+  if(sec) sec.style.display = (on || solo) ? 'none' : 'block';
   const snakeSection = document.getElementById('snakeSection');
-  const hideSnake = G.n === 1 || on;
+  const hideSnake = solo || on;
   if(snakeSection) snakeSection.style.display = hideSnake ? 'none' : '';
   let soloNote = document.getElementById('soloModeNote');
-  if(G.n === 1){
+  if(solo){
     if(!soloNote){
       soloNote = document.createElement('div');
       soloNote.id = 'soloModeNote';
       soloNote.style.cssText = 'font-size:12px;color:#888;text-align:center;margin:4px 0 8px;font-style:italic';
-      soloNote.textContent = 'Solo mode — scorecard only, no matches or betting';
       const cntCard = document.getElementById('cntVal') ? document.getElementById('cntVal').closest('.card') : null;
       if(cntCard) cntCard.insertAdjacentElement('afterend', soloNote);
     }
+    soloNote.textContent = on
+      ? 'Solo — keeping score only'
+      : 'Solo — only Match Cards available (add players for Nassau, 6-Point, Snake, Stableford)';
     soloNote.style.display = '';
   } else {
     if(soloNote) soloNote.style.display = 'none';
   }
+  // Keep Stableford + Match Cards sections in sync with scores-only mode
+  if(typeof renderStablefordOptions==='function') renderStablefordOptions();
+  if(typeof renderMatchCardsSetupVisibility==='function') renderMatchCardsSetupVisibility();
 }
 
 // Hide the Nassau + 6-Point bottom-nav tabs in scorecard-only rounds.
@@ -1863,7 +1870,13 @@ function startRound(){
     return;
   }
   G.par=[...DERRICK_PAR]; G.si=[...DERRICK_SI];
-  G.scorecardOnly = document.getElementById('scorecardOnly')?.value==='1';
+  const explicitScoresOnly = document.getElementById('scorecardOnly')?.value==='1';
+  G.scorecardOnly = explicitScoresOnly;
+  // Explicit "Scores Only" means no games at all — including Match Cards.
+  if(explicitScoresOnly && G.matchCards){ G.matchCards.enabled=false; G.matchCards.opponents=[]; }
+  // A solo round keeps no live betting games on the scorecard. Match Cards (if enabled)
+  // is saved as its own separate round at round end and does not affect the live scorecard.
+  if(G.n===1) G.scorecardOnly = true;
   if(G.scorecardOnly){
     // No betting games in scorecard-only mode.
     G.teamGames=[]; G.singleGames=[]; G.sixPointGames=[]; G.stablefordGames=[];
@@ -2357,8 +2370,10 @@ function computeStablefordMoney(){
 // ── Setup UI ──────────────────────────────────────────────────────────────────
 
 function renderStablefordOptions(){
+  const soBox = document.getElementById('scorecardOnly');
+  const scoresOnly = !!(soBox && soBox.value==='1');
   const wrap = document.getElementById('stablefordSetupWrap');
-  if(wrap) wrap.style.display = (G.n < 2) ? 'none' : 'block';
+  if(wrap) wrap.style.display = (G.n < 2 || scoresOnly) ? 'none' : 'block';
   const el = document.getElementById('stablefordGrid');
   if(!el) return;
   if(G.n < 2){ el.innerHTML = '<div style="font-size:13px;color:var(--red);padding:4px 0">Need 2+ players for Stableford.</div>'; return; }
@@ -2377,10 +2392,25 @@ function renderStablefordOptions(){
 // ── Match Cards setup ───────────────────────────────────────────────────────
 const MC_BET_OPTIONS=[1,2,5,10];
 
-// Show/hide the whole Match Cards section based on player count (needs scorekeeper present).
+// Show/hide the whole Match Cards section based on player count and mode.
+// Hidden in scorecard-only mode (no games at all when keeping score only).
 function renderMatchCardsSetupVisibility(){
+  const soBox = document.getElementById('scorecardOnly');
+  const scoresOnly = !!(soBox && soBox.value==='1');
   const wrap=document.getElementById('matchCardsSetupWrap');
-  if(wrap) wrap.style.display = (G.n>=1) ? 'block' : 'none';
+  if(wrap) wrap.style.display = (G.n>=1 && !scoresOnly) ? 'block' : 'none';
+}
+
+// When only 1 player, the only selectable game is Match Cards.
+// Hide Snake + the multiplayer betting sections (Nassau/6-Point). Stableford self-hides.
+function renderGameSectionsVisibility(){
+  const soBox = document.getElementById('scorecardOnly');
+  const scoresOnly = !!(soBox && soBox.value==='1');
+  const multi = G.n >= 2 && !scoresOnly;
+  const snake = document.getElementById('snakeSection');
+  const betting = document.getElementById('bettingSections');
+  if(snake) snake.style.display = multi ? 'block' : 'none';
+  if(betting) betting.style.display = multi ? 'block' : 'none';
 }
 
 function toggleMatchCards(){
@@ -2849,7 +2879,7 @@ function printStablefordCard(gi){
       <div style="font-size:11px;font-weight:800;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Points Table</div>
       <table style="border-collapse:collapse;font-size:12px">${ptTableRows}</table>
     </div>
-    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v65.6</div>
+    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v65.8</div>
   </body></html>`;
 
   const blob = new Blob([html],{type:'text/html'});
@@ -3438,7 +3468,7 @@ function renderBirdieJuice(){
   html+='</div>';
 
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v65.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v65.8</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -3680,7 +3710,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v65.6</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v65.8</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -4249,7 +4279,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v65.6</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v65.8</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -6353,7 +6383,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v65.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v65.8</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -6565,7 +6595,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v65.6</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v65.8</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -6735,7 +6765,7 @@ function openHistoryDetail(i){
     html+=`</div>`; // close card
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v65.6</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v65.8</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -6869,7 +6899,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v65.6');
+  lines.push('— Nassau Golf · Derrick GWC · v65.8');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -7438,7 +7468,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v65.6 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v65.8 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -8899,9 +8929,11 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v65.6';
+const CURRENT_VERSION = 'nassau-v65.8';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v65.8 — Scorecard-only mode now hides every game including Stableford and Match Cards; choosing Scores Only also clears any Match Cards selection.',
+  'v65.7 — With 1 player, Match Cards is the only game offered (Nassau, 6-Point, Snake, Stableford hidden until a 2nd player is added).',
   'v65.6 — Fresh starts now load just the "Me" favorite at 1 player (new round, fresh launch). Match Cards opponents now pull their default tee deck from favorites.',
   'v65.5 — Round setup now defaults to 1 player on every fresh start (new round, reset, abandon, save & pause).',
   'v65.4 — Match Cards fix: 2-opponent rounds now save reliably (hardened snapshot, blank-opponent filtering, save isolated so it can never block the normal round). Opponents excluded from each other\'s picker.',
@@ -9234,7 +9266,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v65.6';
+const CACHE='nassau-v65.8';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
