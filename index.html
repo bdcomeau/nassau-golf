@@ -700,7 +700,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v66.3
+    Nassau Golf · Derrick GWC · v66.4
   </div>
 </div>
 </div>
@@ -789,7 +789,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v66.3</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v66.4</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2894,7 +2894,7 @@ function printStablefordCard(gi){
       <div style="font-size:11px;font-weight:800;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Points Table</div>
       <table style="border-collapse:collapse;font-size:12px">${ptTableRows}</table>
     </div>
-    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v66.3</div>
+    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v66.4</div>
   </body></html>`;
 
   const blob = new Blob([html],{type:'text/html'});
@@ -3483,7 +3483,7 @@ function renderBirdieJuice(){
   html+='</div>';
 
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v66.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v66.4</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -3725,7 +3725,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v66.3</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v66.4</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -4294,7 +4294,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v66.3</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v66.4</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -6153,6 +6153,7 @@ function buildRoundSnapshot(){
       ...JSON.parse(JSON.stringify(G.snake)),
       settlements: computeSnakeSettlements()
     } : {enabled:false,holder:null,history:[]},
+    matchCards: G.matchCards ? JSON.parse(JSON.stringify(G.matchCards)) : {enabled:false,opponents:[]},
     money,
     matches,
     ...(G._scoringMatchCards ? {isMatchCards:true} : {}),
@@ -6411,7 +6412,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v66.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v66.4</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -6639,7 +6640,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v66.3</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v66.4</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -6809,7 +6810,7 @@ function openHistoryDetail(i){
     html+=`</div>`; // close card
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v66.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v66.4</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -6943,7 +6944,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v66.3');
+  lines.push('— Nassau Golf · Derrick GWC · v66.4');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -7062,6 +7063,7 @@ function editHistoryRound(){
   G.startHole  = r.startHole||1;
   G.hole       = (r.startHole||1)-1;
   G.snake = r.snake ? JSON.parse(JSON.stringify(r.snake)) : {enabled:false,holder:null,history:[],bet:5,settlements:[],participants:[],h18confirmed:false};
+  G.matchCards = r.matchCards ? JSON.parse(JSON.stringify(r.matchCards)) : {enabled:false,opponents:[]};
   if(G.snake.participants===undefined) G.snake.participants=G.players.map((_,i)=>i);
   if(G.snake.h18confirmed===undefined) G.snake.h18confirmed=false;
   G.birdieJuice= r.birdieJuice||{earned:[],redeemed:0};
@@ -7126,6 +7128,7 @@ function resumeRound(i){
   G.scorecardOnly = !!r.scorecardOnly;
   G.startHole   = r.startHole||1;
   G.snake       = r.snake ? JSON.parse(JSON.stringify(r.snake)) : {enabled:false,holder:null,history:[],bet:5,settlements:[],participants:[],h18confirmed:false};
+  G.matchCards  = r.matchCards ? JSON.parse(JSON.stringify(r.matchCards)) : {enabled:false,opponents:[]};
   G.birdieJuice = r.birdieJuice||{earned:[],redeemed:0};
   G.weatherStart = r.weatherStart||null;
   G.weatherEnd   = null; // will be recaptured when round finishes
@@ -7512,7 +7515,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v66.3 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v66.4 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -8973,9 +8976,10 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v66.3';
+const CURRENT_VERSION = 'nassau-v66.4';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v66.4 — Match Cards now survives Save & Pause: the config is stored in the round snapshot and restored on Resume (and Edit), so it is no longer lost on a paused round.',
   'v66.3 — Fixed intermittent Match Cards bug: the companion Match Cards round is now created idempotently and is no longer lost to a save race with the normal round.',
   'v66.2 — Diagnostic build: if Match Cards is enabled but no round is created at save, the app now shows why (valid opponent count or error) instead of failing silently.',
   'v66.1 — Fixed blank-green scorecard bug: the app no longer jumps to the scorecard from a setup-in-progress state on reload — it only restores a round that was actually started.',
@@ -9315,7 +9319,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v66.3';
+const CACHE='nassau-v66.4';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
