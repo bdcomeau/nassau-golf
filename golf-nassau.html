@@ -696,7 +696,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v65.3
+    Nassau Golf · Derrick GWC · v65.4
   </div>
 </div>
 </div>
@@ -785,7 +785,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v65.3</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v65.4</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2470,9 +2470,11 @@ function renderMatchCardsConfig(){
   let h=`<div style="font-size:11px;color:#888;margin-bottom:8px">You (<b>${skName}</b>) play a separate 1v1 Nassau vs each match-card opponent.</div>`;
 
   opps.forEach((o,k)=>{
+    const otherPicked=opps.filter((_,j)=>j!==k).map(x=>x.name).filter(Boolean);
     const optlist=`<option value="">— select saved player —</option>`+contacts
       .filter(c=>!c.me)
       .filter(c=>!contactInNormalRound(c,nrKeys) || c.name===o.name)
+      .filter(c=>!otherPicked.includes(c.name) || c.name===o.name)
       .map(c=>`<option value="${c.name}"${o.name===c.name?' selected':''}>${c.name}${c.idx!=null?' ('+c.idx+')':''}</option>`).join('');
     const adj=(o.hdcpBaseline!=null)?deckAdjust(o.hdcpBaseline,o.deck):(o.idx!=null?o.idx:'—');
     h+=`<div style="border:1px solid #d8cce8;border-radius:10px;padding:10px;margin-bottom:10px;background:#fff">
@@ -2847,7 +2849,7 @@ function printStablefordCard(gi){
       <div style="font-size:11px;font-weight:800;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Points Table</div>
       <table style="border-collapse:collapse;font-size:12px">${ptTableRows}</table>
     </div>
-    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v65.3</div>
+    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v65.4</div>
   </body></html>`;
 
   const blob = new Blob([html],{type:'text/html'});
@@ -3436,7 +3438,7 @@ function renderBirdieJuice(){
   html+='</div>';
 
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v65.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v65.4</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -3678,7 +3680,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v65.3</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v65.4</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -4247,7 +4249,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v65.3</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v65.4</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -6100,9 +6102,12 @@ function saveRoundToHistory(){
   hist.unshift(buildRoundSnapshot()); // most recent first
   // If Match Cards enabled, also create a separate 1v1 Match Cards round (scorekeeper + 1-2 opponents).
   // Skip when we're scoring an existing Match Cards round (avoid spawning a duplicate).
+  // Wrapped so a Match Cards build issue can never lose the normal round.
   if(!G._scoringMatchCards){
-    const mc = buildMatchCardsSnapshot();
-    if(mc) hist.unshift(mc);
+    try{
+      const mc = buildMatchCardsSnapshot();
+      if(mc) hist.unshift(mc);
+    }catch(e){ console.error('Match Cards round build failed:', e); }
   }
   saveHistoryList(hist);
   G._scoringMatchCards = false;
@@ -6113,21 +6118,26 @@ function saveRoundToHistory(){
 // (scores blank, filled later in the clubhouse). One 1v1 Nassau per opponent.
 function buildMatchCardsSnapshot(){
   const mcCfg = G.matchCards;
-  if(!mcCfg || !mcCfg.enabled || !Array.isArray(mcCfg.opponents) || mcCfg.opponents.length===0) return null;
+  if(!mcCfg || !mcCfg.enabled || !Array.isArray(mcCfg.opponents)) return null;
 
-  const opps = mcCfg.opponents.slice(0,2);
+  // Only include opponents that have actually been chosen (have a name)
+  const opps = mcCfg.opponents.filter(o=>o && o.name && String(o.name).trim()).slice(0,2);
+  if(opps.length===0) return null;
+
   const n = 1 + opps.length;
 
   // Player 0 = scorekeeper (copy from live round player 0)
   const sk = G.players[0] || {};
-  const players = [{ name: sk.name||'Me', idx: sk.idx }];
+  const players = [{ name: sk.name||'Me', idx: (sk.idx!=null?sk.idx:0) }];
   opps.forEach(o=>{
-    players.push({ name:o.name||'Opponent', idx:o.idx });
+    const oidx = (o.idx!=null) ? o.idx
+               : (o.hdcpBaseline!=null ? deckAdjust(o.hdcpBaseline, o.deck||'DECK2') : 0);
+    players.push({ name:o.name||'Opponent', idx:(oidx!=null?oidx:0) });
   });
 
   // Scores: scorekeeper's 18 copied by value; opponents blank
   const scores = [];
-  scores.push((G.scores[0]||[]).map(v=>v));
+  scores.push((G.scores[0]||Array(18).fill(null)).map(v=>v));
   for(let k=0;k<opps.length;k++){ scores.push(Array(18).fill(null)); }
 
   // One 1v1 Nassau per opponent: scorekeeper (0) vs opponent (k+1)
@@ -6323,7 +6333,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v65.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v65.4</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -6535,7 +6545,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v65.3</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v65.4</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -6705,7 +6715,7 @@ function openHistoryDetail(i){
     html+=`</div>`; // close card
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v65.3</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v65.4</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -6839,7 +6849,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v65.3');
+  lines.push('— Nassau Golf · Derrick GWC · v65.4');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -7408,7 +7418,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v65.3 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v65.4 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -7998,8 +8008,10 @@ function renderMMMatchCards(){
     const nrKeys=normalRoundPlayerKeys();
     h+=`<div style="font-size:11px;color:#888;margin-bottom:8px">Not scored live. At round end a separate ⚔️ round saves with <b>${skName}</b>'s scores prefilled; enter opponents' scores later from History.</div>`;
     (mc.opponents||[]).forEach((o,k)=>{
+      const otherPicked=(mc.opponents||[]).filter((_,j)=>j!==k).map(x=>x.name).filter(Boolean);
       const optlist=`<option value="">— select saved player —</option>`+contacts.filter(c=>!c.me)
         .filter(c=>!contactInNormalRound(c,nrKeys) || c.name===o.name)
+        .filter(c=>!otherPicked.includes(c.name) || c.name===o.name)
         .map(c=>`<option value="${c.name}"${o.name===c.name?' selected':''}>${c.name}${c.idx!=null?' ('+c.idx+')':''}</option>`).join('');
       const adj=(o.hdcpBaseline!=null)?deckAdjust(o.hdcpBaseline,o.deck):(o.idx!=null?o.idx:'—');
       h+=`<div style="border:1px solid #d8cce8;border-radius:10px;padding:10px;margin-bottom:10px;background:#faf8fc">
@@ -8867,9 +8879,10 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v65.3';
+const CURRENT_VERSION = 'nassau-v65.4';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v65.4 — Match Cards fix: 2-opponent rounds now save reliably (hardened snapshot, blank-opponent filtering, save isolated so it can never block the normal round). Opponents excluded from each other\'s picker.',
   'v65.3 — Match Cards: Score Round pill opens the round like a rained-out game (live scorecard, prefilled scores, no edit buttons); auto-saves on the 18th hole keeping the ⚔️ mark, then New Round is available.',
   'v65.2 — Match Cards: players already in the normal round are filtered out of the opponent picker (matched by Golf Canada ID).',
   'v65.1 — Match Cards: 1v1 Nassau vs up to 2 players from other groups. Enable at setup or mid-round. Saves a separate ⚔️ Match Cards round at round end (your scores prefilled); a 📝 Score Round pill prompts you to enter opponents scores later from History, and disappears once scored.',
@@ -9182,7 +9195,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v65.3';
+const CACHE='nassau-v65.4';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
