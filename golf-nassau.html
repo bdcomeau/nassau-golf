@@ -718,7 +718,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v67.10
+    Nassau Golf · Derrick GWC · v67.11
   </div>
 </div>
 </div>
@@ -807,7 +807,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.10</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.11</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2964,7 +2964,7 @@ function printStablefordCard(gi){
       <div style="font-size:11px;font-weight:800;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Points Table</div>
       <table style="border-collapse:collapse;font-size:12px">${ptTableRows}</table>
     </div>
-    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.10</div>
+    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.11</div>
   </body></html>`;
 
   const blob = new Blob([html],{type:'text/html'});
@@ -3456,8 +3456,10 @@ function checkBirdieStreak(pi, h){
   }
   const name = G.players[pi].name.split(' ')[0];
   if(streak === 3) showTurkeyPopup(name);
-  else if(streak === 4) showOnFirePopup(name);
-  else if(streak >= 5) showLegendPopup(name, streak);
+  else if(streak === 4) showFourBaggerPopup(name);
+  else if(streak === 5) showBadgerPopup(name);
+  else if(streak === 6) showSixPackPopup(name);
+  else if(streak >= 7) showLegendPopup(name, streak);
 }
 
 function showTurkeyPopup(name){
@@ -3472,15 +3474,39 @@ function showTurkeyPopup(name){
     </div>`);
 }
 
-function showOnFirePopup(name){
+function showFourBaggerPopup(name){
   _showBJOverlay('streakPopup',`
-    <div style="background:linear-gradient(160deg,#1a0500,#c0392b,#e74c3c,#ff6b35);border-radius:16px;padding:30px 24px;max-width:340px;text-align:center;position:relative;overflow:hidden">
-      <div style="position:absolute;top:0;left:0;right:0;bottom:0;opacity:.08;font-size:80px;pointer-events:none;display:flex;flex-wrap:wrap;justify-content:center">🔥🔥🔥🔥🔥🔥</div>
-      <div style="font-size:72px;margin-bottom:4px">🔥</div>
-      <div style="font-size:12px;font-weight:800;color:rgba(255,220,150,.8);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">4 Birdies in a Row</div>
-      <div style="font-size:28px;font-weight:800;color:#fff;margin-bottom:10px">ON FIRE! 🔥🔥</div>
-      <div style="font-size:14px;color:rgba(255,255,255,.9);margin-bottom:20px"><b>${name}</b> is absolutely on fire! Four in a row — nobody can stop this round! 🏌️‍♂️💨</div>
-      <button class="export-overlay-btn save" style="width:100%;background:rgba(255,255,255,.15);color:#fff;border:1.5px solid rgba(255,255,255,.3)" onclick="document.getElementById('streakPopup').remove()">🔥 Keep it going!</button>
+    <div style="background:linear-gradient(160deg,#0a2342,#11479c,#1d6fd6,#3a9bdc);border-radius:16px;padding:30px 24px;max-width:340px;text-align:center;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;opacity:.08;font-size:80px;pointer-events:none;display:flex;flex-wrap:wrap;justify-content:center">⚾⚾⚾⚾⚾⚾</div>
+      <div style="font-size:72px;margin-bottom:4px;animation:wobble 0.6s ease infinite alternate">⚾</div>
+      <div style="font-size:12px;font-weight:800;color:rgba(255,255,255,.7);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">4 Birdies in a Row</div>
+      <div style="font-size:28px;font-weight:800;color:#fff;margin-bottom:10px">FOUR-BAGGER! ⚾</div>
+      <div style="font-size:14px;color:rgba(255,255,255,.9);margin-bottom:20px"><b>${name}</b> just went yard! Four birdies in a row — that's a grand slam of a stretch! 💥</div>
+      <button class="export-overlay-btn save" style="width:100%;background:rgba(255,255,255,.18);color:#fff;border:1.5px solid rgba(255,255,255,.4)" onclick="document.getElementById('streakPopup').remove()">⚾ Round the bases!</button>
+    </div>`);
+}
+
+function showBadgerPopup(name){
+  _showBJOverlay('streakPopup',`
+    <div style="background:linear-gradient(160deg,#1a1a1a,#3a3a3a,#5a5a5a);border-radius:16px;padding:30px 24px;max-width:340px;text-align:center;position:relative;overflow:hidden;border:2px solid #ddd">
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;opacity:.07;font-size:80px;pointer-events:none;display:flex;flex-wrap:wrap;justify-content:center">🦡🦡🦡🦡🦡🦡</div>
+      <div style="font-size:72px;margin-bottom:4px;animation:wobble 0.6s ease infinite alternate">🦡</div>
+      <div style="font-size:12px;font-weight:800;color:rgba(255,255,255,.7);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">5 Birdies in a Row</div>
+      <div style="font-size:28px;font-weight:800;color:#fff;margin-bottom:10px">BADGER! 🦡</div>
+      <div style="font-size:14px;color:rgba(255,255,255,.9);margin-bottom:20px"><b>${name}</b> is a five-bagger badger — relentless! Five birdies in a row and digging for more. 🔥</div>
+      <button class="export-overlay-btn save" style="width:100%;background:rgba(255,255,255,.18);color:#fff;border:1.5px solid rgba(255,255,255,.4)" onclick="document.getElementById('streakPopup').remove()">🦡 Keep digging!</button>
+    </div>`);
+}
+
+function showSixPackPopup(name){
+  _showBJOverlay('streakPopup',`
+    <div style="background:linear-gradient(160deg,#3d2200,#a86b00,#d4a017,#f4c542);border-radius:16px;padding:30px 24px;max-width:340px;text-align:center;position:relative;overflow:hidden;border:2px solid #fff0c0">
+      <div style="position:absolute;top:0;left:0;right:0;bottom:0;opacity:.1;font-size:60px;pointer-events:none;display:flex;flex-wrap:wrap;justify-content:center">🍺🍺🍺🍺🍺🍺</div>
+      <div style="font-size:72px;margin-bottom:4px;animation:wobble 0.6s ease infinite alternate">🍺</div>
+      <div style="font-size:12px;font-weight:800;color:rgba(255,255,255,.75);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">6 Birdies in a Row</div>
+      <div style="font-size:28px;font-weight:800;color:#fff;margin-bottom:10px">SIX-PACK! 🍺</div>
+      <div style="font-size:14px;color:rgba(255,255,255,.92);margin-bottom:20px"><b>${name}</b> just carded a full Six-Pack — six birdies in a row! The Birdie Juice is flowing tonight. 🍻</div>
+      <button class="export-overlay-btn save" style="width:100%;background:rgba(255,255,255,.2);color:#fff;border:1.5px solid rgba(255,255,255,.45)" onclick="document.getElementById('streakPopup').remove()">🍺 Crack one open!</button>
     </div>`);
 }
 
@@ -3601,7 +3627,7 @@ function renderBirdieJuice(){
   html+='</div>';
 
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.10</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.11</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -3862,7 +3888,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.10</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.11</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -4431,7 +4457,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.10</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.11</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -6550,7 +6576,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.10</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.11</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -6782,7 +6808,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.10</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.11</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -6952,7 +6978,7 @@ function openHistoryDetail(i){
     html+=`</div>`; // close card
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.10</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.11</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -7086,7 +7112,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v67.10');
+  lines.push('— Nassau Golf · Derrick GWC · v67.11');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -7657,7 +7683,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v67.10 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v67.11 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -9167,9 +9193,10 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v67.10';
+const CURRENT_VERSION = 'nassau-v67.11';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v67.11 — Birdie-streak celebrations re-themed: 4 in a row is now "Four-Bagger" (baseball), 5 is "Badger," and a new 6-in-a-row "Six-Pack" tier was added; Legend now starts at 7.',
   'v67.10 — Further hardened the bottom Help bar and in-round nav bar against iOS momentum-scroll drift (GPU layer + translate3d) so they stay pinned to the bottom.',
   'v67.9 — Fixed the bottom Help / version bar drifting up into the setup list on iOS; it is now locked to its own layer so it stays pinned to the bottom while scrolling.',
   'v67.8 — Fixed: selecting Stableford on its own now counts as a game, so the round starts without the "add at least one game" error.',
@@ -9526,7 +9553,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v67.10';
+const CACHE='nassau-v67.11';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
