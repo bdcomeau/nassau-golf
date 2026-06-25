@@ -671,7 +671,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v61.0
+    Nassau Golf · Derrick GWC · v61.2
   </div>
 </div>
 </div>
@@ -755,7 +755,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v61.0</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v61.2</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2422,16 +2422,16 @@ function renderStablefordCard(game, gi){
   });
 
   // Helper: render gross score with stroke circle indicator
+  const C='#c0392b';
   function scoreWithCircle(gross, stk){
-    // Always show circle if player gets a stroke here — even if no score yet
     if(gross===null){
-      if(stk===2) return '<span class="circle-empty2">·</span>';
-      if(stk===1) return '<span class="circle-empty1">·</span>';
-      return '<span style="color:#bbb">·</span>';
+      if(stk===2) return `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;border:1.5px solid ${C};box-shadow:0 0 0 2px #fff,0 0 0 3.5px ${C}"></span>`;
+      if(stk===1) return `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;border:1.5px solid ${C}"></span>`;
+      return `<span style="display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;color:#ccc;font-size:11px">·</span>`;
     }
-    if(stk===2) return `<span style="display:inline-block;border:1.5px solid var(--red);border-radius:50%;padding:1px"><span style="display:inline-block;min-width:13px;height:13px;line-height:13px;border:1.5px solid var(--red);border-radius:50%;font-size:9px;font-weight:800;text-align:center">${gross}</span></span>`;
-    if(stk===1) return `<span style="display:inline-block;min-width:15px;height:15px;line-height:15px;border:1.5px solid var(--red);border-radius:50%;font-size:9px;font-weight:800;text-align:center">${gross}</span>`;
-    return `<span style="font-weight:800;font-size:10px">${gross}</span>`;
+    if(stk===2) return `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;border:1.5px solid ${C};box-shadow:0 0 0 2px #fff,0 0 0 3.5px ${C};font-size:10px;font-weight:800">${gross}</span>`;
+    if(stk===1) return `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;border:1.5px solid ${C};font-size:10px;font-weight:800">${gross}</span>`;
+    return `<span style="display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;font-size:11px;font-weight:800">${gross}</span>`;
   }
 
   // Helper: points badge colour
@@ -2444,7 +2444,7 @@ function renderStablefordCard(game, gi){
   // Column widths
   const nPlayers = game.players.length;
 
-  let html = `<div class="msum" style="margin-top:14px;border:1.5px solid ${TEAL};border-radius:12px;overflow:hidden">`;
+  let html = `<div class="msum" style="margin-top:14px;border:1.5px solid ${TEAL};border-radius:12px;overflow:hidden" data-sf="1">`;
 
   // Header
   html += `<div style="background:linear-gradient(135deg,${TEAL},#1a4a3a);padding:10px 14px;display:flex;align-items:center;justify-content:space-between">`;
@@ -2484,12 +2484,11 @@ function renderStablefordCard(game, gi){
       const stk   = strokeMaps[ii][h];
       const p     = holePts ? holePts[ii] : null;
       if(p!==null && p!==undefined){ if(hi<9) frontPts[ii]+=p; else backPts[ii]+=p; }
-      const bg = (p!==null&&p!==undefined&&p>0) ? ptsBg(p) : rowBg;
-      const fg = ptsFg(p);
+      const pBg = ptsBg(p); const pFg = ptsFg(p);
       const pDisp = p!==null&&p!==undefined
-        ? `<div style="display:inline-block;min-width:16px;height:16px;line-height:16px;border-radius:50%;background:${ptsBg(p)};color:${fg};font-size:9px;font-weight:800;text-align:center">${p}</div>`
-        : `<div style="color:#ccc;font-size:9px;line-height:16px">·</div>`;
-      html += `<td style="background:${rowBg};padding:2px 1px;text-align:center;vertical-align:middle"><div style="display:grid;grid-template-columns:22px 18px;align-items:center;justify-items:center;gap:0"><div>${scoreWithCircle(gross,stk)}</div><div>${pDisp}</div></div></td>`;
+        ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:${pBg};color:${pFg};font-size:10px;font-weight:800">${p}</span>`
+        : `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;color:#ccc;font-size:11px">·</span>`;
+      html += `<td style="background:${rowBg};padding:3px 2px;text-align:center;vertical-align:middle"><div style="display:flex;align-items:center;justify-content:center;gap:4px">${scoreWithCircle(gross,stk)}${pDisp}</div></td>`;
     });
     html += `</tr>`;
 
@@ -2565,14 +2564,15 @@ function printStablefordCard(gi){
 
   function scoreCell(gross, stk){
     const R='#c0392b';
+    const sz='display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;font-size:10px;font-weight:800';
     if(gross===null){
-      if(stk===2) return `<span style="display:inline-block;border:1.5px solid ${R};border-radius:50%;padding:1px"><span style="display:inline-block;min-width:12px;height:12px;line-height:12px;border:1.5px solid ${R};border-radius:50%;font-size:9px;color:transparent;text-align:center">·</span></span>`;
-      if(stk===1) return `<span style="display:inline-block;min-width:14px;height:14px;line-height:14px;border:1.5px solid ${R};border-radius:50%;font-size:9px;color:transparent;text-align:center">·</span>`;
-      return '·';
+      if(stk===2) return `<span style="${sz};border:1.5px solid ${R};box-shadow:0 0 0 2px #fff,0 0 0 3px ${R}"></span>`;
+      if(stk===1) return `<span style="${sz};border:1.5px solid ${R}"></span>`;
+      return `<span style="display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;color:#ccc">·</span>`;
     }
-    if(stk===2) return `<span style="display:inline-block;border:1.5px solid ${R};border-radius:50%;padding:1px"><span style="display:inline-block;min-width:12px;height:12px;line-height:12px;border:1.5px solid ${R};border-radius:50%;font-size:9px;font-weight:800;text-align:center">${gross}</span></span>`;
-    if(stk===1) return `<span style="display:inline-block;min-width:14px;height:14px;line-height:14px;border:1.5px solid ${R};border-radius:50%;font-size:9px;font-weight:800;text-align:center">${gross}</span>`;
-    return `<b style="font-size:10px">${gross}</b>`;
+    if(stk===2) return `<span style="${sz};border:1.5px solid ${R};box-shadow:0 0 0 2px #fff,0 0 0 3px ${R}">${gross}</span>`;
+    if(stk===1) return `<span style="${sz};border:1.5px solid ${R}">${gross}</span>`;
+    return `<span style="display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;font-size:10px;font-weight:800">${gross}</span>`;
   }
 
   function ptsBg(p){ if(p===null||p===undefined) return 'transparent'; if(p>=5) return '#6c3483'; if(p===4) return '#1a5c3a'; if(p===3) return '#155724'; if(p===2) return '#1a3a2a'; if(p===1) return '#856404'; return '#bbb'; }
@@ -2603,9 +2603,9 @@ function printStablefordCard(gi){
       const p     = holePts ? holePts[ii] : null;
       if(p!==null&&p!==undefined){ if(hi<9) frontPts[ii]+=p; else backPts[ii]+=p; }
       const pDisp = p!==null&&p!==undefined
-        ? `<div style="display:inline-block;min-width:15px;height:15px;line-height:15px;border-radius:50%;background:${ptsBg(p)};color:${ptsFg(p)};font-size:8px;font-weight:800;text-align:center">${p}</div>`
-        : `<div style="color:#ccc;font-size:8px;line-height:15px">·</div>`;
-      rows += `<td style="background:${rowBg};padding:2px 1px;text-align:center;border:1px solid #e0e0e0;vertical-align:middle"><div style="display:grid;grid-template-columns:22px 18px;align-items:center;justify-items:center;gap:0"><div>${scoreCell(gross,stk)}</div><div>${pDisp}</div></div></td>`;
+        ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:${ptsBg(p)};color:${ptsFg(p)};font-size:10px;font-weight:800">${p}</span>`
+        : `<span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;color:#ccc;font-size:10px">·</span>`;
+      rows += `<td style="background:${rowBg};padding:3px 2px;text-align:center;border:1px solid #e0e0e0;vertical-align:middle"><div style="display:flex;align-items:center;justify-content:center;gap:3px">${scoreCell(gross,stk)}${pDisp}</div></td>`;
     });
     rows += `</tr>`;
 
@@ -2684,7 +2684,7 @@ function printStablefordCard(gi){
       <div style="font-size:11px;font-weight:800;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Points Table</div>
       <table style="border-collapse:collapse;font-size:12px">${ptTableRows}</table>
     </div>
-    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v61.0</div>
+    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v61.2</div>
   </body></html>`;
 
   const blob = new Blob([html],{type:'text/html'});
@@ -3273,7 +3273,7 @@ function renderBirdieJuice(){
   html+='</div>';
 
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v61.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v61.2</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -3506,7 +3506,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v61.0</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v61.2</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -4075,7 +4075,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v61.0</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v61.2</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -5011,7 +5011,7 @@ function showS(name){
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
   { const _ni=document.getElementById(`ni-${name}`); if(_ni) _ni.classList.add('active'); }
   // Highlight Games hub when viewing any game screen — use separate class so indicator doesn't double up
-  const _gameScreens=['bets','sixpoint','snake','birdiejuice'];
+  const _gameScreens=['bets','sixpoint','snake','birdiejuice','stableford'];
   const _gamesTab=document.getElementById('ni-games');
   if(_gamesTab) _gamesTab.classList.remove('active','ni-games-active');
   if(_gamesTab && _gameScreens.includes(name)) _gamesTab.classList.add('ni-games-active');
@@ -5021,6 +5021,7 @@ function showS(name){
   if(name==='sixpoint')renderSixPoint();
   if(name==='snake')renderSnakeTab();
   if(name==='birdiejuice')renderBirdieJuice();
+  if(name==='stableford'){ renderBets(); setTimeout(()=>{ const el=document.querySelector('.msum[data-sf]')||document.querySelector('[id^=sf-card]'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); },100); }
   if(name==='history'){
     renderHistory();
     // Show "back to setup" header only if there's no round in progress (bnav hidden)
@@ -6034,7 +6035,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v61.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v61.2</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -6225,7 +6226,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v61.0</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v61.2</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -6395,7 +6396,7 @@ function openHistoryDetail(i){
     html+=`</div>`; // close card
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v61.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v61.2</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -6529,7 +6530,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v61.0');
+  lines.push('— Nassau Golf · Derrick GWC · v61.2');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -6957,14 +6958,15 @@ function buildPrintHTML(snap){
       });
       function sfScoreCell(gross,stk){
         const R2='#c0392b';
+        const sz2='display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;font-size:9px;font-weight:800';
         if(gross===null){
-          if(stk===2) return `<span style="display:inline-block;border:1.5px solid ${R2};border-radius:50%;padding:0px"><span style="display:inline-block;min-width:11px;height:11px;line-height:11px;border:1.5px solid ${R2};border-radius:50%;font-size:8px;color:transparent;text-align:center">·</span></span>`;
-          if(stk===1) return `<span style="display:inline-block;min-width:13px;height:13px;line-height:13px;border:1.5px solid ${R2};border-radius:50%;font-size:8px;color:transparent;text-align:center">·</span>`;
-          return '·';
+          if(stk===2) return `<span style="${sz2};border:1.5px solid ${R2};box-shadow:0 0 0 1.5px #fff,0 0 0 3px ${R2}"></span>`;
+          if(stk===1) return `<span style="${sz2};border:1.5px solid ${R2}"></span>`;
+          return `<span style="display:inline-block;width:14px;height:14px;line-height:14px;text-align:center;color:#ccc;font-size:9px">·</span>`;
         }
-        if(stk===2) return `<span style="display:inline-block;border:1.5px solid ${R2};border-radius:50%;padding:0px"><span style="display:inline-block;min-width:11px;height:11px;line-height:11px;border:1.5px solid ${R2};border-radius:50%;font-size:8px;font-weight:800;text-align:center">${gross}</span></span>`;
-        if(stk===1) return `<span style="display:inline-block;min-width:13px;height:13px;line-height:13px;border:1.5px solid ${R2};border-radius:50%;font-size:8px;font-weight:800;text-align:center">${gross}</span>`;
-        return `<b style="font-size:9px">${gross}</b>`;
+        if(stk===2) return `<span style="${sz2};border:1.5px solid ${R2};box-shadow:0 0 0 1.5px #fff,0 0 0 3px ${R2}">${gross}</span>`;
+        if(stk===1) return `<span style="${sz2};border:1.5px solid ${R2}">${gross}</span>`;
+        return `<span style="display:inline-block;width:14px;height:14px;line-height:14px;text-align:center;font-size:9px;font-weight:800">${gross}</span>`;
       }
       function sfPtsBg(p){if(p===null||p===undefined)return'transparent';if(p>=5)return'#6c3483';if(p===4)return'#1a5c3a';if(p===3)return'#155724';if(p===2)return'#1a3a2a';if(p===1)return'#856404';return'#bbb';}
       function sfPtsFg(p){return(p===null||p===undefined||p===0)?'#888':'#fff';}
@@ -6984,9 +6986,9 @@ function buildPrintHTML(snap){
           const p=holePts?holePts[ii]:null;
           if(p!==null&&p!==undefined){if(playIdx<9)frontT[ii]+=p;else backT[ii]+=p;}
           const pDisp=p!==null&&p!==undefined
-            ?`<div style="display:inline-block;min-width:12px;height:12px;line-height:12px;border-radius:50%;background:${sfPtsBg(p)};color:${sfPtsFg(p)};font-size:7px;font-weight:800;text-align:center">${p}</div>`
-            :`<div style="color:#ccc;font-size:7px;line-height:12px">·</div>`;
-          st+=`<td style="background:${rowBg};padding:2px 1px;text-align:center;border:1px solid #ddd;vertical-align:middle"><div style="display:grid;grid-template-columns:22px 18px;align-items:center;justify-items:center;gap:0"><div>${sfScoreCell(gross,stk)}</div><div>${pDisp}</div></div></td>`;
+            ?`<span style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:${sfPtsBg(p)};color:${sfPtsFg(p)};font-size:9px;font-weight:800">${p}</span>`
+            :`<span style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;color:#ccc;font-size:9px">·</span>`;
+          st+=`<td style="background:${rowBg};padding:2px 1px;text-align:center;border:1px solid #ddd;vertical-align:middle;white-space:nowrap"><div style="display:flex;align-items:center;justify-content:center;gap:2px">${sfScoreCell(gross,stk)}${pDisp}</div></td>`;
         });
         st+='</tr>';
         if(playIdx===8){
@@ -7084,7 +7086,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v61.0 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v61.2 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -7403,6 +7405,11 @@ function buildGamesMenuList(){
     games.push({id:'sixpoint',icon:'6️⃣',label:'6-Point Game',sub:G.sixPointGames.length+' active game'+(G.sixPointGames.length>1?'s':'')});
   if(G.snake&&G.snake.enabled)
     games.push({id:'snake',icon:'🐍',label:'Snake 3-Putt',sub:'$'+G.snake.bet+'/player · settles after '+SNAKE_SETTLE_HOLES.map(pi=>actualHoleIdx(pi)+1).join(',')});
+  if(!so && G.stablefordGames&&G.stablefordGames.length&&G.stablefordGames[0].players&&G.stablefordGames[0].players.length>=2){
+    const sfGame=G.stablefordGames[0];
+    const sfNames=sfGame.players.map(pi=>(G.players[pi]||{}).name||'').map(n=>n.split(' ')[0]).join(', ');
+    games.push({id:'stableford',icon:'🏆',label:'Stableford',sub:'$'+(sfGame.betPerPoint||1)+'/pt · '+sfNames});
+  }
   if(!games.length){
     el.innerHTML='<div style="padding:20px;text-align:center;color:#888;font-size:13px">No games active this round.</div>';
     return;
@@ -8433,12 +8440,12 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v61.0';
+const CURRENT_VERSION = 'nassau-v61.2';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
-  'v61.0 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
+  'v61.2 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
   'v31.9 — Weather: rain history using correct 24hr chunks and archive interval summation',
-  'v61.0 — Removed rain history feature (WeatherLink historic API not supported)',
+  'v61.2 — Removed rain history feature (WeatherLink historic API not supported)',
   'v31.3 — Fixed: stray backslash before SW template literal closing backtick',
   'v31.2 — Fixed: renderSingles undefined error on setup screen',
   'v31.1 — Weather: 7-day rain total added alongside 24hr in setup rain widget (one API call)',
@@ -8745,7 +8752,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v61.0';
+const CACHE='nassau-v61.2';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
