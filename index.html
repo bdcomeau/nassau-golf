@@ -5781,7 +5781,7 @@ function computeLiveMoney(){
       const key=g.isFrontPress?g.label+'#leg18':g.label;
       if(bucketed.has(key)) return; // bucketed into International
       if(g.isFrontPress){
-        // Front press: leg9 (front 9 of press) and leg18 (full press)
+        // Front press: leg9 (front 9 of press) and leg18 (full press through 18)
         [{leg:g.leg9,key:g.label+'#leg9'},{leg:g.leg18,key:g.label+'#leg18'}].forEach(({leg,key})=>{
           if(bucketed.has(key)) return;
           if(!leg||leg.holesPlayed===0) return;
@@ -5790,7 +5790,6 @@ function computeLiveMoney(){
             const wi=leg.score>0?m.sideA:m.sideB, li=leg.score>0?m.sideB:m.sideA;
             wi.forEach(i=>total[i]+=amt); li.forEach(i=>total[i]-=amt);
           } else if(!leg.settled&&leg.score!==0){
-            // Mid-round — project current leader
             const wi=leg.score>0?m.sideA:m.sideB, li=leg.score>0?m.sideB:m.sideA;
             wi.forEach(i=>total[i]+=amt); li.forEach(i=>total[i]-=amt);
           }
