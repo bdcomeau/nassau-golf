@@ -648,6 +648,18 @@ input::placeholder{color:#bbb}
 
 </div>
 
+  <div onclick="var s=this.nextElementSibling;s.style.display=s.style.display==='none'?'block':'none';this.querySelector('.sc').textContent=s.style.display==='none'?'▶':'▼'" style="display:flex;align-items:center;justify-content:space-between;background:#1a2a3a;border:1px solid rgba(201,168,76,.3);border-radius:8px;padding:10px 14px;margin:0 0 4px;cursor:pointer">
+    <span class="slabel" style="color:#c9a84c;margin:0;padding:0;background:none;font-size:13px">🏆 Stableford</span><span class="sc" style="color:#c9a84c;font-size:12px">▶</span>
+  </div>
+  <div style="display:none;margin-bottom:8px">
+    <div class="card" id="stablefordSetupCard" style="background:#e8eef5">
+      <div style="font-size:12px;color:#666;margin:0 0 8px">Individual points game. Full handicap applied. Highest points total wins — loser pays winner the points difference × bet.</div>
+      <div id="stablefordGrid"></div>
+      <div id="stablefordGamesList"></div>
+      <button onclick="this.closest('div[style*=display]').style.display='none';this.closest('div[style*=display]').previousElementSibling.querySelector('.sc').textContent='▶'" style="width:100%;margin-top:8px;padding:6px;background:rgba(255,255,255,.06);border:none;border-radius:6px;color:#888;font-size:11px;cursor:pointer">▲ Collapse</button>
+    </div>
+  </div>
+
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
 
@@ -659,7 +671,7 @@ input::placeholder{color:#bbb}
     💾 Back up your data regularly — tap <b>History</b> → Export Backup
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v60.0
+    Nassau Golf · Derrick GWC · v60.1
   </div>
 </div>
 </div>
@@ -743,7 +755,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v60.0</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v60.1</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -772,7 +784,8 @@ const G = {
   scorecardOnly:false, // when true: no Nassau/6-Point, just keep score
   weatherStart:null, weatherEnd:null, // {tempC,humidity,windKmh,windDir,label,ts} snapshots
   startHole:1, // 1-18: actual hole number the group tees off on (shotgun starts)
-  sixPointGames:[], // [{players:[i,i,i], perPoint:1}]
+  sixPointGames:[],
+  stablefordGames:[], // [{players:[i,i,i], perPoint:1}]
   birdieJuice:{ earned:[], redeemed:0 }, // earned:[{pi,h,actualHole,playerName}], redeemed:int
   snake:{ enabled:false, holder:null, history:[], bet:5, settlements:[], participants:[], h18confirmed:false },
   autoAdvance: true,
@@ -830,6 +843,7 @@ function loadG(){
     if(!G.roundDate) G.roundDate = new Date().toISOString();
     if(!G.startHole || G.startHole<1 || G.startHole>18) G.startHole = 1;
     if(!Array.isArray(G.sixPointGames)) G.sixPointGames = [];
+    if(!Array.isArray(G.stablefordGames)) G.stablefordGames = [];
     if(!G.birdieJuice || !Array.isArray(G.birdieJuice.earned)) G.birdieJuice = {earned:[], redeemed:0};
     if(G.weatherStart===undefined) G.weatherStart=null;
     if(G.weatherEnd===undefined) G.weatherEnd=null;
@@ -1497,6 +1511,8 @@ function renderAllPairOptions(){
   renderSingleGamesList();
   renderSixPointOptions();
   renderSixPointGamesList();
+  renderStablefordOptions();
+  renderStablefordGamesList();
 }
 
 function renderTeamOptions(){
@@ -1642,7 +1658,7 @@ function confirmResetSetup(){
     const ct=document.getElementById(`contact${i}`); if(ct) ct.value='';
   }
   // Clear all games and player data
-  G.teamGames=[]; G.singleGames=[]; G.sixPointGames=[];
+  G.teamGames=[]; G.singleGames=[]; G.sixPointGames=[]; G.stablefordGames=[];
   G.players=[];
   G.scorecardOnly=false;
   setScorecardMode(false);
@@ -1815,7 +1831,7 @@ function startRound(){
   G.scorecardOnly = document.getElementById('scorecardOnly')?.value==='1';
   if(G.scorecardOnly){
     // No betting games in scorecard-only mode.
-    G.teamGames=[]; G.singleGames=[]; G.sixPointGames=[];
+    G.teamGames=[]; G.singleGames=[]; G.sixPointGames=[]; G.stablefordGames=[];
   } else {
     const snakeChecked = !!(document.getElementById('snakeEnabled')&&document.getElementById('snakeEnabled').checked);
     if(G.n>1&&G.teamGames.length===0&&G.singleGames.length===0&&G.sixPointGames.length===0&&!snakeChecked){err.textContent='Add at least one game (Nassau, 6-Point, or Snake) — or switch on "Score Keep Only".';return;}
@@ -2221,6 +2237,422 @@ function settleInternational(matchup, intl){
 // game = {players:[i,i,i], perPoint:N}
 // Returns {pointsPerHole: [[p1,p2,p3],...18], running: [[cum1,cum2,cum3],...18],
 //          totals:[t1,t2,t3], holesPlayed, settlement:{...} or null}
+// ── STABLEFORD ────────────────────────────────────────────────────────────────
+
+const STABLEFORD_DEFAULTS = {ace:8, albatross:6, eagle:5, birdie:3, par:2, bogey:1, double:0};
+const STABLEFORD_BET_OPTIONS = [0.5,1,2,5,10];
+
+function stablefordPointsForNet(netVsPar, pts){
+  if(netVsPar <= -4) return pts.ace;       // hole-in-one or better (gross 1 flagged separately)
+  if(netVsPar === -3) return pts.albatross;
+  if(netVsPar === -2) return pts.eagle;
+  if(netVsPar === -1) return pts.birdie;
+  if(netVsPar ===  0) return pts.par;
+  if(netVsPar ===  1) return pts.bogey;
+  return pts.double; // double bogey or worse
+}
+
+function computeStableford(game){
+  const pts   = game.points || STABLEFORD_DEFAULTS;
+  const idxs  = game.players; // array of player indices
+
+  // Full handicap — each player gets their full index as strokes distributed by SI
+  const strokes = idxs.map(pi => {
+    const hdcp = Math.round(G.players[pi] ? (G.players[pi].idx || 0) : 0);
+    return G.si.map(si => {
+      if(hdcp >= si + 18) return 2;
+      if(hdcp >= si) return 1;
+      return 0;
+    });
+  });
+
+  const pointsPerHole = []; // [hole][playerIdx in game] = points or null
+  const running       = []; // [hole][playerIdx in game] = cumulative
+  const cum           = idxs.map(() => 0);
+  let holesPlayed     = 0;
+
+  for(let h = 0; h < 18; h++){
+    const grosses = idxs.map(pi => G.scores[pi] ? G.scores[pi][h] : null);
+    if(grosses.some(g => g === null)){
+      pointsPerHole.push(null);
+      running.push([...cum]);
+      continue;
+    }
+    holesPlayed++;
+    const holePts = idxs.map((pi, ii) => {
+      const gross  = grosses[ii];
+      const net    = gross - strokes[ii][h];
+      const par    = G.par[h];
+      const netVsPar = net - par;
+      return stablefordPointsForNet(netVsPar, pts);
+    });
+    holePts.forEach((p, ii) => cum[ii] += p);
+    pointsPerHole.push([...holePts]);
+    running.push([...cum]);
+  }
+
+  // Settlement: every pair, loser pays winner (pts diff × bet per point)
+  let settlement = null;
+  if(holesPlayed === 18){
+    const money = idxs.map(() => 0);
+    for(let i = 0; i < idxs.length; i++){
+      for(let j = i + 1; j < idxs.length; j++){
+        const diff = (cum[i] - cum[j]) * (game.betPerPoint || 1);
+        money[i] += diff;
+        money[j] -= diff;
+      }
+    }
+    settlement = { money, totals: [...cum] };
+  }
+
+  return { pointsPerHole, running, totals: [...cum], holesPlayed, settlement };
+}
+
+function computeStablefordMoney(){
+  const money = Array(G.players.length).fill(0);
+  (G.stablefordGames || []).forEach(game => {
+    const r = computeStableford(game);
+    if(r.settlement){
+      game.players.forEach((pi, ii) => { money[pi] += r.settlement.money[ii]; });
+    }
+  });
+  return money;
+}
+
+// ── Setup UI ──────────────────────────────────────────────────────────────────
+
+function renderStablefordOptions(){
+  const el = document.getElementById('stablefordGrid');
+  if(!el) return;
+  if(G.n < 2){ el.innerHTML = '<div style="font-size:13px;color:var(--red);padding:4px 0">Need 2+ players for Stableford.</div>'; return; }
+  const nm = names();
+  // Show each player as a toggle button
+  const active = (G.stablefordGames[0] && G.stablefordGames[0].players) || [];
+  let h = '<div style="font-size:11px;color:#888;margin-bottom:6px">Select players to include:</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">';
+  for(let pi = 0; pi < G.n; pi++){
+    const sel = active.includes(pi);
+    h += `<button onclick="toggleStablefordPlayer(${pi})" style="padding:7px 14px;border-radius:20px;border:1.5px solid ${sel?'#1a3a2a':'#ccc'};background:${sel?'#1a3a2a':'#fff'};color:${sel?'#c9a84c':'#555'};font-size:13px;font-weight:700;cursor:pointer">${nm[pi]}</button>`;
+  }
+  h += '</div>';
+  el.innerHTML = h;
+}
+
+function toggleStablefordPlayer(pi){
+  if(!G.stablefordGames.length){
+    G.stablefordGames.push({players:[], points:{...STABLEFORD_DEFAULTS}, betPerPoint:1});
+  }
+  const game = G.stablefordGames[0];
+  const idx = game.players.indexOf(pi);
+  if(idx >= 0) game.players.splice(idx, 1);
+  else game.players.push(pi);
+  saveG();
+  renderStablefordOptions();
+  renderStablefordGamesList();
+}
+
+function renderStablefordGamesList(){
+  const el = document.getElementById('stablefordGamesList');
+  if(!el) return;
+  if(!G.stablefordGames.length || !G.stablefordGames[0].players.length){ el.innerHTML = ''; return; }
+  const game = G.stablefordGames[0];
+  const pts  = game.points || STABLEFORD_DEFAULTS;
+  const nm   = names();
+
+  const ptsRows = [
+    ['ace','Hole-in-One',8],['albatross','Albatross',6],['eagle','Eagle',5],
+    ['birdie','Birdie',3],['par','Par',2],['bogey','Bogey',1],['double','Double+',0]
+  ].map(([key, label, def]) => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(0,0,0,.06)">
+      <span style="font-size:13px;color:#333">${label}</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button onclick="adjustStablefordPts('${key}',-1)" style="width:28px;height:28px;border-radius:50%;border:1px solid #ccc;background:#fff;font-size:16px;line-height:1;cursor:pointer;color:#555">−</button>
+        <span id="sfpts_${key}" style="font-size:15px;font-weight:800;color:#1a3a2a;min-width:20px;text-align:center">${pts[key] !== undefined ? pts[key] : def}</span>
+        <button onclick="adjustStablefordPts('${key}',1)" style="width:28px;height:28px;border-radius:50%;border:1px solid #ccc;background:#fff;font-size:16px;line-height:1;cursor:pointer;color:#555">+</button>
+      </div>
+    </div>`).join('');
+
+  const betRow = STABLEFORD_BET_OPTIONS.map(v =>
+    `<button onclick="setStablefordBet(${v})" style="padding:6px 10px;border-radius:8px;border:1.5px solid ${game.betPerPoint===v?'#1a3a2a':'#ccc'};background:${game.betPerPoint===v?'#1a3a2a':'#fff'};color:${game.betPerPoint===v?'#c9a84c':'#555'};font-size:12px;font-weight:700;cursor:pointer">${v<1?(v*100)+'¢':'$'+v}/pt</button>`
+  ).join('');
+
+  let h = `<div style="background:#fff;border-radius:8px;padding:10px 12px;border:1px solid #ddd;margin-top:6px">`;
+  h += `<div style="font-size:12px;font-weight:800;color:#1a3a2a;margin-bottom:8px">Points Table</div>`;
+  h += ptsRows;
+  h += `<div style="margin-top:10px"><div style="font-size:11px;color:#888;margin-bottom:6px">Bet per point:</div><div style="display:flex;flex-wrap:wrap;gap:6px">${betRow}</div></div>`;
+  h += `<button onclick="resetStablefordPts()" style="width:100%;margin-top:10px;padding:6px;background:rgba(0,0,0,.04);border:1px solid #ddd;border-radius:6px;color:#888;font-size:11px;cursor:pointer">Reset to defaults</button>`;
+  h += `</div>`;
+  el.innerHTML = h;
+}
+
+function adjustStablefordPts(key, delta){
+  if(!G.stablefordGames.length) return;
+  const pts = G.stablefordGames[0].points || (G.stablefordGames[0].points = {...STABLEFORD_DEFAULTS});
+  pts[key] = Math.max(0, (pts[key] !== undefined ? pts[key] : STABLEFORD_DEFAULTS[key]) + delta);
+  const el = document.getElementById('sfpts_'+key);
+  if(el) el.textContent = pts[key];
+  saveG();
+}
+
+function setStablefordBet(v){
+  if(!G.stablefordGames.length) return;
+  G.stablefordGames[0].betPerPoint = v;
+  saveG();
+  renderStablefordGamesList();
+}
+
+function resetStablefordPts(){
+  if(!G.stablefordGames.length) return;
+  G.stablefordGames[0].points = {...STABLEFORD_DEFAULTS};
+  saveG();
+  renderStablefordGamesList();
+}
+
+// ── Games Tab Card ────────────────────────────────────────────────────────────
+
+function renderStablefordCard(game, gi){
+  const result   = computeStableford(game);
+  const nm       = names();
+  const pts      = game.points || STABLEFORD_DEFAULTS;
+  const bet      = game.betPerPoint || 1;
+  const TEAL     = '#0d5c4e';
+  const TEAL_L   = '#52b788';
+  const GOLD     = '#c9a84c';
+
+  let html = `<div class="msum" style="margin-top:14px;border:1.5px solid ${TEAL};border-radius:12px;overflow:hidden">`;
+
+  // Header
+  html += `<div style="background:linear-gradient(135deg,${TEAL},#1a4a3a);padding:12px 14px;display:flex;align-items:center;justify-content:space-between">`;
+  html += `<div style="font-size:15px;font-weight:800;color:${GOLD}">🏆 Stableford</div>`;
+  html += `<div style="font-size:11px;color:rgba(255,255,255,.6)">$${bet}/pt · Full HCP</div>`;
+  html += `</div>`;
+
+  // Per-hole points table
+  const playerCount = game.players.length;
+  html += `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px;min-width:${180+playerCount*48}px">`;
+
+  // Header row
+  html += `<thead><tr>`;
+  html += `<th style="background:#1a3a2a;color:#c9a84c;padding:6px 8px;text-align:left;white-space:nowrap">Hole</th>`;
+  html += `<th style="background:#1a3a2a;color:#888;padding:6px 4px;text-align:center">Par</th>`;
+  html += `<th style="background:#1a3a2a;color:#888;padding:6px 4px;text-align:center">HCP</th>`;
+  game.players.forEach(pi => {
+    html += `<th style="background:#1a3a2a;color:#c9a84c;padding:6px 6px;text-align:center;white-space:nowrap">${(nm[pi]||'').split(' ')[0]}</th>`;
+  });
+  html += `</tr></thead><tbody>`;
+
+  // Hole rows
+  let frontTotals = game.players.map(() => 0);
+  let backTotals  = game.players.map(() => 0);
+
+  for(let hi = 0; hi < 18; hi++){
+    const h = actualHoleIdx(hi);
+    const par = G.par[h];
+    const hcp = G.si[h];
+    const holePts = result.pointsPerHole[hi];
+    const rowBg = hi % 2 === 0 ? '#f9fafb' : '#fff';
+
+    html += `<tr>`;
+    html += `<td style="background:${rowBg};padding:5px 8px;font-weight:700;color:#333">${h+1}</td>`;
+    html += `<td style="background:${rowBg};padding:5px 4px;text-align:center;color:#666">${par}</td>`;
+    html += `<td style="background:${rowBg};padding:5px 4px;text-align:center;color:#999">${hcp}</td>`;
+
+    game.players.forEach((pi, ii) => {
+      const gross = G.scores[pi] ? G.scores[pi][h] : null;
+      const p = holePts ? holePts[ii] : null;
+      let cellContent = '·';
+      let cellColor = '#bbb';
+      let cellBg = rowBg;
+      if(gross !== null && p !== null){
+        cellContent = p;
+        if(p >= 5){ cellColor = '#6c3483'; cellBg = '#f0e6ff'; }
+        else if(p === 4){ cellColor = '#1a5c3a'; cellBg = '#d4edda'; }
+        else if(p === 3){ cellColor = '#155724'; cellBg = '#e8f5e9'; }
+        else if(p === 2){ cellColor = '#333'; }
+        else if(p === 1){ cellColor = '#856404'; }
+        else { cellColor = '#999'; }
+        if(hi < 9) frontTotals[ii] += p;
+        else backTotals[ii] += p;
+      }
+      html += `<td style="background:${cellBg};padding:5px 6px;text-align:center;font-weight:700;color:${cellColor}">${cellContent}</td>`;
+    });
+    html += `</tr>`;
+
+    // OUT subtotal after hole 9
+    if(hi === 8){
+      html += `<tr style="background:#1a3a2a">`;
+      html += `<td colspan="3" style="padding:5px 8px;font-weight:800;color:#c9a84c;font-size:11px">OUT</td>`;
+      game.players.forEach((pi, ii) => {
+        html += `<td style="padding:5px 6px;text-align:center;font-weight:800;color:#c9a84c">${frontTotals[ii]}</td>`;
+      });
+      html += `</tr>`;
+    }
+  }
+
+  // IN + TOTAL rows
+  html += `<tr style="background:#1a3a2a">`;
+  html += `<td colspan="3" style="padding:5px 8px;font-weight:800;color:#c9a84c;font-size:11px">IN</td>`;
+  game.players.forEach((pi, ii) => {
+    html += `<td style="padding:5px 6px;text-align:center;font-weight:800;color:#c9a84c">${backTotals[ii]}</td>`;
+  });
+  html += `</tr>`;
+
+  html += `<tr style="background:#0d2a1e">`;
+  html += `<td colspan="3" style="padding:6px 8px;font-weight:800;color:#fff;font-size:12px">TOTAL</td>`;
+  game.players.forEach((pi, ii) => {
+    html += `<td style="padding:6px 6px;text-align:center;font-weight:800;color:#fff;font-size:13px">${result.totals[ii]}</td>`;
+  });
+  html += `</tr>`;
+
+  html += `</tbody></table></div>`;
+
+  // Settlement
+  if(result.settlement){
+    html += `<div style="padding:12px 14px;background:#f9fafb;border-top:1px solid #e0e0e0">`;
+    html += `<div style="font-size:11px;font-weight:800;color:#1a3a2a;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Settlement</div>`;
+    html += `<div style="display:flex;gap:8px;flex-wrap:wrap">`;
+    game.players.forEach((pi, ii) => {
+      const v = result.settlement.money[ii];
+      const col = v > 0 ? '#27ae60' : v < 0 ? '#e74c3c' : '#888';
+      const bg  = v > 0 ? '#eafaf1' : v < 0 ? '#fdf0f0' : '#f5f5f5';
+      html += `<div style="flex:1;min-width:80px;text-align:center;background:${bg};border-radius:8px;padding:8px 4px">`;
+      html += `<div style="font-size:11px;color:#666;margin-bottom:2px">${(nm[pi]||'').split(' ')[0]}</div>`;
+      html += `<div style="font-size:16px;font-weight:800;color:${col}">${v>0?'+':''}$${Math.abs(v).toFixed(2)}</div>`;
+      html += `</div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  // Print button
+  html += `<div style="padding:10px 14px;background:#f9fafb;border-top:1px solid #e0e0e0">`;
+  html += `<button onclick="printStablefordCard(${gi})" class="export-btn" style="width:100%">🖨️ Print / Share Stableford Card</button>`;
+  html += `</div>`;
+
+  html += `</div>`;
+  return html;
+}
+
+// ── Print ─────────────────────────────────────────────────────────────────────
+
+function printStablefordCard(gi){
+  const game   = G.stablefordGames[gi];
+  if(!game) return;
+  const result = computeStableford(game);
+  const nm     = names();
+  const pts    = game.points || STABLEFORD_DEFAULTS;
+  const bet    = game.betPerPoint || 1;
+  const dateStr = roundDateStr();
+
+  const playerCount = game.players.length;
+
+  const ptTableRows = [
+    ['Hole-in-One', pts.ace], ['Albatross', pts.albatross], ['Eagle', pts.eagle],
+    ['Birdie', pts.birdie], ['Par', pts.par], ['Bogey', pts.bogey], ['Double+', pts.double]
+  ].map(([label, val]) => `<tr><td style="padding:3px 8px;font-weight:600">${label}</td><td style="padding:3px 8px;text-align:center;font-weight:800;color:#1a3a2a">${val}</td></tr>`).join('');
+
+  let rows = '';
+  let frontTotals = game.players.map(() => 0);
+  let backTotals  = game.players.map(() => 0);
+
+  for(let hi = 0; hi < 18; hi++){
+    const h = actualHoleIdx(hi);
+    const par = G.par[h];
+    const hcp = G.si[h];
+    const holePts = result.pointsPerHole[hi];
+    const rowBg = hi % 2 === 0 ? '#f9fafb' : '#fff';
+
+    let cells = '';
+    game.players.forEach((pi, ii) => {
+      const gross = G.scores[pi] ? G.scores[pi][h] : null;
+      const p = holePts ? holePts[ii] : null;
+      let cellContent = '·';
+      let cellColor = '#bbb';
+      let cellBg = rowBg;
+      if(gross !== null && p !== null){
+        cellContent = p;
+        if(p >= 5){ cellColor = '#6c3483'; cellBg = '#f0e6ff'; }
+        else if(p === 4){ cellColor = '#1a5c3a'; cellBg = '#d4edda'; }
+        else if(p === 3){ cellColor = '#155724'; cellBg = '#e8f5e9'; }
+        else if(p === 2){ cellColor = '#333'; }
+        else if(p === 1){ cellColor = '#856404'; }
+        else { cellColor = '#ccc'; }
+        if(hi < 9) frontTotals[ii] += p;
+        else backTotals[ii] += p;
+      }
+      cells += `<td style="background:${cellBg};padding:6px;text-align:center;font-weight:800;color:${cellColor};border:1px solid #e0e0e0">${cellContent}</td>`;
+    });
+    rows += `<tr><td style="background:${rowBg};padding:6px 8px;font-weight:700;border:1px solid #e0e0e0">${h+1}</td><td style="background:${rowBg};padding:6px;text-align:center;color:#666;border:1px solid #e0e0e0">${par}</td><td style="background:${rowBg};padding:6px;text-align:center;color:#999;border:1px solid #e0e0e0">${hcp}</td>${cells}</tr>`;
+
+    if(hi === 8){
+      rows += `<tr style="background:#1a3a2a"><td colspan="3" style="padding:6px 8px;font-weight:800;color:#c9a84c;border:1px solid #0d2a1e">OUT</td>`;
+      game.players.forEach((pi, ii) => { rows += `<td style="padding:6px;text-align:center;font-weight:800;color:#c9a84c;border:1px solid #0d2a1e">${frontTotals[ii]}</td>`; });
+      rows += `</tr>`;
+    }
+  }
+
+  rows += `<tr style="background:#1a3a2a"><td colspan="3" style="padding:6px 8px;font-weight:800;color:#c9a84c;border:1px solid #0d2a1e">IN</td>`;
+  game.players.forEach((pi, ii) => { rows += `<td style="padding:6px;text-align:center;font-weight:800;color:#c9a84c;border:1px solid #0d2a1e">${backTotals[ii]}</td>`; });
+  rows += `</tr>`;
+
+  rows += `<tr style="background:#0d2a1e"><td colspan="3" style="padding:8px 8px;font-weight:800;color:#fff;font-size:14px;border:1px solid #000">TOTAL</td>`;
+  game.players.forEach((pi, ii) => { rows += `<td style="padding:8px;text-align:center;font-weight:800;color:#fff;font-size:15px;border:1px solid #000">${result.totals[ii]}</td>`; });
+  rows += `</tr>`;
+
+  const headerCols = game.players.map(pi => `<th style="background:#1a3a2a;color:#c9a84c;padding:8px 6px;text-align:center;border:1px solid #0d2a1e">${(nm[pi]||'').split(' ')[0]}<br><span style="font-size:10px;color:#888;font-weight:400">${(G.players[pi]?.idx||'?')} idx</span></th>`).join('');
+
+  let settlementHTML = '';
+  if(result.settlement){
+    settlementHTML = `<div style="margin-top:20px">
+      <div style="font-size:13px;font-weight:800;color:#1a3a2a;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Settlement ($${bet}/point)</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <tr>${game.players.map((pi,ii)=>{
+          const v=result.settlement.money[ii];
+          const col=v>0?'#27ae60':v<0?'#e74c3c':'#888';
+          const bg=v>0?'#eafaf1':v<0?'#fdf0f0':'#f5f5f5';
+          return `<td style="text-align:center;padding:10px;background:${bg};border-radius:8px"><div style="font-size:12px;color:#666;margin-bottom:4px">${(nm[pi]||'').split(' ')[0]}</div><div style="font-size:18px;font-weight:800;color:${col}">${v>0?'+':''}$${Math.abs(v).toFixed(2)}</div></td>`;
+        }).join('<td style="width:8px"></td>')}</tr>
+      </table>
+    </div>`;
+  }
+
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+    <title>Stableford — ${dateStr}</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+      body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;margin:0;padding:16px;background:#fff;color:#222}
+      table{border-collapse:collapse;width:100%}
+      @media print{.noprint{display:none}}
+    </style></head><body>
+    <div class="noprint" style="position:sticky;top:0;background:#1a3a2a;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;margin:-16px -16px 16px">
+      <span style="color:#c9a84c;font-weight:800;font-size:15px">🏆 Stableford Card</span>
+      <button onclick="window.print()" style="background:#c9a84c;color:#1a3a2a;border:none;border-radius:20px;padding:8px 18px;font-size:13px;font-weight:800;cursor:pointer">🖨️ Print / Save PDF</button>
+    </div>
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:20px;font-weight:800;color:#1a3a2a">🏆 Stableford</div>
+      <div style="font-size:13px;color:#666">${dateStr} · $${bet}/point · Full Handicap</div>
+    </div>
+    <table style="margin-bottom:20px;font-size:12px">
+      <thead><tr>
+        <th style="background:#1a3a2a;color:#c9a84c;padding:8px;text-align:left;border:1px solid #0d2a1e">Hole</th>
+        <th style="background:#1a3a2a;color:#888;padding:8px;text-align:center;border:1px solid #0d2a1e">Par</th>
+        <th style="background:#1a3a2a;color:#888;padding:8px;text-align:center;border:1px solid #0d2a1e">HCP</th>
+        ${headerCols}
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    ${settlementHTML}
+    <div style="margin-top:24px;border-top:1px solid #eee;padding-top:12px">
+      <div style="font-size:11px;font-weight:800;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Points Table</div>
+      <table style="width:auto;font-size:12px;border-collapse:collapse">${ptTableRows}</table>
+    </div>
+  </body></html>`;
+
+  const blob = new Blob([html], {type:'text/html'});
+  const url  = URL.createObjectURL(blob);
+  const win  = window.open(url, '_blank');
+  if(!win) alert('Please allow pop-ups to use Print / Share.');
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+}
+
 function computeSixPoint(game){
   const [pA,pB,pC] = game.players;
   const idxs=[pA,pB,pC];
@@ -2800,7 +3232,7 @@ function renderBirdieJuice(){
   html+='</div>';
 
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v60.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v60.1</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -3033,7 +3465,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v60.0</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v60.1</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -3602,7 +4034,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v60.0</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v60.1</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -3897,6 +4329,10 @@ function renderMatchCards(){
   // 6-point games
   if(G.sixPointGames && G.sixPointGames.length){
     G.sixPointGames.forEach((game,gi)=>{ html += renderSixPointCard(game, gi); });
+  }
+  // Stableford games
+  if(G.stablefordGames && G.stablefordGames.length && G.stablefordGames[0].players && G.stablefordGames[0].players.length >= 2){
+    G.stablefordGames.forEach((game,gi)=>{ html += renderStablefordCard(game, gi); });
   }
   return html;
 }
@@ -4771,7 +5207,7 @@ function saveAndEndRound(){
   saveG();
   // Reset to clean state
   G.scores=[]; G.players=[]; G.n=4; G.par=[]; G.si=[];
-  G.teamGames=[]; G.singleGames=[]; G.sixPointGames=[];
+  G.teamGames=[]; G.singleGames=[]; G.sixPointGames=[]; G.stablefordGames=[];
   G.snake={enabled:false,holder:null,history:[],bet:5,settlements:[],participants:[],h18confirmed:false};
   G.birdieJuice={earned:[],redeemed:0};
   G.roundDate=null; G.roundEnd=null; G.weatherStart=null; G.weatherEnd=null;
@@ -4797,7 +5233,7 @@ function abandonRound(){
   // Discard the round — do NOT save to history, just reset
   localStorage.removeItem('nassau_G');
   G.n=4; G.players=[]; G.par=[]; G.si=[];
-  G.teamGames=[]; G.singleGames=[]; G.sixPointGames=[];
+  G.teamGames=[]; G.singleGames=[]; G.sixPointGames=[]; G.stablefordGames=[];
   G.birdieJuice={earned:[],redeemed:0};
   G.scores=[]; G.hole=0; G.roundDate=null; G.roundEnd=null;
   G.weatherStart=null; G.weatherEnd=null;
@@ -5266,6 +5702,9 @@ function computeCombinedMoney(){
       game.players.forEach((pi,ii)=>{ total[pi] += r.settlement.money[ii]; });
     }
   });
+  // Stableford
+  const sfm = computeStablefordMoney();
+  sfm.forEach((v,i)=>{ total[i] += v; });
   if(G.snake&&G.snake.enabled){ const sm=computeSnakeMoney(); sm.forEach((v,i)=>{ total[i]+=v; }); }
   return total;
 }
@@ -5291,6 +5730,22 @@ function computeLiveMoney(){
     }
   });
   if(G.snake&&G.snake.enabled){ const sm=computeSnakeMoney(); sm.forEach((v,i)=>{ total[i]+=v; }); }
+  // Stableford live money
+  (G.stablefordGames||[]).forEach(game=>{
+    if(!game.players||game.players.length<2) return;
+    const r=computeStableford(game);
+    if(r.settlement){
+      game.players.forEach((pi,ii)=>{ total[pi]+=r.settlement.money[ii]; });
+    } else if(r.holesPlayed>0){
+      for(let i=0;i<game.players.length;i++){
+        for(let j=i+1;j<game.players.length;j++){
+          const diff=(r.totals[i]-r.totals[j])*(game.betPerPoint||1);
+          total[game.players[i]]+=diff;
+          total[game.players[j]]-=diff;
+        }
+      }
+    }
+  });
   return total;
 }
 
@@ -5356,6 +5811,7 @@ function buildRoundSnapshot(){
     teamGames: JSON.parse(JSON.stringify(G.teamGames)),
     singleGames: JSON.parse(JSON.stringify(G.singleGames)),
     sixPointGames: JSON.parse(JSON.stringify(G.sixPointGames||[])),
+    stablefordGames: JSON.parse(JSON.stringify(G.stablefordGames||[])),
     internationals: JSON.parse(JSON.stringify(G.internationals||{})),
     snake: G.snake ? {
       ...JSON.parse(JSON.stringify(G.snake)),
@@ -5534,7 +5990,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v60.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v60.1</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -5695,6 +6151,7 @@ function renderHistory(){
       if(r.teamGames&&r.teamGames.length) gameParts.push(`${r.teamGames.length} Nassau`);
       if(r.singleGames&&r.singleGames.length) gameParts.push(`${r.singleGames.length} 1v1`);
       if(r.sixPointGames&&r.sixPointGames.length) gameParts.push(`6-Point`);
+      if(r.stablefordGames&&r.stablefordGames.length&&r.stablefordGames[0].players&&r.stablefordGames[0].players.length>=2) gameParts.push(`Stableford`);
       if(r.snake&&r.snake.enabled) gameParts.push(`Snake`);
       // Holes completed count for paused rounds
       if(r.paused && r.scores && r.scores[0]){
@@ -5724,7 +6181,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v60.0</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v60.1</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -5793,9 +6250,7 @@ function openHistoryDetail(i){
     par:r.par, si:r.si, scores:r.scores,
     teamGames:r.teamGames, singleGames:r.singleGames,
     sixPointGames:r.sixPointGames||[],
-    internationals:r.internationals, roundDate:r.roundDate, roundEnd:r.roundEnd||null,
-    weatherStart:r.weatherStart||null, weatherEnd:r.weatherEnd||null,
-    scorecardOnly:!!r.scorecardOnly,
+    stablefordGames:r.stablefordGames||[],
     startHole:r.startHole||1, hole:(r.startHole||1)-1,
     snake: r.snake ? JSON.parse(JSON.stringify(r.snake)) : {enabled:false,holder:null,history:[]},
   });
@@ -5885,7 +6340,7 @@ function openHistoryDetail(i){
     html+=`</div>`; // close card
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v60.0</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v60.1</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -5952,7 +6407,8 @@ function shareRoundText(){
     const bk=JSON.parse(JSON.stringify(G));
     Object.assign(G,{n:snap.n,players:snap.players.map(p=>({...p,playHdcp:0,strokes:Array(18).fill(0)})),
       par:snap.par,si:snap.si,scores:snap.scores,teamGames:snap.teamGames,singleGames:snap.singleGames,
-      sixPointGames:snap.sixPointGames||[],internationals:snap.internationals,roundDate:snap.roundDate,
+      sixPointGames:snap.sixPointGames||[],stablefordGames:snap.stablefordGames||[],
+      internationals:snap.internationals,roundDate:snap.roundDate,
       startHole:snap.startHole||1,hole:(snap.startHole||1)-1,scorecardOnly:false,
       roundEnd:snap.roundEnd||null,weatherStart:snap.weatherStart||null,weatherEnd:snap.weatherEnd||null});
     try{
@@ -5993,7 +6449,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v60.0');
+  lines.push('— Nassau Golf · Derrick GWC · v60.1');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -6040,6 +6496,7 @@ function editHistoryRound(){
   G.teamGames  = r.teamGames||[];
   G.singleGames= r.singleGames||[];
   G.sixPointGames = r.sixPointGames||[];
+  G.stablefordGames = r.stablefordGames||[];
   G.internationals = r.internationals||{};
   G.scorecardOnly = !!r.scorecardOnly;
   G.startHole  = r.startHole||1;
@@ -6104,6 +6561,7 @@ function resumeRound(i){
   G.teamGames   = r.teamGames||[];
   G.singleGames = r.singleGames||[];
   G.sixPointGames = r.sixPointGames||[];
+  G.stablefordGames = r.stablefordGames||[];
   G.internationals = r.internationals||{};
   G.scorecardOnly = !!r.scorecardOnly;
   G.startHole   = r.startHole||1;
@@ -6140,7 +6598,7 @@ function discardHistoryEdit(){
   G._editingHistoryIdx = undefined;
   G._frozenFields = null;
   G.scores=[]; G.players=[]; G.n=4; G.par=[]; G.si=[];
-  G.teamGames=[]; G.singleGames=[]; G.sixPointGames=[];
+  G.teamGames=[]; G.singleGames=[]; G.sixPointGames=[]; G.stablefordGames=[];
   G.snake={enabled:false,holder:null,history:[],bet:5,settlements:[],participants:[],h18confirmed:false};
   G.birdieJuice={earned:[],redeemed:0};
   G.roundDate=null; G.roundEnd=null; G.weatherStart=null; G.weatherEnd=null;
@@ -6197,7 +6655,7 @@ function updateHistoryRound(){
 
   // Reset active round
   G.scores=[]; G.players=[]; G.n=4; G.par=[]; G.si=[];
-  G.teamGames=[]; G.singleGames=[]; G.sixPointGames=[];
+  G.teamGames=[]; G.singleGames=[]; G.sixPointGames=[]; G.stablefordGames=[];
   G.snake={enabled:false,holder:null,history:[],bet:5,settlements:[],participants:[],h18confirmed:false};
   G.birdieJuice={earned:[],redeemed:0};
   G.roundDate=null; G.roundEnd=null; G.weatherStart=null; G.weatherEnd=null;
@@ -6472,7 +6930,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v60.0 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v60.1 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -7749,12 +8207,12 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v60.0';
+const CURRENT_VERSION = 'nassau-v60.1';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
-  'v60.0 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
+  'v60.1 — Setup screen UI refresh: dark green player/hole cards, gold player section, light blue Nassau/6-Point panels, light purple Snake panel',
   'v31.9 — Weather: rain history using correct 24hr chunks and archive interval summation',
-  'v60.0 — Removed rain history feature (WeatherLink historic API not supported)',
+  'v60.1 — Removed rain history feature (WeatherLink historic API not supported)',
   'v31.3 — Fixed: stray backslash before SW template literal closing backtick',
   'v31.2 — Fixed: renderSingles undefined error on setup screen',
   'v31.1 — Weather: 7-day rain total added alongside 24hr in setup rain widget (one API call)',
@@ -8061,7 +8519,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v60.0';
+const CACHE='nassau-v60.1';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
