@@ -746,7 +746,7 @@ input::placeholder{color:#bbb}
     💾 Your data is saved on this phone. The app reminds you to back up every 2 rounds — tap <b>Back Up Now</b> when you see it, or <b>History → Export Backup</b> anytime.
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v67.15
+    Nassau Golf · Derrick GWC · v67.16
   </div>
 </div>
 </div>
@@ -840,7 +840,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.15</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.16</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2553,6 +2553,7 @@ function renderStablefordOptions(){
 
 // ── Skins setup ─────────────────────────────────────────────────────────────
 const SKINS_BET_OPTIONS = [1,2,5,10,20];
+const MC_BET_OPTIONS = [1,2,5,10]; // Match Cards Nassau bet per side (restored — used by setup + mid-round opponent cards)
 
 function renderSkinsOptions(){
   const soBox = document.getElementById('scorecardOnly');
@@ -2697,6 +2698,27 @@ function mcSetBet(k,v){
   renderMatchCardsConfig();
 }
 
+// Manually type an opponent's name (for someone who isn't a saved favorite).
+function mcSetName(k,val){
+  const o=G.matchCards&&G.matchCards.opponents[k];
+  if(!o) return;
+  o.name=val;
+  saveG();
+  // don't re-render on every keystroke — the input keeps focus; values are saved live
+}
+
+// Manually type an opponent's handicap index; derive adjusted index from current deck.
+function mcSetIdx(k,val){
+  const o=G.matchCards&&G.matchCards.opponents[k];
+  if(!o) return;
+  const n=parseFloat(val);
+  if(isNaN(n)){ o.hdcpBaseline=null; o.idx=undefined; }
+  else { o.hdcpBaseline=n; o.idx=deckAdjust(n,o.deck||'DECK2'); }
+  saveG();
+  const adjEl=document.getElementById('mcAdj'+k);
+  if(adjEl) adjEl.textContent=(o.hdcpBaseline!=null)?deckAdjust(o.hdcpBaseline,o.deck||'DECK2'):'—';
+}
+
 // Change an opponent's tee deck; re-derive their adjusted index from their baseline index.
 function mcSetDeck(k,deck){
   const o=G.matchCards&&G.matchCards.opponents[k];
@@ -2799,10 +2821,15 @@ function renderMatchCardsConfig(){
         <button onclick="mcRemoveOpponent(${k})" style="background:none;border:none;color:#e74c3c;font-size:16px;font-weight:700;cursor:pointer">×</button>
       </div>
       <select onchange="mcSelectContact(${k},this.value)" style="width:100%;height:36px;border:1.5px solid #ccc;border-radius:8px;font-size:13px;padding:0 8px;margin-bottom:8px;background:#faf8fc">${optlist}</select>
+      <div style="font-size:10px;color:#999;text-align:center;margin-bottom:6px">— or type someone not in your saved list —</div>
+      <div style="display:flex;gap:6px;margin-bottom:8px">
+        <input type="text" value="${(o.name||'').replace(/"/g,'&quot;')}" placeholder="Opponent name" oninput="mcSetName(${k},this.value)" style="flex:2;height:36px;border:1.5px solid #ccc;border-radius:8px;font-size:13px;padding:0 8px;background:#fff">
+        <input type="number" inputmode="decimal" step="0.1" value="${o.hdcpBaseline!=null?o.hdcpBaseline:''}" placeholder="Index" oninput="mcSetIdx(${k},this.value)" style="flex:1;height:36px;border:1.5px solid #ccc;border-radius:8px;font-size:13px;padding:0 8px;background:#fff">
+      </div>
       <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#555;margin-bottom:8px;flex-wrap:wrap">
         <span>Index: <b>${o.hdcpBaseline!=null?o.hdcpBaseline:'—'}</b></span>
         <span style="display:flex;align-items:center;gap:4px">Tee: <select onchange="mcSetDeck(${k},this.value)" style="font-size:12px;padding:2px 4px;border-radius:5px;border:1.5px solid #ccc;background:#faf8fc">${mcDeckOpts}</select></span>
-        <span>Adjusted: <b>${adj}</b></span>
+        <span>Adjusted: <b id="mcAdj${k}">${adj}</b></span>
         ${o.golfId?`<button id="mcgcbtn${k}" onclick="mcFetchHandicap(${k})" style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#1a3a2a;background:#fff;border:1.5px solid #52b788;border-radius:6px;padding:3px 8px;cursor:pointer"><img src="${GC_LOGO}" alt="Golf Canada" style="height:12px;width:18px;object-fit:contain"> Fetch</button>`:''}
       </div>
       <div style="font-size:11px;color:#888;margin-bottom:4px">Nassau bet per side ($/F9·B9·18):</div>
@@ -2812,9 +2839,6 @@ function renderMatchCardsConfig(){
 
   if(opps.length<2){
     h+=`<button onclick="mcAddOpponent()" style="width:100%;padding:9px;background:#6a4c93;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">+ Add Opponent${opps.length?' 2':''}</button>`;
-  }
-  if(!contacts.filter(c=>!c.me).length){
-    h+=`<div style="font-size:11px;color:#e74c3c;margin-top:8px">Save players to your favorites list first — opponents are chosen from saved players.</div>`;
   }
   el.innerHTML=h;
 }
@@ -3166,7 +3190,7 @@ function printStablefordCard(gi){
       <div style="font-size:11px;font-weight:800;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Points Table</div>
       <table style="border-collapse:collapse;font-size:12px">${ptTableRows}</table>
     </div>
-    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.15</div>
+    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.16</div>
   </body></html>`;
 
   const blob = new Blob([html],{type:'text/html'});
@@ -3829,7 +3853,7 @@ function renderBirdieJuice(){
   html+='</div>';
 
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.15</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.16</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -4090,7 +4114,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.15</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.16</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -4659,7 +4683,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.15</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.16</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -6866,7 +6890,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.15</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.16</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -7112,7 +7136,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.15</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.16</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -7288,7 +7312,7 @@ function openHistoryDetail(i){
     html+=`</div>`; // close card
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.15</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.16</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -7423,7 +7447,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v67.15');
+  lines.push('— Nassau Golf · Derrick GWC · v67.16');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -8008,7 +8032,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v67.15 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v67.16 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -8708,10 +8732,15 @@ function renderMMMatchCards(){
           <button onclick="mmRemoveMCOpponent(${k})" style="background:none;border:none;color:#e74c3c;font-size:16px;font-weight:700;cursor:pointer">×</button>
         </div>
         <select onchange="mmSelectMCContact(${k},this.value)" style="width:100%;height:34px;border:1.5px solid #ccc;border-radius:8px;font-size:13px;padding:0 8px;margin-bottom:8px;background:#fff">${optlist}</select>
+        <div style="font-size:10px;color:#999;text-align:center;margin-bottom:6px">— or type someone not in your saved list —</div>
+        <div style="display:flex;gap:6px;margin-bottom:8px">
+          <input type="text" value="${(o.name||'').replace(/"/g,'&quot;')}" placeholder="Opponent name" oninput="mmSetMCName(${k},this.value)" style="flex:2;height:34px;border:1.5px solid #ccc;border-radius:8px;font-size:13px;padding:0 8px;background:#fff">
+          <input type="number" inputmode="decimal" step="0.1" value="${o.hdcpBaseline!=null?o.hdcpBaseline:''}" placeholder="Index" oninput="mmSetMCIdx(${k},this.value)" style="flex:1;height:34px;border:1.5px solid #ccc;border-radius:8px;font-size:13px;padding:0 8px;background:#fff">
+        </div>
         <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:#555;margin-bottom:8px;flex-wrap:wrap">
           <span>Index: <b>${o.hdcpBaseline!=null?o.hdcpBaseline:'—'}</b></span>
           <span style="display:flex;align-items:center;gap:4px">Tee: <select onchange="mmSetMCDeck(${k},this.value)" style="font-size:12px;padding:2px 4px;border-radius:5px;border:1.5px solid #ccc;background:#fff">${mmDeckOpts}</select></span>
-          <span>Adj: <b>${adj}</b></span>
+          <span>Adj: <b id="mmAdj${k}">${adj}</b></span>
           ${o.golfId?`<button id="mmgcbtn${k}" onclick="mmFetchMCHandicap(${k})" style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#1a3a2a;background:#fff;border:1.5px solid #52b788;border-radius:6px;padding:3px 8px;cursor:pointer"><img src="${GC_LOGO}" alt="Golf Canada" style="height:12px;width:18px;object-fit:contain"> Fetch</button>`:''}
         </div>
         <div class="bet-picker">${MC_BET_OPTIONS.map(v=>`<button class="bp-btn${o.bet===v?' sel':''}" onclick="mmSetMCBet(${k},${v})">$${v}</button>`).join('')}</div>
@@ -8764,6 +8793,24 @@ function mmSetMCBet(k,v){
   G.matchCards.opponents[k].bet=Number(v);
   saveG();
   renderMMMatchCards();
+}
+
+function mmSetMCName(k,val){
+  const o=G.matchCards&&G.matchCards.opponents[k];
+  if(!o) return;
+  o.name=val;
+  saveG(); // no re-render — keep input focus
+}
+
+function mmSetMCIdx(k,val){
+  const o=G.matchCards&&G.matchCards.opponents[k];
+  if(!o) return;
+  const n=parseFloat(val);
+  if(isNaN(n)){ o.hdcpBaseline=null; o.idx=undefined; }
+  else { o.hdcpBaseline=n; o.idx=deckAdjust(n,o.deck||'DECK2'); }
+  saveG();
+  const adjEl=document.getElementById('mmAdj'+k);
+  if(adjEl) adjEl.textContent=(o.hdcpBaseline!=null)?deckAdjust(o.hdcpBaseline,o.deck||'DECK2'):'—';
 }
 
 function mmSetMCDeck(k,deck){
@@ -9739,9 +9786,10 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v67.15';
+const CURRENT_VERSION = 'nassau-v67.16';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v67.16 — Match Cards: you can now add an opponent by typing their name and index directly, so they don\u2019t have to be a saved favorite — handy when your whole group is already in the round. Also fixed the \u201cAdd Opponent\u201d button doing nothing when all your saved players were in the round.',
   'v67.15 — The "Back Up Now" reminder no longer appears while a scoring round is in play; it only shows on the setup screen when no round is active.',
   'v67.14 — Skins: new "after 18" rule for carried skins — keep the old wash (leftovers void) or choose "Last hole takes all" so the 18th sweeps the carried pot; if the 18th ties, the app flags a playoff for the unresolved pot instead of letting it vanish. Set it in Skins setup or the mid-round settings.',
   'v67.13 — More resilient backups: the app now keeps a silent in-app safety copy after every round and shows a one-tap "Back Up Now" reminder every 2nd round. Backup files now have clear dated names (e.g. Nassau-Golf-Backup-Jun-25-2026) and save via the share sheet (email / Files / iCloud) on iPhone.',
@@ -10104,7 +10152,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v67.15';
+const CACHE='nassau-v67.16';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
