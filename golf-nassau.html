@@ -515,18 +515,22 @@ input::placeholder{color:#bbb}
   </div>
 
   <div style="background:linear-gradient(135deg,#1a3a2a,#2d6a4f);border-radius:12px;padding:12px;margin-bottom:8px;text-align:center">
-    <div style="display:flex;align-items:center;justify-content:center;gap:14px">
-      <div id="setupWx" style="display:flex;align-items:center;gap:8px;min-width:54px">
-        <div id="setupWxIcon" style="font-size:32px;line-height:1">—</div>
-        <div id="setupWxTemp" style="font-size:18px;font-weight:800;color:#f0c040">—</div>
-      </div>
-      <div id="setupRain" style="display:none;align-items:center;gap:6px">
-        <div id="setupRainIcon" style="font-size:30px;line-height:1">🌧️</div>
-        <div style="display:flex;flex-direction:column;align-items:flex-start">
-          <div id="setupRainRate" style="font-size:11px;font-weight:700;color:#7ec8e3;line-height:1.3"></div>
-          <div id="setupRainDay" style="font-size:10px;color:#a8d5b5;line-height:1.3"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <div id="setupWx" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-start">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div id="setupWxIcon" style="font-size:30px;line-height:1">—</div>
+          <div id="setupWxTemp" style="font-size:18px;font-weight:800;color:#f0c040">—</div>
+        </div>
+        <div id="setupRain" style="display:none;align-items:center;gap:6px">
+          <div id="setupRainIcon" style="font-size:26px;line-height:1">🌧️</div>
+          <div style="display:flex;flex-direction:column;align-items:flex-start">
+            <div id="setupRainRate" style="font-size:11px;font-weight:700;color:#7ec8e3;line-height:1.3"></div>
+            <div id="setupRainDay" style="font-size:10px;color:#a8d5b5;line-height:1.3"></div>
+          </div>
         </div>
       </div>
+      <div style="font-size:21px;font-weight:800;color:#c9a84c;letter-spacing:.3px;white-space:nowrap">Round Setup</div>
+      <img src="data:image/png;base64,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" alt="Derrick GWC" style="width:40px;height:40px;border-radius:8px;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,.3)">
     </div>
     <!-- Favorites: Load + Manage side by side -->
     <div style="display:flex;gap:8px;margin-top:10px">
@@ -855,12 +859,12 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.29</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.31</span></a>
 
 <!-- ══════════ SETUP-ONLY STICKY ACTION BAR ══════════ -->
 <div class="setup-bar" id="setupBar">
   <a href="help.html" target="_blank" rel="noopener" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:rgba(168,213,181,.12);border:1.5px solid rgba(168,213,181,.32);color:#a8d5b5;border-radius:10px;padding:6px 3px;font-size:10px;font-weight:700;text-decoration:none;-webkit-tap-highlight-color:transparent;line-height:1.1;text-align:center"><span class="sb-top">User</span><span class="sb-ico">❓</span><span class="sb-sub">Manual</span></a>
-  <button onclick="manualCheckForUpdate(this)"><span class="sb-top">Update App</span><span class="sb-ico">⬆️</span><span class="sb-sub">v67.29</span></button>
+  <button onclick="manualCheckForUpdate(this)"><span class="sb-top">Update App</span><span class="sb-ico">⬆️</span><span class="sb-sub">v67.31</span></button>
   <button class="sb-reset" onclick="showResetConfirm()"><span class="sb-top">Reset</span><span class="sb-ico">♻️</span><span class="sb-sub">Setup</span></button>
   <button onclick="showS('history')"><span class="sb-top">Round</span><span class="sb-ico">📜</span><span class="sb-sub">History</span></button>
   <button onclick="showS('backup')"><span class="sb-top">Backup</span><span class="sb-ico">💾</span><span class="sb-sub">Data</span></button>
@@ -3380,7 +3384,7 @@ function printStablefordCard(gi){
       <div style="font-size:11px;font-weight:800;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Points Table</div>
       <table style="border-collapse:collapse;font-size:12px">${ptTableRows}</table>
     </div>
-    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.29</div>
+    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.31</div>
   </body></html>`;
 
   const blob = new Blob([html],{type:'text/html'});
@@ -4043,7 +4047,7 @@ function renderBirdieJuice(){
   html+='</div>';
 
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.29</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.31</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -4306,7 +4310,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.29</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.31</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -4875,7 +4879,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.29</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.31</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -7109,7 +7113,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.29</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.31</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -7367,7 +7371,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.29</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.31</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -7549,7 +7553,7 @@ function openHistoryDetail(i){
     html+=`</div>`; // close card
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.29</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.31</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -7685,7 +7689,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v67.29');
+  lines.push('— Nassau Golf · Derrick GWC · v67.31');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -8285,7 +8289,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v67.29 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v67.31 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -10222,9 +10226,11 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v67.29';
+const CURRENT_VERSION = 'nassau-v67.31';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v67.31 — Replaced the flag in the Round Setup title with the Derrick GWC logo: the welcome row now reads weather on the left, Round Setup in the centre, and the Derrick D logo on the right. The logo is embedded in the app so it works offline.',
+  'v67.30 — Brought back the 🚩 Round Setup title, now sitting inline beside the weather in the welcome card so it costs no extra height. When it is raining, the rain readout wraps to its own line so nothing gets crowded.',
   'v67.29 — Tightened the gap between the Betting Games (Match Cards) section and the Start Round button by collapsing the empty error-message spacer when there is no error. Start Round still keeps its own breathing room.',
   'v67.28 — Tightened the Setup screen so the one-player starting view fits on a single screen: the welcome card now shows just the weather plus the Load/Manage Favorites buttons (full size), the instructional text is gone, and the gaps between sections were trimmed. The player card and Start Round button are unchanged.',
   'v67.27 — Vegas now works with 5 players: pick any two teams of two (like 2v2 Nassau) and the 5th player sits out the Vegas game. Previously Vegas only appeared with exactly 4.',
@@ -10620,7 +10626,7 @@ window.addEventListener('focus', syncBottomBars);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v67.29';
+const CACHE='nassau-v67.31';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
