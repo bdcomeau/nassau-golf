@@ -859,12 +859,12 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.31</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.32</span></a>
 
 <!-- ══════════ SETUP-ONLY STICKY ACTION BAR ══════════ -->
 <div class="setup-bar" id="setupBar">
   <a href="help.html" target="_blank" rel="noopener" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:rgba(168,213,181,.12);border:1.5px solid rgba(168,213,181,.32);color:#a8d5b5;border-radius:10px;padding:6px 3px;font-size:10px;font-weight:700;text-decoration:none;-webkit-tap-highlight-color:transparent;line-height:1.1;text-align:center"><span class="sb-top">User</span><span class="sb-ico">❓</span><span class="sb-sub">Manual</span></a>
-  <button onclick="manualCheckForUpdate(this)"><span class="sb-top">Update App</span><span class="sb-ico">⬆️</span><span class="sb-sub">v67.31</span></button>
+  <button onclick="manualCheckForUpdate(this)"><span class="sb-top">Update App</span><span class="sb-ico">⬆️</span><span class="sb-sub">v67.32</span></button>
   <button class="sb-reset" onclick="showResetConfirm()"><span class="sb-top">Reset</span><span class="sb-ico">♻️</span><span class="sb-sub">Setup</span></button>
   <button onclick="showS('history')"><span class="sb-top">Round</span><span class="sb-ico">📜</span><span class="sb-sub">History</span></button>
   <button onclick="showS('backup')"><span class="sb-top">Backup</span><span class="sb-ico">💾</span><span class="sb-sub">Data</span></button>
@@ -1838,6 +1838,9 @@ function confirmResetSetup(){
     };
     renderPlayers();
   }
+  // Snap back to the top of the setup screen so the whole thing is visible (welcome card → Start Round)
+  try { window.scrollTo(0, 0); } catch(_){}
+  try { document.scrollingElement && (document.scrollingElement.scrollTop = 0); } catch(_){}
 }
 
 // Show/hide the betting setup sections based on the Scorecard-only checkbox.
@@ -3384,7 +3387,7 @@ function printStablefordCard(gi){
       <div style="font-size:11px;font-weight:800;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Points Table</div>
       <table style="border-collapse:collapse;font-size:12px">${ptTableRows}</table>
     </div>
-    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.31</div>
+    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.32</div>
   </body></html>`;
 
   const blob = new Blob([html],{type:'text/html'});
@@ -4047,7 +4050,7 @@ function renderBirdieJuice(){
   html+='</div>';
 
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.31</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.32</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -4310,7 +4313,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.31</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.32</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -4879,7 +4882,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.31</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.32</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -7113,7 +7116,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.31</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.32</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -7371,7 +7374,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.31</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.32</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -7553,7 +7556,7 @@ function openHistoryDetail(i){
     html+=`</div>`; // close card
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.31</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.32</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -7689,7 +7692,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v67.31');
+  lines.push('— Nassau Golf · Derrick GWC · v67.32');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -8289,7 +8292,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v67.31 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v67.32 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -10226,9 +10229,10 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v67.31';
+const CURRENT_VERSION = 'nassau-v67.32';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v67.32 — Fixed Reset so it always snaps back to the top of the Setup screen. Previously, resetting from a 5-player setup left you scrolled partway down; now the whole screen (welcome card through Start Round) is visible right away.',
   'v67.31 — Replaced the flag in the Round Setup title with the Derrick GWC logo: the welcome row now reads weather on the left, Round Setup in the centre, and the Derrick D logo on the right. The logo is embedded in the app so it works offline.',
   'v67.30 — Brought back the 🚩 Round Setup title, now sitting inline beside the weather in the welcome card so it costs no extra height. When it is raining, the rain readout wraps to its own line so nothing gets crowded.',
   'v67.29 — Tightened the gap between the Betting Games (Match Cards) section and the Start Round button by collapsing the empty error-message spacer when there is no error. Start Round still keeps its own breathing room.',
@@ -10626,7 +10630,7 @@ window.addEventListener('focus', syncBottomBars);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v67.31';
+const CACHE='nassau-v67.32';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
