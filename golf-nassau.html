@@ -532,13 +532,7 @@ input::placeholder{color:#bbb}
       <button id="favPreview" onclick="loadFavoritesButton()" style="flex:1;background:rgba(168,213,181,.15);border:1.5px solid rgba(168,213,181,.4);color:#a8d5b5;border-radius:10px;padding:10px 8px;cursor:pointer;text-align:center;font-size:13px;font-weight:700">⭐ Load My Favorites<div id="favNames" style="display:none"></div></button>
       <button style="flex:1;border-radius:10px;padding:10px 8px;font-size:13px;font-weight:600;margin:0;background:rgba(168,213,181,.15);border:1.5px solid rgba(168,213,181,.4);color:#a8d5b5;cursor:pointer" onclick="openFavorites()">⭐ Manage Favorites</button>
     </div>
-    <div id="resetConfirm" style="display:none;margin-top:8px" class="save-dialog save-dialog-warn">
-      <div class="save-dialog-txt">⚠️ Clear all names, handicaps, and selected games?</div>
-      <div class="save-dialog-btns">
-        <button class="save-dialog-btn yes" onclick="confirmResetSetup()">Reset</button>
-        <button class="save-dialog-btn no" onclick="document.getElementById('resetConfirm').style.display='none'">Cancel</button>
-      </div>
-    </div>
+    <div id="resetConfirm" style="display:none"></div>
   </div>
 
   <div style="display:flex;align-items:center;gap:8px;margin:10px 0 8px">
@@ -754,13 +748,6 @@ input::placeholder{color:#bbb}
 
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
-
-  <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--inkl)">
-    💾 Your data is saved on this phone. The app reminds you to back up every 2 rounds — tap <b>Back Up Now</b> when you see it, or the <b>💾 Backup</b> button anytime.
-  </div>
-  <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v67.21
-  </div>
 </div>
 </div>
 
@@ -867,15 +854,24 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.21</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.23</span></a>
 
 <!-- ══════════ SETUP-ONLY STICKY ACTION BAR ══════════ -->
 <div class="setup-bar" id="setupBar">
   <a href="help.html" target="_blank" rel="noopener" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:rgba(168,213,181,.12);border:1.5px solid rgba(168,213,181,.32);color:#a8d5b5;border-radius:10px;padding:7px 3px;font-size:10px;font-weight:700;text-decoration:none;-webkit-tap-highlight-color:transparent;line-height:1.1"><span class="sb-ico">❓</span>Help</a>
-  <button onclick="manualCheckForUpdate(this)"><span class="sb-ico">⬆️</span>Update App<span style="font-size:8px;font-weight:600;opacity:.6">v67.21</span></button>
+  <button onclick="manualCheckForUpdate(this)"><span class="sb-ico">⬆️</span>Update App<span style="font-size:8px;font-weight:600;opacity:.6">v67.23</span></button>
   <button class="sb-reset" onclick="showResetConfirm()"><span class="sb-ico">♻️</span>Reset</button>
   <button onclick="showS('history')"><span class="sb-ico">📜</span>History</button>
   <button onclick="showS('backup')"><span class="sb-ico">💾</span>Backup</button>
+</div>
+
+<!-- Reset confirm — pops up just above the setup action bar, near the Reset button -->
+<div id="resetConfirmPop" style="display:none;position:fixed;left:10px;right:10px;z-index:203;background:#2a1414;border:1.5px solid #c0392b;border-radius:12px;padding:14px 16px;box-shadow:0 4px 16px rgba(0,0,0,.4);transform:translate3d(0,0,0)">
+  <div style="font-size:14px;font-weight:700;color:#f0d0d0;text-align:center;margin-bottom:12px;line-height:1.4">⚠️ Clear all names, handicaps, and selected games?</div>
+  <div style="display:flex;gap:8px">
+    <button onclick="confirmResetSetup()" style="flex:1;background:#c0392b;color:#fff;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent">Reset</button>
+    <button onclick="hideResetConfirm()" style="flex:1;background:rgba(255,255,255,.12);color:#e8e8e8;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent">Cancel</button>
+  </div>
 </div>
 
 <script>
@@ -1784,8 +1780,20 @@ function removeSixPointGame(i){G.sixPointGames.splice(i,1);renderSixPointOptions
    START ROUND
 ═══════════════════════════════════════════════ */
 function showResetConfirm(){
-  document.getElementById('resetConfirm').style.display='block';
-  document.getElementById('setupErr').textContent='';
+  const pop=document.getElementById('resetConfirmPop');
+  const bar=document.getElementById('setupBar');
+  if(pop){
+    // Sit it just above the setup action bar so it's right by the Reset button.
+    const barH = bar ? bar.getBoundingClientRect().height : 70;
+    pop.style.bottom = (barH + 8) + 'px';
+    pop.style.display='block';
+  }
+  const se=document.getElementById('setupErr'); if(se) se.textContent='';
+}
+
+function hideResetConfirm(){
+  const pop=document.getElementById('resetConfirmPop');
+  if(pop) pop.style.display='none';
 }
 
 function confirmResetSetup(){
@@ -1805,6 +1813,7 @@ function confirmResetSetup(){
   G.n=1;
   document.getElementById('cntVal').textContent=G.n;
   document.getElementById('resetConfirm').style.display='none';
+  hideResetConfirm();
   document.getElementById('setupErr').textContent='';
   renderPlayers();
   renderAllPairOptions();
@@ -3369,7 +3378,7 @@ function printStablefordCard(gi){
       <div style="font-size:11px;font-weight:800;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Points Table</div>
       <table style="border-collapse:collapse;font-size:12px">${ptTableRows}</table>
     </div>
-    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.21</div>
+    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.23</div>
   </body></html>`;
 
   const blob = new Blob([html],{type:'text/html'});
@@ -4032,7 +4041,7 @@ function renderBirdieJuice(){
   html+='</div>';
 
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.21</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.23</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -4293,7 +4302,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.21</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.23</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -4862,7 +4871,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.21</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.23</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -5817,6 +5826,7 @@ function showS(name){
   const _helpBar=document.querySelector('.help-bar');
   if(_setupBar) _setupBar.classList.toggle('show', name==='setup');
   if(_helpBar) _helpBar.style.display = (name==='setup') ? 'none' : 'block';
+  if(name!=='setup'){ const _rp=document.getElementById('resetConfirmPop'); if(_rp) _rp.style.display='none'; }
   if(name==='bets') renderBets();
   if(name==='score') renderCard();
   if(name==='sixpoint') renderSixPoint();
@@ -7095,7 +7105,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.21</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.23</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -7353,7 +7363,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.21</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.23</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -7535,7 +7545,7 @@ function openHistoryDetail(i){
     html+=`</div>`; // close card
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.21</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.23</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -7671,7 +7681,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v67.21');
+  lines.push('— Nassau Golf · Derrick GWC · v67.23');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -8271,7 +8281,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v67.21 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v67.23 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -10208,9 +10218,11 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v67.21';
+const CURRENT_VERSION = 'nassau-v67.23';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v67.23 — Removed the redundant backup hint and version footer below the Start Round button (that info is on the Backup and Update App buttons now).',
+  'v67.22 — The Reset confirmation now pops up just above the action bar, right by the Reset button, instead of at the top of the screen.',
   'v67.21 — Removed the "Solo" helper text under the player selector. Fixed the setup action bar disappearing after opening Help and tapping back.',
   'v67.20 — Setup bar now has five buttons (Help, Update App, Reset, History, Backup). History and Backup are separate screens. The app version moved onto the Update App button.',
   'v67.19 — Setup screen redesign: Help, Update, Reset and Backup are now four pinned buttons along the bottom that stay put as you scroll. Load and Manage Favorites sit side by side up top, and the version number moved to the top header.',
@@ -10598,7 +10610,7 @@ window.addEventListener('focus', syncBottomBars);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v67.21';
+const CACHE='nassau-v67.23';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
