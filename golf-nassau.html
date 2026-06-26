@@ -853,12 +853,12 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.37</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.38</span></a>
 
 <!-- ══════════ SETUP-ONLY STICKY ACTION BAR ══════════ -->
 <div class="setup-bar" id="setupBar">
   <a href="help.html" target="_blank" rel="noopener" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:rgba(168,213,181,.12);border:1.5px solid rgba(168,213,181,.32);color:#a8d5b5;border-radius:10px;padding:6px 3px;font-size:10px;font-weight:700;text-decoration:none;-webkit-tap-highlight-color:transparent;line-height:1.1;text-align:center"><span class="sb-top">User</span><span class="sb-ico">❓</span><span class="sb-sub">Manual</span></a>
-  <button onclick="manualCheckForUpdate(this)"><span class="sb-top">Update App</span><span class="sb-ico">⬆️</span><span class="sb-sub">v67.37</span></button>
+  <button onclick="manualCheckForUpdate(this)"><span class="sb-top">Update App</span><span class="sb-ico">⬆️</span><span class="sb-sub">v67.38</span></button>
   <button class="sb-reset" onclick="showResetConfirm()"><span class="sb-top">Reset</span><span class="sb-ico">♻️</span><span class="sb-sub">Setup</span></button>
   <button onclick="showS('history')"><span class="sb-top">Round</span><span class="sb-ico">📜</span><span class="sb-sub">History</span></button>
   <button onclick="showS('backup')"><span class="sb-top">Backup</span><span class="sb-ico">💾</span><span class="sb-sub">Data</span></button>
@@ -3381,7 +3381,7 @@ function printStablefordCard(gi){
       <div style="font-size:11px;font-weight:800;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Points Table</div>
       <table style="border-collapse:collapse;font-size:12px">${ptTableRows}</table>
     </div>
-    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.37</div>
+    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.38</div>
   </body></html>`;
 
   const blob = new Blob([html],{type:'text/html'});
@@ -4044,7 +4044,7 @@ function renderBirdieJuice(){
   html+='</div>';
 
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.37</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.38</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -4308,7 +4308,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.37</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.38</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -4877,7 +4877,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.37</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.38</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -7122,7 +7122,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.37</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.38</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -7380,7 +7380,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.37</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.38</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -7562,7 +7562,7 @@ function openHistoryDetail(i){
     html+=`</div>`; // close card
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.37</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.38</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -7698,7 +7698,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v67.37');
+  lines.push('— Nassau Golf · Derrick GWC · v67.38');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -8298,7 +8298,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v67.37 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v67.38 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -8391,9 +8391,52 @@ function mmAdjustStartHole(){
   // Check that none of the destination holes conflict (they should all be empty)
   const destHoles = newOrder.slice(0, neededSlots);
 
-  // Confirm with user
-  const msg = `Shift ${neededSlots} scored hole${neededSlots!==1?"s":""} from starting hole ${G.startHole} to starting hole ${newStart}?\n\nScores from holes ${scoredHoles.map(h=>h+1).join(", ")} will move to holes ${destHoles.map(h=>h+1).join(", ")}.`;
-  if(!confirm(msg)) return;
+  // Confirm with a styled in-app dialog (matches the app theme)
+  const holeList = (arr) => arr.map(h=>h+1).join(', ');
+  const srcStr = holeList(scoredHoles);
+  const dstStr = holeList(destHoles);
+  // Stash the shift parameters so the OK handler can run the move.
+  window._pendingHoleShift = { scoredHoles, destHoles, neededSlots, newStart, newOrder };
+  const existing = document.getElementById('holeShiftConfirm');
+  if(existing) existing.remove();
+  const ov = document.createElement('div');
+  ov.className = 'export-overlay';
+  ov.id = 'holeShiftConfirm';
+  ov.innerHTML = `
+    <div style="background:linear-gradient(135deg,#1a3a2a,#2d6a4f);border:1.5px solid rgba(201,168,76,.5);border-radius:16px;padding:22px 20px;max-width:340px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.5)">
+      <div style="font-size:24px;text-align:center;margin-bottom:8px">🚩</div>
+      <div style="font-size:17px;font-weight:800;color:#c9a84c;text-align:center;margin-bottom:14px">Change Starting Hole?</div>
+      <div style="font-size:14px;color:#e9efe9;line-height:1.5;margin-bottom:14px;text-align:center">
+        Shift <b style="color:#fff">${neededSlots}</b> scored hole${neededSlots!==1?"s":""} from starting hole
+        <b style="color:#fff">${G.startHole}</b> to starting hole <b style="color:#fff">${newStart}</b>.
+      </div>
+      <div style="background:rgba(0,0,0,.22);border-radius:10px;padding:12px 14px;margin-bottom:18px">
+        <div style="font-size:11px;font-weight:700;color:#a8d5b5;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;text-align:center">Scores will move</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:10px;font-size:13px;color:#e9efe9">
+          <div style="text-align:right;flex:1"><span style="color:#888">from</span><br><b style="color:#fff">${srcStr}</b></div>
+          <div style="color:#c9a84c;font-size:18px">→</div>
+          <div style="text-align:left;flex:1"><span style="color:#888">to</span><br><b style="color:#f0c040">${dstStr}</b></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button onclick="document.getElementById('holeShiftConfirm').remove();window._pendingHoleShift=null;"
+          style="flex:1;background:rgba(255,255,255,.12);color:#fff;border:1.5px solid rgba(255,255,255,.25);border-radius:10px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent">Cancel</button>
+        <button onclick="applyHoleShift()"
+          style="flex:1;background:var(--gold);color:var(--gd);border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent">Shift Scores</button>
+      </div>
+    </div>`;
+  document.body.appendChild(ov);
+  return;
+}
+
+// Runs the actual hole shift after the user confirms in the styled dialog.
+function applyHoleShift(){
+  const ov = document.getElementById('holeShiftConfirm');
+  if(ov) ov.remove();
+  const pend = window._pendingHoleShift;
+  window._pendingHoleShift = null;
+  if(!pend) return;
+  const { scoredHoles, destHoles, neededSlots, newStart, newOrder } = pend;
 
   // Perform the shift — copy scores to new positions then clear old
   const newScores = G.players.map(()=>Array(18).fill(null));
@@ -10235,9 +10278,10 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v67.37';
+const CURRENT_VERSION = 'nassau-v67.38';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v67.38 — Replaced the plain system pop-up for changing the starting hole mid-round with a styled in-app dialog that matches the rest of the app, showing a clear from → to of which holes the scores will move to.',
   'v67.37 — Moved the Load My Favorites and Manage Favorites buttons down to sit directly above the Players box, and removed the now-empty welcome card under the header. Loading your group is now right where the players appear.',
   'v67.36 — Reworked the Setup header to save space: removed the SETUP pill, moved the weather to the top-right corner, and put the Derrick logo centred between the title and the weather. The welcome card below is now just the Load/Manage Favorites buttons. During a round, the top-right shows the HOLE indicator as before.',
   'v67.35 — Start New Round (and Save & Pause, and Abandon) now snap the Setup screen back to the top, like Reset already did. Previously, finishing 18 holes and starting a new round could leave you scrolled partway down the setup screen.',
@@ -10641,7 +10685,7 @@ window.addEventListener('focus', syncBottomBars);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v67.37';
+const CACHE='nassau-v67.38';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
