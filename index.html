@@ -858,12 +858,12 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.34</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.35</span></a>
 
 <!-- ══════════ SETUP-ONLY STICKY ACTION BAR ══════════ -->
 <div class="setup-bar" id="setupBar">
   <a href="help.html" target="_blank" rel="noopener" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:rgba(168,213,181,.12);border:1.5px solid rgba(168,213,181,.32);color:#a8d5b5;border-radius:10px;padding:6px 3px;font-size:10px;font-weight:700;text-decoration:none;-webkit-tap-highlight-color:transparent;line-height:1.1;text-align:center"><span class="sb-top">User</span><span class="sb-ico">❓</span><span class="sb-sub">Manual</span></a>
-  <button onclick="manualCheckForUpdate(this)"><span class="sb-top">Update App</span><span class="sb-ico">⬆️</span><span class="sb-sub">v67.34</span></button>
+  <button onclick="manualCheckForUpdate(this)"><span class="sb-top">Update App</span><span class="sb-ico">⬆️</span><span class="sb-sub">v67.35</span></button>
   <button class="sb-reset" onclick="showResetConfirm()"><span class="sb-top">Reset</span><span class="sb-ico">♻️</span><span class="sb-sub">Setup</span></button>
   <button onclick="showS('history')"><span class="sb-top">Round</span><span class="sb-ico">📜</span><span class="sb-sub">History</span></button>
   <button onclick="showS('backup')"><span class="sb-top">Backup</span><span class="sb-ico">💾</span><span class="sb-sub">Data</span></button>
@@ -3386,7 +3386,7 @@ function printStablefordCard(gi){
       <div style="font-size:11px;font-weight:800;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Points Table</div>
       <table style="border-collapse:collapse;font-size:12px">${ptTableRows}</table>
     </div>
-    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.34</div>
+    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.35</div>
   </body></html>`;
 
   const blob = new Blob([html],{type:'text/html'});
@@ -4049,7 +4049,7 @@ function renderBirdieJuice(){
   html+='</div>';
 
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.34</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.35</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -4312,7 +4312,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.34</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.35</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -4881,7 +4881,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.34</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.35</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -6091,6 +6091,8 @@ function saveAndEndRound(){
   document.getElementById('screen-setup').classList.add('active'); if(typeof syncBottomBars==='function') syncBottomBars();
   initSetup();
   renderAllPairOptions();
+  try { window.scrollTo(0, 0); } catch(_){}
+  try { document.scrollingElement && (document.scrollingElement.scrollTop = 0); } catch(_){}
   // Toast
   const t=document.createElement('div');
   t.textContent='💾 Round saved to History';
@@ -6123,6 +6125,8 @@ function abandonRound(){
   document.getElementById('screen-setup').classList.add('active'); if(typeof syncBottomBars==='function') syncBottomBars();
   initSetup();
   renderAllPairOptions();
+  try { window.scrollTo(0, 0); } catch(_){}
+  try { document.scrollingElement && (document.scrollingElement.scrollTop = 0); } catch(_){}
 }
 
 function confirmNewRound(){
@@ -6192,6 +6196,9 @@ function confirmNewRound(){
   renderSnakeSetupOptions();
   renderFavPreview();
   autoFetchAllStale();
+  // Snap back to the top of the setup screen so the whole thing is visible (welcome card → Start Round)
+  try { window.scrollTo(0, 0); } catch(_){}
+  try { document.scrollingElement && (document.scrollingElement.scrollTop = 0); } catch(_){}
 }
 
 /* ═══════════════════════════════════════════════
@@ -7115,7 +7122,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.34</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.35</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -7373,7 +7380,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.34</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.35</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -7555,7 +7562,7 @@ function openHistoryDetail(i){
     html+=`</div>`; // close card
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.34</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.35</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -7691,7 +7698,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v67.34');
+  lines.push('— Nassau Golf · Derrick GWC · v67.35');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -8291,7 +8298,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v67.34 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v67.35 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -10228,9 +10235,10 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v67.34';
+const CURRENT_VERSION = 'nassau-v67.35';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v67.35 — Start New Round (and Save & Pause, and Abandon) now snap the Setup screen back to the top, like Reset already did. Previously, finishing 18 holes and starting a new round could leave you scrolled partway down the setup screen.',
   'v67.34 — The Derrick logo now sits dead-centre of the welcome card, with the weather anchored on the left. When it rains, the rain readout stacks under the temperature so it never crowds the centred logo.',
   'v67.33 — Removed the "Round Setup" text from the welcome card. The weather stays on the left and the Derrick logo on the right; it is already obvious which screen you are on.',
   'v67.32 — Fixed Reset so it always snaps back to the top of the Setup screen. Previously, resetting from a 5-player setup left you scrolled partway down; now the whole screen (welcome card through Start Round) is visible right away.',
@@ -10631,7 +10639,7 @@ window.addEventListener('focus', syncBottomBars);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v67.34';
+const CACHE='nassau-v67.35';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
