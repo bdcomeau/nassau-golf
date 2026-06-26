@@ -746,7 +746,7 @@ input::placeholder{color:#bbb}
     💾 Your data is saved on this phone. The app reminds you to back up every 2 rounds — tap <b>Back Up Now</b> when you see it, or <b>History → Export Backup</b> anytime.
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v67.14
+    Nassau Golf · Derrick GWC · v67.15
   </div>
 </div>
 </div>
@@ -840,7 +840,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.14</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.15</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -3166,7 +3166,7 @@ function printStablefordCard(gi){
       <div style="font-size:11px;font-weight:800;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Points Table</div>
       <table style="border-collapse:collapse;font-size:12px">${ptTableRows}</table>
     </div>
-    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.14</div>
+    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.15</div>
   </body></html>`;
 
   const blob = new Blob([html],{type:'text/html'});
@@ -3829,7 +3829,7 @@ function renderBirdieJuice(){
   html+='</div>';
 
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.14</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.15</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -4090,7 +4090,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.14</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.15</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -4659,7 +4659,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.14</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.15</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -6597,7 +6597,11 @@ function backupFileName(){
 function maybeShowBackupNudge(){
   const el=document.getElementById('backupNudge');
   if(!el) return;
-  el.style.display = backupNudgeDue() ? 'block' : 'none';
+  // Never prompt to back up while a scoring round is actively in play.
+  // (A round with scores entered that isn't finished-and-saved is "active".)
+  const hasScores = G.scores && G.scores[0] && G.scores[0].some(s=>s!==null);
+  const roundActive = hasScores && !(isRoundComplete() && isCurrentRoundSaved());
+  el.style.display = (backupNudgeDue() && !roundActive) ? 'block' : 'none';
 }
 function hideBackupNudge(){
   const el=document.getElementById('backupNudge');
@@ -6862,7 +6866,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.14</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.15</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -7108,7 +7112,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.14</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.15</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -7284,7 +7288,7 @@ function openHistoryDetail(i){
     html+=`</div>`; // close card
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.14</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.15</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -7419,7 +7423,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v67.14');
+  lines.push('— Nassau Golf · Derrick GWC · v67.15');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -8004,7 +8008,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v67.14 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v67.15 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -9735,9 +9739,10 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v67.14';
+const CURRENT_VERSION = 'nassau-v67.15';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v67.15 — The "Back Up Now" reminder no longer appears while a scoring round is in play; it only shows on the setup screen when no round is active.',
   'v67.14 — Skins: new "after 18" rule for carried skins — keep the old wash (leftovers void) or choose "Last hole takes all" so the 18th sweeps the carried pot; if the 18th ties, the app flags a playoff for the unresolved pot instead of letting it vanish. Set it in Skins setup or the mid-round settings.',
   'v67.13 — More resilient backups: the app now keeps a silent in-app safety copy after every round and shows a one-tap "Back Up Now" reminder every 2nd round. Backup files now have clear dated names (e.g. Nassau-Golf-Backup-Jun-25-2026) and save via the share sheet (email / Files / iCloud) on iPhone.',
   'v67.12 — Added Skins game (per-hole, gross or net, configurable value, carryover pots) with full scoring tab, live + final money, print/share, history and mid-round settings. All setup-screen game sections now collapse by default.',
@@ -10099,7 +10104,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v67.14';
+const CACHE='nassau-v67.15';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
