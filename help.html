@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Nassau Golf — User Manual v67.3</title>
+<title>Nassau Golf — User Manual v67.27</title>
 <style>
   :root{
     --gd:#1a3a2a;--gm:#2d6a4f;--gl:#52b788;--gp:#d8f3dc;
@@ -43,644 +43,433 @@
   .hero .sub{color:var(--gl);font-size:15px;margin:0 0 8px}
   .hero .desc{color:#a9c4b6;font-size:13px;font-style:italic}
 </style>
-</head>
+
 <body>
 <header>
   <a class="back" href="./">‹ Back</a>
   <h1>User Manual</h1>
-  <span class="ver">v67.3</span>
+  <span class="ver">v67.27</span>
 </header>
 <div class="wrap" id="top">
 <div class="hero">
   <h1>Nassau Golf</h1>
   <p class="sub">Derrick Golf &amp; Winter Club</p>
-  <p class="desc">A mobile scorecard, betting tracker, and Birdie Juice ledger<br>for Nassau, 6-Point, Stableford, Match Cards, Snake &amp; The International golf games</p>
+  <p class="desc">A mobile scorecard, betting tracker, and Birdie Juice ledger<br>for Nassau, 6-Point, Stableford, Skins, Vegas, Match Cards, Snake &amp; The International golf games</p>
 </div>
-
 <div class="toc">
 <h2>Contents</h2>
-<a href="#privacy-amp-data-security">Privacy &amp; Data Security</a>
-<a href="#round-match-amp-player-settings">Round, Match &amp; Player Settings</a>
-<a href="#1-installing-nassau-golf-on-your-iphone">1. Installing Nassau Golf on Your iPhone</a>
-<a href="#2-setting-up-a-round">2. Setting Up a Round</a>
-<a href="#3-scoring-the-scorecard-screen">3. Scoring — The Scorecard Screen</a>
-<a href="#4-the-score-entry-wheel">4. The Score Entry Wheel</a>
-<a href="#5-the-nassau-tab">5. The Nassau Tab</a>
-<a href="#6-the-international-the-big-i">6. The International (“The Big I”)</a>
-<a href="#7-the-6-point-game">7. The 6-Point Game</a>
-<a href="#8-stableford">8. Stableford</a>
-<a href="#9-match-cards">9. Match Cards</a>
-<a href="#10-birdie-juice">10. Birdie Juice</a>
-<a href="#11-round-history-amp-backup">11. Round History &amp; Backup</a>
-<a href="#12-starting-a-new-round">12. Starting a New Round</a>
-<a href="#13-the-snake-3-putt-money-game">13. The Snake 3-Putt Money Game</a>
-<a href="#14-typical-score">14. Typical Score</a>
-<a href="#15-troubleshooting">15. Troubleshooting</a>
+<a href="#privacy">Privacy &amp; Data Security</a>
+<a href="#midround">Mid-Round Match &amp; Player Settings</a>
+<a href="#s1">1. Installing Nassau Golf on Your iPhone</a>
+<a href="#s2">2. Setting Up a Round</a>
+<a href="#s3">3. The Setup Action Bar</a>
+<a href="#s4">4. Scoring — The Scorecard Screen</a>
+<a href="#s5">5. The Score Entry Wheel</a>
+<a href="#s6">6. The Nassau Tab</a>
+<a href="#s7">7. The International (“The Big I”)</a>
+<a href="#s8">8. The 6-Point Game</a>
+<a href="#s9">9. Stableford</a>
+<a href="#s10">10. Skins</a>
+<a href="#s11">11. Vegas</a>
+<a href="#s12">12. Match Cards</a>
+<a href="#s13">13. Birdie Juice</a>
+<a href="#s14">14. Round History</a>
+<a href="#s15">15. Backup &amp; Restore</a>
+<a href="#s16">16. Starting a New Round</a>
+<a href="#s17">17. The Snake 3-Putt Money Game</a>
+<a href="#s18">18. Typical Score</a>
+<a href="#s19">19. Troubleshooting</a>
 </div>
 <a class="top" href="#top">↑ Back to top</a>
-<h2 id="privacy-amp-data-security">Privacy &amp; Data Security</h2>
+<h2 id="privacy">Privacy &amp; Data Security</h2>
 <h3>Everything stays on your device</h3>
 <p>All round data, player names, handicaps, betting results, and Golf Canada member IDs are stored exclusively in your iPhone’s browser storage (localStorage). This data never leaves your device and is never sent to any server, cloud service, or third party. There is no Nassau Golf database or backend — the app is a single file that runs entirely on your phone.</p>
 <h3>Golf Canada Member ID &amp; Password</h3>
-<p>When you enter your Golf Canada credentials (member ID and password), they are used for one purpose only: fetching your current handicap index directly from Golf Canada’s API. Your credentials are:</p>
-<ul>
-<li>Stored only in your device’s local browser storage</li>
+<p>When you enter your Golf Canada credentials, they are used for one purpose only: fetching your current handicap index directly from Golf Canada’s API. Your credentials are:</p>
+<ul><li>Stored only in your device’s local browser storage</li>
 <li>Never transmitted to any server other than Golf Canada’s own secure API</li>
 <li>Never shared with other players, the app developer, or any third party</li>
-<li>Never included in round history exports or backups</li>
-</ul>
+<li>Never included in round history exports or backups</li></ul>
 <p>Once saved, your handicap refreshes automatically every 3 hours in the background. Your credentials are read locally each time and sent directly to Golf Canada. No one else ever sees them.</p>
 <h3>How long credentials are remembered</h3>
-<p>Your Golf Canada credentials persist indefinitely and survive app updates, closing the app, and restarting your phone. They are only lost if you manually clear Safari website data in iPhone Settings, or set up a brand new iPhone without restoring from an iCloud backup.</p>
+<p>Your Golf Canada credentials persist indefinitely and survive app updates, closing the app, and restarting your phone. They are only lost if you manually clear Safari website data, or set up a brand new iPhone without restoring from an iCloud backup.</p>
 <h3>Weather data</h3>
 <p>The app fetches live weather from the Derrick GWC weather station via a secure Cloudflare Worker proxy. No personal information is sent with this request — it is a read-only call to a weather instrument.</p>
 <h3>Need help with Golf Canada credentials?</h3>
 <p>If you don’t have a Golf Canada account or have forgotten your credentials, contact Trevor Goplin, Golf Professional at Derrick Golf &amp; Winter Club. He can look up your member ID and assist with account setup at golfcanada.ca.</p>
-<p class="note">🔒 Nassau Golf does not collect analytics, does not serve ads, has no user accounts, and has no server. Your data is yours alone.</p>
-<ul>
-<li>1. Installing Nassau Golf on Your iPhone</li>
-<li>2. Setting Up a Round</li>
-<li>3. Scoring — The Scorecard Screen</li>
-<li>4. The Score Entry Wheel</li>
-<li>5. The Nassau Tab</li>
-<li>6. The International (“The Big I”)</li>
-<li>7. The 6-Point Game</li>
-<li>8. Birdie Juice</li>
-<li>9. Round History &amp; Backup</li>
-<li>10. Starting a New Round</li>
-<li>11. The Snake 3-Putt Money Game</li>
-</ul>
+<p><em>🔒 Nassau Golf does not collect analytics, does not serve ads, has no user accounts, and has no server. Your data is yours alone.</em></p>
 <a class="top" href="#top">↑ Back to top</a>
-<h2 id="round-match-amp-player-settings">Round, Match &amp; Player Settings</h2>
-<p>Tap the ⚙️ Round, Match &amp; Player Settings button on the score entry screen to access mid-round adjustments. All settings are collapsible — tap any section header to expand it.</p>
-<h3>1. ⚡ Auto-Advance Scoring</h3>
-<p>Always visible at the top. Toggle automatic hole progression on or off mid-round without restarting. When ON, the app moves to the next hole automatically once all players have a score entered.</p>
-<h3>2. 🚩 Change Starting Hole</h3>
-<p>If you selected the wrong starting hole, fix it here. All scores already entered shift to the correct holes automatically and all matches recalculate. Works even if scores wrap past hole 18 back to hole 1.</p>
-<h3>3. 🏌️ Players — Tee Deck Change</h3>
-<p>Each player row shows their current handicap index (display-only) and a Tee Deck selector. Select a different deck and the handicap recalculates automatically. All Nassau and 6-Point matches update instantly.</p>
-<ul>
-<li>Golf Canada players — recalculates from their stored Golf Canada baseline index</li>
-<li>Manually-entered players — uses the index entered at setup as the baseline</li>
-</ul>
-<p>The handicap field is display-only and cannot be edited directly — change it by selecting a new Tee Deck.</p>
+<h2 id="midround">Mid-Round Match &amp; Player Settings</h2>
+<p>On the Scorecard screen, the <strong>⚙️ Mid-Round Match &amp; Player Settings</strong> button sits between the player score wheels and the master scorecard. Tap it to open mid-round adjustments. It has a quiet outlined look so it doesn’t compete with scoring. All settings inside are collapsible — tap any section header to expand it.</p>
+<div class="note">This button was previously called “Round, Match &amp; Player Settings” and lived below the scorecard. It now sits directly beneath the score wheels so it’s easy to reach while scoring.</div>
+<h3>⚡ Auto-Advance Scoring</h3>
+<p>Toggle automatic hole progression on or off mid-round. When ON, the app moves to the next hole automatically once all players have a score entered.</p>
+<h3>🚩 Change Starting Hole</h3>
+<p>If you selected the wrong starting hole, fix it here. All scores already entered shift to the correct holes automatically and all matches recalculate.</p>
+<h3>🏌️ Players — Tee Deck Change</h3>
+<p>Each player row shows their handicap index (display-only) and a Tee Deck selector. Select a different deck and the handicap recalculates automatically. All matches update instantly. Change the handicap by selecting a new Tee Deck — the field is not directly editable.</p>
 <h3>Adding &amp; Removing Players</h3>
-<p>Within the Players section you can also add or remove players mid-round:</p>
-<ul>
-<li>Add Player — if fewer than 5 players are in the round, a + Add Player button appears at the bottom of the Players section. The new player starts with no scores and is not automatically added to any existing Nassau or 6-Point matches — add them manually using the match sections below.</li>
-<li>Remove Player — tap the ✕ button beside any player to remove them. Their scores are deleted and they are removed from all active Nassau and 6-Point matches. This cannot be undone, so use with care.</li>
-</ul>
-<h3>4. 2v2 Nassau Games</h3>
-<p>Tap a pairing to add or remove it from the active round. Adding a match starts it from the current hole.</p>
-<h3>5. 1v1 Nassau Games</h3>
-<p>Tap a matchup to add or remove it. Removing a match keeps scores but drops it from Nassau totals.</p>
-<h3>6. 🎯 6-Point Game</h3>
-<p>Pick any 3 players to add or remove the 6-Point game. Player names reflect the actual golfers in the round.</p>
-<h3>7. 🐍 Snake 3-Putt Game</h3>
-<p>Turn the Snake game on or off, adjust the bet amount, and manage which players participate mid-round.</p>
-<h3>8. ⚔️ Match Cards</h3>
-<p>Enable or adjust Match Cards mid-round. Add up to two opponents from your saved players, set each opponent’s tee deck and Nassau bet, and use the Golf Canada Fetch pill to pull a current handicap. The separate ⚔️ Match Cards round is still saved at the end of the round for scoring later (see Section 9).</p>
+<ul><li><strong>Add Player</strong> — if fewer than 5 players are in, a + Add Player button appears. The new player starts with no scores and is not added to existing matches automatically.</li>
+<li><strong>Remove Player</strong> — tap ✕ beside any player to remove them. Their scores are deleted and they’re removed from all active matches. This cannot be undone.</li></ul>
+<h3>Game Sections</h3>
+<p>Each game you have running has its own collapsible section in the overlay, so you can adjust any of them mid-round:</p>
+<ul><li><strong>2v2 / 1v1 Nassau</strong> — add or remove pairings and matchups.</li>
+<li><strong>🎯 6-Point</strong> — pick any 3 players.</li>
+<li><strong>🏆 Stableford</strong> — add or drop players and adjust the bet per point.</li>
+<li><strong>💰 Skins</strong> — adjust players, dollars per skin, gross/net, and carry-over.</li>
+<li><strong>🎲 Vegas</strong> — change the two teams, dollars per point, gross/net, and the flip rule.</li>
+<li><strong>🐍 Snake</strong> — turn on/off, adjust the bet, manage participants.</li>
+<li><strong>⚔️ Match Cards</strong> — add up to two opponents, set tee deck and bet, fetch a current handicap.</li></ul>
 <a class="top" href="#top">↑ Back to top</a>
-<h2 id="1-installing-nassau-golf-on-your-iphone">1. Installing Nassau Golf on Your iPhone</h2>
-<p>Nassau Golf is a Progressive Web App (PWA). It is not downloaded from the App Store — instead, you add it to your Home Screen directly from Safari. Once installed, it opens full-screen like any other app, works without an internet connection during your round, and keeps your round data saved on your device.</p>
-<p class="warn">⚠️  You MUST install the app to your device before your data will be reliably saved. If you only open the web address in a browser tab (without adding it to your Home Screen / installing it), your saved players, favorites, and round history can be cleared by the browser at any time. Install it first, then always open it from the installed icon — not from a browser tab or bookmark.</p>
-<p class="warn">⚠️  Important: Do NOT use the “Remove App” option on the Home Screen icon — on iOS this wipes the app’s local data including your saved players and round history. To update or reinstall, use the Safari method described below instead.</p>
+<h2 id="s1">1. Installing Nassau Golf on Your iPhone</h2>
+<p>Nassau Golf is a Progressive Web App (PWA). It is not downloaded from the App Store — instead, you add it to your Home Screen directly from Safari. Once installed, it opens full-screen, works without an internet connection during your round, and keeps your round data saved on your device.</p>
+<div class="warn">⚠️  You MUST install the app to your device before your data will be reliably saved. If you only open the web address in a browser tab, your saved players, favorites, and round history can be cleared by the browser at any time. Install it first, then always open it from the installed icon.</div>
+<div class="warn">⚠️  Do NOT use the “Remove App” option on the Home Screen icon — on iOS this wipes the app’s local data including your saved players and round history. To update or reinstall, use the Safari method below instead.</div>
 <h3>Step-by-Step Installation</h3>
-<ul>
-<li>Open Safari on your iPhone (the installation must be done in Safari — it will not work correctly in Chrome or other browsers).</li>
-<li>Go to the Nassau Golf web address:</li>
-<li>Once the page loads, tap the Share button — the square icon with an arrow pointing up, located in the bottom toolbar (or top toolbar on some iPhones).</li>
-<li>Scroll down the Share menu and tap “Add to Home Screen.”</li>
-<li>You can rename the app if you like, then tap “Add” in the top-right corner.</li>
-<li>A Nassau Golf icon will now appear on your Home Screen, just like any other app.</li>
-</ul>
-<p class="tip">Tip: Always launch the app from the Home Screen icon, not from a Safari bookmark. The Home Screen icon runs in “standalone mode,” which gives you a full-screen experience and is required for the app to work correctly.</p>
+<ul><li>Open Safari on your iPhone (it must be Safari).</li>
+<li>Go to https://bdcomeau.github.io/nassau-golf/</li>
+<li>Tap the Share button (the square with an up arrow).</li>
+<li>Scroll down and tap “Add to Home Screen.”</li>
+<li>Tap “Add” in the top-right corner.</li>
+<li>A Nassau Golf icon appears on your Home Screen.</li></ul>
+<div class="tip"><strong>Tip:</strong> Always launch the app from the Home Screen icon, not from a Safari bookmark. The Home Screen icon runs in standalone mode, which is required for the app to work correctly.</div>
 <h3>Keeping the App Current</h3>
-<p>Nassau Golf updates automatically. When a new version is published, the app downloads it in the background the next time you open it with an internet connection and applies it on the following launch.</p>
-<p>If you think you might be on an old version, check the small version number at the bottom of the Setup screen. To get the latest version, try these steps in order:</p>
-<ul>
-<li>Force-close and reopen — swipe the app up in the iOS app switcher to close it completely, then tap the Home Screen icon. This is usually all it takes.</li>
-<li>Force-close while online — same as above, but make sure you have a Wi-Fi or cell signal before reopening so the latest version can download.</li>
-<li>Clear Safari site data — go to Settings → Safari → Advanced → Website Data, search for bdcomeau.github.io, swipe left on it and tap Delete. Force-close and reopen. This clears the cached old version so the fresh one loads. This does NOT delete your saved players or round history.</li>
-</ul>
-<p class="warn">⚠️  Do NOT delete the Home Screen icon and reinstall the app. On iOS, removing a PWA icon permanently erases all its local data including your saved players and round history. Always use the force-close or Safari data methods above.</p>
+<p>Nassau Golf updates automatically in the background. You can also check on demand by tapping <strong>Update App</strong> in the action bar at the bottom of the Setup screen — it shows the current version right on the button.</p>
+<ul><li><strong>Tap Update App</strong> — checks for a newer version and updates if found.</li>
+<li><strong>Force-close and reopen</strong> — swipe the app up in the app switcher, then reopen with Wi-Fi or signal so the latest version can download.</li>
+<li><strong>Clear Safari site data</strong> — Settings → Safari → Advanced → Website Data, find bdcomeau.github.io, swipe left and Delete, then reopen. This does NOT delete your data.</li></ul>
+<div class="warn">⚠️  Do NOT delete the Home Screen icon and reinstall. On iOS, removing a PWA icon permanently erases all its local data. Use Update App, force-close, or the Safari data method above.</div>
 <h3>Protecting Your Data</h3>
-<p>Your saved players, favorites, and round history live in local storage on your device, which is tied to the installed app. This is exactly why installing to your Home Screen matters — an installed app holds onto its data, while a plain browser tab can have it cleared without warning. As an extra safeguard, back up regularly using the Export Backup button in the History tab. A backup takes seconds and protects you from data loss if your device ever clears the storage.</p>
+<p>Your saved players, favorites, and round history live in local storage tied to the installed app. As an extra safeguard, back up regularly using the <strong>💾 Backup</strong> button in the action bar (Section 15). A backup takes seconds.</p>
 <a class="top" href="#top">↑ Back to top</a>
-<h2 id="2-setting-up-a-round">2. Setting Up a Round</h2>
-<p>When you open Nassau Golf, you’ll land on the Setup screen. This is where you add players, set handicaps, choose your starting hole, and configure the games for the round.</p>
+<h2 id="s2">2. Setting Up a Round</h2>
+<p>When you open Nassau Golf, you’ll land on the Setup screen — add players, set handicaps, choose your starting hole, and configure games. Common actions live in a fixed bar pinned to the bottom of the screen (Section 3).</p>
 <h3>Adding Players</h3>
-<ul>
-<li>Use the + and − buttons to set the number of players (1 to 5). A fresh setup screen starts with a single player — you (the “Me” favorite).</li>
-<li>For each player, enter their name and current handicap index.</li>
-<li>Optionally, enter their 10-digit Golf Canada Member ID (must be exactly 10 digits if provided).</li>
-<li>Each player row has three action pills on the right: a Golf Canada <strong>Fetch</strong> pill (logo + “Fetch”), a <strong>Save</strong> pill (💾 + “Save”), and — once the row has a name or ID — a <strong>Clear</strong> pill (✕ + “Clear”).</li>
-<li>Tap <strong>Save</strong> to store a player’s details for quick selection in future rounds.</li>
-<li>Use the “— saved players —” dropdown to load a saved player into any slot.</li>
-</ul>
-<p class="tip">Tip: As you type each player’s name, the match selection buttons below update live to show the actual names instead of “P1,” “P2” etc. — so you can see exactly who is matched against whom before starting.</p>
-<p class="tip">Tip: Each golfer must be unique. If the same name (or Golf Canada ID) is entered twice, the duplicate rows are outlined in red and the round won’t start until it’s fixed.</p>
+<ul><li>Use + and − to set the number of players (1 to 5). A fresh setup starts with a single player — you (the “Me” favorite).</li>
+<li>Enter each player’s name and current handicap index.</li>
+<li>Optionally enter a 10-digit Golf Canada Member ID.</li>
+<li>Each row has <strong>Fetch</strong>, <strong>Save</strong>, and (once filled) <strong>Clear</strong> pills on the right.</li>
+<li>Use the “— saved players —” dropdown to load a saved player into any slot.</li></ul>
+<div class="tip"><strong>Tip:</strong> As you type each name, the match buttons below update live to show real names instead of “P1,” “P2.”</div>
+<div class="tip"><strong>Tip:</strong> Each golfer must be unique. Duplicate names or IDs are outlined in red and the round won’t start until fixed.</div>
 <h3>Favorites — Your Regular Group</h3>
-<p>Most groups play with the same people every time, so you can save your regulars as Favorites and have them fill in automatically each round.</p>
-<ul>
-<li>Save your regular players first using the 💾 disk on each row (or a Golf Canada lookup, which also saves them).</li>
-<li>Tap the ⭐ Favorites button at the top of the setup screen.</li>
-<li>Star (☆ → ★) up to five players you golf with regularly.</li>
-<li>Mark one of them as “Me” — that’s you, the scorekeeper. You always go in slot 1. (Marking yourself also stars you automatically.)</li>
-<li>Optionally, set each player’s default tee deck using the Tee dropdown beside their name. When favorites load, each golfer comes in on their own default deck.</li>
-</ul>
-<p>From then on, your favorites pre-fill the player rows automatically — every time you start a New Round, and whenever you open the app fresh. “Me” lands in slot 1, then the other favorites follow, each on their saved default tee deck with the handicap already adjusted.</p>
-<ul>
-<li>There is also a ⭐ Load My Favorites button on the setup screen to pull them in on demand at any time. If one contact is marked as “Me” in your favorites, they are automatically placed in the Player 1 slot on every fresh setup screen and after Reset Setup — so you never have to enter yourself manually.</li>
-<li>Auto-fill only happens when the rows are empty, so it never overwrites names you’ve already started typing.</li>
-<li>Everything stays editable — favorites are just a starting point. Adjust the count, swap people in or out, change a deck for a one-off round, or change handicaps as usual.</li>
-<li>You can have at most five favorites; to add another, unstar one first.</li>
-</ul>
-<p class="tip">Tip: Favorites — including each player’s default tee deck — are stored with your saved players, so they are included in your backups (Section 11).</p>
+<p>Save your regulars as Favorites and have them fill in automatically each round. The Setup screen has Load My Favorites and Manage Favorites buttons side by side near the top.</p>
+<ul><li>Save your regular players first (the Save pill, or a Golf Canada lookup).</li>
+<li>Tap ⭐ Manage Favorites to open the favorites list.</li>
+<li>Star up to five players you golf with regularly.</li>
+<li>Mark one as “Me” — that’s you, the scorekeeper, always in slot 1.</li>
+<li>Optionally set each player’s default tee deck.</li></ul>
+<p>On a fresh start, just your “Me” favorite loads into slot 1. Tap <strong>⭐ Load My Favorites</strong> to pull in the rest of your group on demand. Auto-fill only happens when rows are empty, so it never overwrites names you’ve started typing. You can have at most five favorites.</p>
+<div class="tip"><strong>Tip:</strong> Favorites — including each player’s default tee deck — are stored with your saved players, so they’re included in your backups (Section 15).</div>
 <h3>Looking Up a Handicap from Golf Canada</h3>
-<p>If a player has a Golf Canada Member ID, you can pull their current handicap index automatically instead of typing it. Each player row has a green Golf Canada <strong>Fetch</strong> pill (the Golf Canada logo with the word “Fetch”) in the button column on the right.</p>
-<ul>
-<li>Enter the player’s name and their 10-digit Golf Canada Member ID in the ID field.</li>
-<li>Tap the <strong>Fetch</strong> pill. The handicap fills in automatically, and the player is saved to your contacts at the same time.</li>
-</ul>
-<p class="tip">Tip: A successful lookup saves the player automatically — no need to tap the Save pill separately. If the player already exists in your contacts, their handicap is simply updated in place (no duplicate). The Save pill is still there for saving players you enter by hand.</p>
-<p class="warn">⚠️  Your Golf Canada password is stored on your device so you don’t have to re-enter it each round. It is only ever sent to the lookup service to fetch handicaps. If you’d rather not store it, simply type handicaps in manually instead.</p>
-<h3>What You Need for Live Handicap Fetching</h3>
-<p>To automatically fetch a player&#x27;s current handicap index from Golf Canada, you need two things:</p>
-<ul>
-<li>Golf Canada Member ID — a 10-digit number assigned to every Golf Canada member</li>
-<li>Golf Canada account credentials — the player must have an account on golfcanada.ca with their member ID linked</li>
-</ul>
-<p>If a player doesn&#x27;t have their credentials or isn&#x27;t sure, the easiest way to get set up is to contact your club&#x27;s golf professional. At Derrick Golf &amp; Winter Club, contact Trevor Goplin — he can look up member IDs and assist with Golf Canada account registration.</p>
-<p>Alternatively, members can visit golfcanada.ca, click Sign In, and use Forgot Password if they have an existing account, or Register to create a new one and link their member number.</p>
-<p>Once a player&#x27;s member ID is saved and their handicap has been fetched once, it refreshes automatically every 3 hours — no credentials needed again.</p>
-<p>Where to Find the Member Number</p>
-<p>On the Golf Canada website, do a Handicap Lookup for the golfer. Their 10-digit Golf Canada Member Number appears just under their name, as highlighted below:</p>
-<p>Enter that number in the player’s Golf Canada Member Number field on the setup screen, then tap the Golf Canada Fetch pill to fetch the current handicap.</p>
-<p>Automatic Handicap Refresh</p>
-<p>Once a player has a Golf Canada Member Number saved, the app keeps their handicap current for you. Whenever players are loaded — favorites filling in on a new round, opening the app, or picking a saved player — the app quietly refreshes their handicap in the background.</p>
-<ul>
-<li>A green line under the Member Number field shows when it was last refreshed, e.g. “🟢 Handicap current as of Jun 18, 13:45.”</li>
-<li>To avoid unnecessary lookups, a handicap is only re-fetched if it is more than about three hours old. Recently-fetched handicaps are left as they are.</li>
-<li>Auto-refresh is silent — if you’re offline or haven’t set up your Golf Canada login yet, it simply leaves the existing handicap in place with no error pop-ups.</li>
-<li>You can always force a fresh lookup at any time by tapping the Golf Canada Fetch pill.</li>
-</ul>
-<p class="tip">Tip: The very first time on a new device you’ll set up your Golf Canada login once (by tapping the Fetch pill). After that, the automatic refresh reuses it.</p>
+<p>Each player row has a green Golf Canada <strong>Fetch</strong> pill. Enter the player’s name and 10-digit Member ID, then tap Fetch — the handicap fills in automatically and the player is saved to your contacts.</p>
+<div class="tip"><strong>Tip:</strong> A successful lookup saves the player automatically. If they already exist, their handicap updates in place (no duplicate).</div>
+<div class="warn">⚠️  Your Golf Canada password is stored on your device so you don’t re-enter it each round. It’s only ever sent to the lookup service. Prefer to type handicaps manually if you’d rather not store it.</div>
+<h3>Automatic Handicap Refresh</h3>
+<p>Once a player has a Member Number saved, the app keeps their handicap current — quietly refreshing in the background whenever players load. A handicap is only re-fetched if it’s more than about three hours old. Auto-refresh is silent and leaves the existing handicap in place if you’re offline.</p>
 <h3>Tee Decks &amp; Handicap Adjustment</h3>
-<p>Each golfer can select which tee deck they are playing from the Tee dropdown on their player row — DECK1, DECK1/2, DECK2, DECK2/3, DECK3, DECK3/4, or DECK4, listed longest to shortest with the combined decks slotted between. Because a handicap changes with the tees played, the app adjusts the fetched Golf Canada index for the chosen deck and rounds it to a whole number, which becomes that player’s playing handicap for all match calculations.</p>
-<table>
-<tr>
-<th><strong>Tee Deck</strong></th>
-<th><strong>Playing handicap (from the fetched Golf Canada index)</strong></th>
-</tr>
-<tr>
-<td><strong>DECK1</strong></td>
-<td>round( index × 121 ÷ 113 + 0.9 )</td>
-</tr>
-<tr>
-<td><strong>DECK1/2</strong></td>
-<td>round( index × 120 ÷ 113 + 0.2 )</td>
-</tr>
-<tr>
-<td><strong>DECK2</strong></td>
-<td>round( index × 119 ÷ 113 − 0.4 )</td>
-</tr>
-<tr>
-<td><strong>DECK2/3</strong></td>
-<td>round( index × 118 ÷ 113 − 1.8 )</td>
-</tr>
-<tr>
-<td><strong>DECK3</strong></td>
-<td>round( index × 117 ÷ 113 − 2.9 )</td>
-</tr>
-<tr>
-<td><strong>DECK3/4</strong></td>
-<td>round( index × 109 ÷ 113 − 4.9 )</td>
-</tr>
-<tr>
-<td><strong>DECK4</strong></td>
-<td>round( index × 109 ÷ 113 − 5.9 )</td>
-</tr>
-</table>
-<ul>
-<li>Each player’s handicap shows as two stacked boxes: the top box (tagged <strong>IDX</strong>) is the Golf Canada index in decimals (e.g. 7.5), and the bottom box (tagged <strong>ADJ</strong>) is the rounded whole-number playing handicap for the selected deck. The ADJ number is what drives the matches.</li>
-<li>Switching decks recalculates the ADJ box instantly from the index, so you can change tees as many times as you like and the handicap always stays correct.</li>
-<li>The tee deck is chosen from the deck selector at the bottom of each player card. New players default to DECK2. If your whole group plays the same tees, just leave it.</li>
-</ul>
-<p class="warn">⚠️  A handicap you type in by hand is used exactly as entered — no deck adjustment is applied. (Typing a number also clears any fetched value, so the Tee selector won’t change it.) Use the Golf Canada lookup if you want the automatic per-deck adjustment.</p>
+<p>Each golfer selects a tee deck — DECK1, DECK1/2, DECK2, DECK2/3, DECK3, DECK3/4, or DECK4, listed longest to shortest. The app adjusts the fetched Golf Canada index for the chosen deck and rounds it to a whole number, which becomes that player’s playing handicap.</p>
+<table><tr><th>Tee Deck</th><th>Playing handicap (from the fetched index)</th></tr><tr><td>DECK1</td><td>round( index × 121 ÷ 113 + 0.9 )</td></tr>
+<tr><td>DECK1/2</td><td>round( index × 120 ÷ 113 + 0.2 )</td></tr>
+<tr><td>DECK2</td><td>round( index × 119 ÷ 113 − 0.4 )</td></tr>
+<tr><td>DECK2/3</td><td>round( index × 118 ÷ 113 − 1.8 )</td></tr>
+<tr><td>DECK3</td><td>round( index × 117 ÷ 113 − 2.9 )</td></tr>
+<tr><td>DECK3/4</td><td>round( index × 109 ÷ 113 − 4.9 )</td></tr>
+<tr><td>DECK4</td><td>round( index × 109 ÷ 113 − 5.9 )</td></tr></table>
+<p>Each handicap shows as two boxes: <strong>IDX</strong> (the decimal index, e.g. 7.5) and <strong>ADJ</strong> (the rounded playing handicap for the deck). The ADJ number drives the matches. New players default to DECK2.</p>
+<div class="warn">⚠️  A handicap you type by hand is used exactly as entered — no deck adjustment. Use the Golf Canada lookup for automatic per-deck adjustment.</div>
 <h3>Choosing a Starting Hole</h3>
-<p>For shotgun-start tournaments, use the Starting Hole selector to choose which hole your group tees off on (1–18). All scoring, match calculations, and hole badges throughout the app adjust automatically.</p>
+<p>For shotgun starts, use the Starting Hole selector (1–18). All scoring, match calculations, and hole badges adjust automatically.</p>
 <h3>Round Type — Scorecard Only</h3>
-<p>Below the player list is a “Scorecard only” toggle. Switch it on when you just want to keep score — no betting games at all. When it’s on, <strong>every</strong> game section disappears from setup (Nassau, 6-Point, Snake, Stableford, and Match Cards) and you can start the round without choosing any games. Turning on Scorecard only also clears any Match Cards selection.</p>
-<ul>
-<li>The 💰 Nassau and 6️⃣ 6-Point tabs are hidden from the bottom navigation.</li>
-<li>The master scorecard shows no money rows, and Round History skips the money summary and game cards for that round.</li>
-<li>Everything else still works: scores, handicaps, stroke circles, round timing, live weather, Birdie Juice, and history.</li>
-<li>On the Scorecard screen the manage button reads “⚙️ Players” and opens a players-only screen (add, remove, or edit handicaps — no game options).</li>
-</ul>
-<p class="tip">Tip: Scorecard-only is chosen per round, so you can keep score casually one day and run a full Nassau the next. The setting resets to off when you start a new round.</p>
-<p>“What If You’d Played Nassau?”</p>
-<p>In a scorecard-only round, once all 18 holes are scored, a “🤔 What if you’d played Nassau?” banner appears below the master scorecard. Tap it to open a fun calculator that shows what each possible matchup would have paid, based on the day’s actual scores — using the full Nassau engine (Front 9 / Back 9 / Total 18 with automatic presses).</p>
-<ul>
-<li>A “$ per side” selector at the top defaults to $2; tap − / + to change it and every result recalculates instantly.</li>
-<li>For a four-player group it shows all three 2v2 team splits plus all six head-to-head matchups; with three or five players it shows the head-to-head matchups.</li>
-<li>Each line reads like “Wayne &amp; Chris win $28” or “All square — $0.”</li>
-</ul>
-<p class="tip">Tip: This is purely for fun — no scorecards are drawn, no money is tracked, and nothing is saved. It just answers “what would have happened?”</p>
+<p>Switch on “Scorecard only” when you just want to keep score — no betting games. Every game section disappears from setup and the game tabs are hidden. The master scorecard shows no money rows. Everything else still works: scores, handicaps, stroke circles, timing, weather, Birdie Juice, and history.</p>
+<div class="tip"><strong>Tip:</strong> Scorecard-only is per round. The setting resets to off when you start a new round.</div>
+<h3>“What If You’d Played Nassau?”</h3>
+<p>In a scorecard-only round, once all 18 holes are scored, a “🤔 What if you’d played Nassau?” banner appears. Tap it to see what each matchup would have paid, using the full Nassau engine. A “$ per side” selector defaults to $2. Nothing is saved — it’s purely for fun.</p>
 <h3>Choosing Your Games</h3>
-<p>Set up any combination of games (skip this entirely if “Scorecard only” is on). The games offered depend on how many players are in the round, so you only ever see games you can actually play:</p>
-<ul>
-<li><strong>1 player:</strong> only <strong>Match Cards</strong> is offered (see Section 9). Nassau, 6-Point, Snake, and Stableford are hidden until you add a second player.</li>
-<li><strong>2 players:</strong> 1v1 Nassau, Snake, Stableford, and Match Cards. 2v2 Nassau (needs 4) and 6-Point (needs 3) are hidden.</li>
-<li><strong>3 players:</strong> the above plus 6-Point. 2v2 Nassau is still hidden.</li>
-<li><strong>4–5 players:</strong> every game is available, including 2v2 Nassau.</li>
-</ul>
-<p>For a multi-player betting round, at least one game (Nassau, 6-Point, or Snake) is required to start — or switch on Scorecard only.</p>
-<p>2v2 Nassau Games</p>
-<ul>
-<li>Pair players into two-person teams. The bet amount applies separately to Front 9, Back 9, and Total 18.</li>
-<li>Multiple 2v2 games can run simultaneously.</li>
-</ul>
-<p>1v1 Nassau Games</p>
-<ul>
-<li>Head-to-head match between any two players, with separate Front 9 / Back 9 / Total 18 bets.</li>
-</ul>
-<p>6-Point Game</p>
-<ul>
-<li>Choose any three players. Set the dollar value per point (25¢ to $10).</li>
-<li>Can be played with or without Nassau games.</li>
-</ul>
-<h3>Snake 3-Putt Game</h3>
-<p>An optional side game that can run alongside any Nassau or 6-Point game, or on its own in a scorecard-only round. Enable it with the checkbox in the purple Snake 3-Putt Game card on the Setup screen (between Round Type and 2v2 Nassau). See Section 13 for full details.</p>
-<ul>
-<li>Whoever last 3-putted holds the snake.</li>
-<li>At the end of the round, whoever is holding it loses.</li>
-<li>No money settlement — purely a fun side consequence.</li>
-<li>Tracked hole by hole on the score entry screen with a compact dropdown.</li>
-</ul>
-<h3>Managing and Deleting Players</h3>
-<p>Tap ⭐ Manage Favorites &amp; Players at the top of the Setup screen to open the full player list. Here you can star/unstar players, set default tee decks, mark yourself as “Me,” and remove players permanently by tapping ✕ beside their name. A confirmation dialog appears before deletion.</p>
-<h3>Golf Canada ID Lock</h3>
-<p>When a player is loaded from the saved player dropdown or from favorites, and they already have a Golf Canada Member ID on file, the ID field shows as locked (greyed out with a 🔒 lock icon) to prevent accidental edits. Tap 🔒 to unlock it if you genuinely need to change the ID.</p>
-<h3>Clearing a Player Row</h3>
-<p>If you need to replace a loaded player with someone new, tap the red ✕ Clear pill in the button column on the right side of the player row. This wipes the name, GC ID, and handicap for that row, leaving it blank and ready for a new entry.</p>
-<h3>Duplicate Prevention</h3>
-<p>The “— saved players —” dropdown greys out and disables any player already assigned to another active row, so you cannot accidentally add the same person twice.</p>
-<h3>Pre-Loaded Player List</h3>
-<p>Nassau Golf comes pre-loaded with the regular Derrick GWC group — all 24 players with their Golf Canada Member IDs. They appear automatically in the dropdown on first install, and are merged in on every launch without overwriting any data you’ve added.</p>
-<h3>Score Entry Options</h3>
-<p>The ⚙️ Score Entry Options card (between Round Type and Snake) contains an Auto-advance holes toggle. When on (default), the app moves to the next hole automatically after all scores are entered. Turn it off to require a manual Next Hole → tap.</p>
-<h3>Solo Mode</h3>
-<p>A fresh setup screen starts with a single player — you, the “Me” favorite. With one player, the live round keeps score only (no live Nassau, 6-Point, or Snake on the scorecard), but <strong>Match Cards is available</strong>: you can pick 1–2 opponents from other groups and a separate ⚔️ Match Cards round is saved at the end for you to score later (see Section 9). The round saves to History like any other. Add a second player at any time to unlock the full set of betting games.</p>
-<h3>Resetting the Setup Screen</h3>
-<p>The “↺ Reset Setup” button (below Start Round) clears all entered names, handicaps, Golf Canada IDs, and selected games, and resets to a single player (your “Me” favorite). A confirmation prompt appears before anything is cleared. Your saved player contacts are not affected.</p>
+<p>Set up any combination of games. The games offered depend on how many players are in the round:</p>
+<table><tr><th>Players</th><th>Games available</th></tr><tr><td>1 player</td><td>Match Cards only.</td></tr>
+<tr><td>2 players</td><td>1v1 Nassau, Snake, Stableford, Skins, and Match Cards.</td></tr>
+<tr><td>3 players</td><td>The above plus 6-Point.</td></tr>
+<tr><td>4 players</td><td>Every game, including 2v2 Nassau and Vegas.</td></tr>
+<tr><td>5 players</td><td>Every game. Vegas is played by any four of the five (pick two teams of two); the fifth sits out Vegas but plays everything else.</td></tr></table>
+<p>For a multi-player betting round, at least one game is required to start — or switch on Scorecard only. Each game has its own collapsible card in the Betting Games area (all start collapsed — tap a header to expand).</p>
+<h3>Other Setup Details</h3>
+<ul><li><strong>Golf Canada ID Lock</strong> — a loaded player with an ID on file shows the ID field locked (🔒). Tap to unlock if you must change it.</li>
+<li><strong>Clearing a Player Row</strong> — the red ✕ Clear pill wipes the name, GC ID, and handicap for that row.</li>
+<li><strong>Duplicate Prevention</strong> — the saved-players dropdown greys out anyone already in another row.</li>
+<li><strong>Pre-Loaded Players</strong> — the regular Derrick GWC group (24 players with IDs) is pre-loaded and merged in on every launch.</li>
+<li><strong>Solo Mode</strong> — with one player the round keeps score only, but Match Cards is available. Add a second player to unlock the betting games.</li></ul>
 <h3>Starting the Round</h3>
 <p>Tap Start Round. The app jumps straight to the Scorecard screen, ready for the first hole.</p>
 <a class="top" href="#top">↑ Back to top</a>
-<h2 id="3-scoring-the-scorecard-screen">3. Scoring — The Scorecard Screen</h2>
-<p>The Scorecard screen shows one hole at a time, with a card for each player. It is where you’ll spend most of the round.</p>
+<h2 id="s3">3. The Setup Action Bar</h2>
+<p>The Setup screen has a fixed action bar pinned along the bottom. It stays put as you scroll, so the common actions are always one tap away. Each button shows a word, an icon, and a second word:</p>
+<table><tr><th>Button</th><th>What it does</th></tr><tr><td>❓ User / Manual</td><td>Opens this user manual in a new tab.</td></tr>
+<tr><td>⬆️ Update App / version</td><td>Checks for a newer version and updates if available. The version is shown on the button.</td></tr>
+<tr><td>♻️ Reset / Setup</td><td>Clears the setup. A confirmation pops up just above the bar, by the Reset button.</td></tr>
+<tr><td>📜 Round / History</td><td>Opens Round History (Section 14).</td></tr>
+<tr><td>💾 Backup / Data</td><td>Opens the Backup &amp; Restore screen (Section 15).</td></tr></table>
+<h3>Resetting the Setup Screen</h3>
+<p>Tap <strong>♻️ Reset</strong> to clear all entered names, handicaps, IDs, and games, and reset to a single player (your “Me” favorite). A confirmation appears just above the action bar — tap Reset again to confirm, or Cancel. Your saved player contacts are not affected.</p>
+<div class="note">The action bar only appears on the Setup screen. During a round, the normal bottom navigation takes its place. It reliably reappears whenever you return to Setup — including after Save &amp; Pause, Abandon, finishing a round, or coming back from the manual.</div>
+<a class="top" href="#top">↑ Back to top</a>
+<h2 id="s4">4. Scoring — The Scorecard Screen</h2>
+<p>The Scorecard screen shows one hole at a time, with a card for each player.</p>
 <h3>Navigating Between Holes</h3>
-<ul>
-<li>Use the ‹ and › arrows at the top to move between holes in play order.</li>
-<li>If you tap › (forward) and any player is missing a score on the current hole, the app will stay on that hole and show a red banner: “Missing score for: [name].” Tapping the banner opens the Manage Matches screen directly.</li>
-<li>The hole number, par, and HCP rating are shown at the top of the screen.</li>
-<li>For shotgun starts, the badge in the top-right shows your match position — e.g. “4th HOLE OF MATCH” if you started on Hole 5 and are now on Hole 8.</li>
-<li>The Scorecard icon at the bottom of the screen shows a gold badge with the same play-order number.</li>
-</ul>
+<ul><li>Use ‹ and › to move between holes in play order.</li>
+<li>If you tap › with a player missing a score, the app stays put and shows “Missing score for: [name].” Tapping the banner opens the mid-round settings.</li>
+<li>The hole number, par, and HCP rating show at the top.</li>
+<li>For shotgun starts, the top-right badge shows your match position.</li></ul>
 <h3>Player Cards</h3>
-<p>Each player card shows the player’s name and a live combined money total covering all active games — Nassau (1v1 and 2v2), 6-Point, and Snake — in real time (green = winning, red = losing, gold = even). The handicap index and ✏️ edit button sit on the right side of the header beside the money amount, away from the score entry area below — tap it to edit the handicap mid-round. Rounds auto-save to History the moment the last score on hole 18 is entered.</p>
-<p>Once a score has been entered for a player on the current hole, their card gains a gold border — a quick visual confirmation that their score is recorded. Cards without a border still need a score entered.</p>
+<p>Each card shows the player’s name and a live combined money total across all active money games — Nassau (1v1 and 2v2), 6-Point, Snake, Skins, and Vegas — in real time (green = winning, red = losing, gold = even). The ✏️ edit button beside the money lets you edit the handicap mid-round. Rounds auto-save to History when the last score on hole 18 is entered. A scored player’s card gains a gold border.</p>
+<h3>Mid-Round Settings Button</h3>
+<p>Between the player cards and the master scorecard sits the <strong>⚙️ Mid-Round Match &amp; Player Settings</strong> button — tap it any time to add or drop players, change tee decks, fix the starting hole, or adjust any game.</p>
 <h3>The Master Scorecard</h3>
-<p>Below the player cards, the master scorecard shows all players’ gross scores in the authentic Derrick Golf &amp; Winter Club card style — charcoal hole column, olive par row, and condensed columns. It uses each player’s FULL handicap.</p>
-<p>Once scores are entered, they appear with traditional golf score markings:</p>
-<table>
-<tr>
-<th><strong>Mark</strong></th>
-<th><strong>Meaning</strong></th>
-</tr>
-<tr>
-<td><strong>Green bold ACE</strong></td>
-<td>Hole in one</td>
-</tr>
-<tr>
-<td><strong>Double red circle</strong></td>
-<td>Eagle or better</td>
-</tr>
-<tr>
-<td><strong>Single red circle</strong></td>
-<td>Birdie</td>
-</tr>
-<tr>
-<td><strong>Plain number</strong></td>
-<td>Par</td>
-</tr>
-<tr>
-<td><strong>Single black square</strong></td>
-<td>Bogey</td>
-</tr>
-<tr>
-<td><strong>Double black square</strong></td>
-<td>Double bogey or worse</td>
-</tr>
-</table>
-<p>The card also shows OUT, IN, TOT, and NET rows. NET is each player’s gross total minus their full handicap index.</p>
-<p>The 📤 Share / Print Scorecard button above the master scorecard opens the full round as a clean page in a new browser tab. From there, tap 🖨️ Print / Save PDF to print or save as PDF — or use the iOS Share sheet (tap the share icon in Safari) to send via Messages, Mail, AirDrop, or any other app.</p>
+<p>Below the settings button, the master scorecard shows all players’ gross scores in the authentic Derrick GWC card style, using each player’s FULL handicap. Scores show with traditional markings:</p>
+<table><tr><th>Mark</th><th>Meaning</th></tr><tr><td>Green bold ACE</td><td>Hole in one</td></tr>
+<tr><td>Double red circle</td><td>Eagle or better</td></tr>
+<tr><td>Single red circle</td><td>Birdie</td></tr>
+<tr><td>Plain number</td><td>Par</td></tr>
+<tr><td>Single black square</td><td>Bogey</td></tr>
+<tr><td>Double black square</td><td>Double bogey or worse</td></tr></table>
+<p>OUT, IN, TOT, and NET rows are shown (NET = gross total minus full handicap). The <strong>📤 Share / Print</strong> button opens the round as a clean page — print, save PDF, or use the iOS Share sheet.</p>
 <h3>Round Timing</h3>
-<p>When you start a round, the start time is recorded. The moment the 18th hole’s last score is entered, the finish time is stamped and a pace-of-play line appears at the bottom of the cards — for example: “⏱️ Round started 12:36 PM · Pace of play 4 hours 10 minutes.” If you edit a score back to incomplete, the finish time clears and re-stamps when you finish again.</p>
+<p>Start time is recorded when you begin; finish time stamps when the 18th hole’s last score is entered, and a pace-of-play line appears.</p>
 <h3>Live Weather</h3>
-<p>A weather strip appears on the score entry screen, just below the Front 9 / Back 9 tabs, showing live conditions from a Davis weather station via WeatherLink — for example: “🌡️ 11°C · 💨 calm · 💧 93% · 🌧️ 0 mm today.” It refreshes automatically every couple of minutes while you play.</p>
-<ul>
-<li>Temperature in °C, wind in km/h with direction (or “calm” when still), and humidity.</li>
-<li>Rainfall: the day’s total always shows; when it’s actively raining, the current rate is added too (e.g. “🌧️ 3 mm/h (today 7.9 mm)”).</li>
-</ul>
-<p>The conditions at the start and finish of the round are saved with it. In Round History, a “🌦️ Conditions” card shows the Start and Finish readings for that round.</p>
-<p class="tip">Tip: Weather is pre-configured and connects automatically — no setup required. Tap the weather strip any time to refresh conditions manually.</p>
+<p>A weather strip shows live conditions from a Davis station via WeatherLink (temperature, wind, humidity, rainfall), refreshing every couple of minutes. Start and finish conditions are saved with the round.</p>
+<div class="tip"><strong>Tip:</strong> Weather is pre-configured — no setup required. Tap the strip to refresh manually.</div>
 <h3>Money Summary</h3>
-<p>Once all 18 holes are scored, three money rows appear at the bottom of the master scorecard, with each player’s amount in their own column (green for up, red for down):</p>
-<ul>
-<li>Nassau $ — each player’s Nassau winnings or losses.</li>
-<li>6-Point $ — shown only if there are 6-Point games in the round.</li>
-<li>Total $ Today — the combined total, in bold.</li>
-</ul>
+<p>Once all 18 holes are scored, money rows appear at the bottom of the master scorecard — one row per game you actually played:</p>
+<ul><li><strong>Nassau $</strong> — only if there’s a Nassau match.</li>
+<li><strong>6-Point $</strong> — only with 6-Point games.</li>
+<li><strong>🏆 Stableford $</strong> — when Stableford has a bet.</li>
+<li><strong>💰 Skins $</strong> — when Skins is in play.</li>
+<li><strong>🎲 Vegas $</strong> — when Vegas is in play.</li>
+<li><strong>🐍 Snake $</strong> — when Snake is enabled.</li>
+<li><strong>Total $ Today</strong> — the combined total, in bold.</li></ul>
+<div class="note">If a game wasn’t set up, its row never appears — a Vegas-only round shows just the Vegas and Total rows.</div>
 <a class="top" href="#top">↑ Back to top</a>
-<h2 id="4-the-score-entry-wheel">4. The Score Entry Wheel</h2>
+<h2 id="s5">5. The Score Entry Wheel</h2>
 <p>Each player card features a drum-roll style score selector. The layout is fixed on every hole:</p>
-<table>
-<tr>
-<th><strong>Position</strong></th>
-<th><strong>What it shows</strong></th>
-</tr>
-<tr>
-<td><strong>Far left</strong></td>
-<td>Birdie (par −1) — always</td>
-</tr>
-<tr>
-<td><strong>Centre (unset)</strong></td>
-<td>Par number in grey — tap to confirm par</td>
-</tr>
-<tr>
-<td><strong>Centre (set)</strong></td>
-<td>Current score with coloured box and label</td>
-</tr>
-<tr>
-<td><strong>Right side</strong></td>
-<td>Bogey (par+1), Double (par+2), Triple (par+3)</td>
-</tr>
-</table>
+<table><tr><th>Position</th><th>What it shows</th></tr><tr><td>Far left</td><td>Birdie (par −1) — always</td></tr>
+<tr><td>Centre (unset)</td><td>Par number in grey — tap to confirm par</td></tr>
+<tr><td>Centre (set)</td><td>Current score with coloured box and label</td></tr>
+<tr><td>Right side</td><td>Bogey (par+1), Double (par+2), Triple (par+3)</td></tr></table>
 <h3>Entering a Score</h3>
-<ul>
-<li>When a hole is first displayed, the centre shows the par number in light grey. Tap the centre to confirm par — it immediately lights up in green. The label below the score updates dynamically: Ace (any gross score of 1), Albatross (par 5, 3-under), Eagle, Birdie, Par, Bogey, Double, Triple, Quad, and Moose (score of 10).</li>
-<li>Tap the centre to confirm par — it immediately lights up in green.</li>
-<li>Tap any number on the left or right to jump directly to that score.</li>
-<li>Use the ◀ and ▶ arrows to adjust the score one stroke at a time. Pressing an arrow from the unset state goes directly to par−1 (birdie) or par+1 (bogey).</li>
-<li>You can also swipe up or down on the centre score box to adjust.</li>
-<li>The currently recorded score highlights brighter on the side panels so you can confirm at a glance what’s been entered.</li>
-</ul>
-<p class="tip">Tip: Eagle and worse-than-triple scores are still reachable using the arrow buttons — the side panels just show the most common outcomes for speed.</p>
+<ul><li>Tap the centre to confirm par — it lights up green. The label updates: Ace, Albatross, Eagle, Birdie, Par, Bogey, Double, Triple, Quad, Moose (10).</li>
+<li>Tap any side number to jump directly to that score.</li>
+<li>Use the ◀ ▶ arrows to adjust one stroke at a time. From the unset state, the arrows preview a gold candidate — tap the centre to confirm it.</li>
+<li>You can also swipe up or down on the centre box.</li></ul>
+<div class="tip"><strong>Tip:</strong> Eagle and worse-than-triple scores are still reachable with the arrows — the side panels just show the most common outcomes for speed.</div>
 <a class="top" href="#top">↑ Back to top</a>
-<h2 id="5-the-nassau-tab">5. The Nassau Tab</h2>
-<p>Tap the 💰 Nassau icon at the bottom to see live match scorecards for every Nassau game.</p>
+<h2 id="s6">6. The Nassau Tab</h2>
+<p>Tap the 💵 Games button, then Nassau, to see live match scorecards for every Nassau game.</p>
 <h3>Reading a Match Scorecard</h3>
-<p>Each Nassau match is shown as a Derrick-style card with the first three columns (Hole, HCP, Par), then each player’s gross scores, then running columns for every bet: Nassau F9, Nassau B9, Nassau 18 (shown vertically with a light tint to set them apart from the presses), and each press (P1, P2, …).</p>
-<ul>
-<li>Player handicaps here are the ADJUSTED match handicaps — the lowest handicap in the match drops to scratch (0) and the others play off that. The adjusted figures are noted above the card.</li>
-<li>Stroke holes are pre-marked with red circles (thin = 1 shot, double = 2 shots) using those adjusted handicaps.</li>
-<li>Each bet column shows the running match state per hole: E (even), +1/−2 (holes up or down), or P where a press begins.</li>
-<li>After the 17th hole, a 🌍 globe marks any bet that is eligible for The International (see Section 6).</li>
-</ul>
+<ul><li>Each match shows Hole, HCP, Par, each player’s gross scores, then running columns for Nassau F9, B9, 18, and each press.</li>
+<li>Handicaps here are the ADJUSTED match handicaps — the lowest drops to scratch and the others play off that.</li>
+<li>Stroke holes are pre-marked with red circles.</li>
+<li>After the 17th hole, a 🌍 globe marks any bet eligible for The International (Section 7).</li></ul>
 <h3>Presses</h3>
-<p>A press is an extra bet worth DOUBLE the Nassau amount. A new press starts automatically the moment the parent game first reaches 2 up or 2 down: the trigger hole shows “P” in a new column, and the press begins counting on the very next hole.</p>
-<ul>
-<li>P1 starts when the overall 18 game first hits ±2; P2 starts when P1 first hits ±2; P3 when P2 does; and so on.</li>
-<li>A press started in the first nine holes settles in TWO halves: the first half settles on its standing at the 9th hole; the second half settles on its cumulative standing at the 18th hole. Each half is worth the press amount.</li>
-<li>A press started in the back nine is a single bet, settled at the 18th hole.</li>
-<li>After 18 holes, any bet that is not even pays out — a final margin of ±1, ±2, or ±3 all settle for the bet’s amount.</li>
-</ul>
+<p>A press is an extra bet worth DOUBLE the Nassau amount, starting automatically the moment the parent game first reaches 2 up or 2 down.</p>
+<ul><li>P1 starts when the overall 18 game first hits ±2; P2 when P1 hits ±2; and so on.</li>
+<li>A press started on the front nine settles in two halves (at hole 9, then hole 18), each worth the press amount.</li>
+<li>A press started on the back nine is a single bet, settled at hole 18.</li>
+<li>After 18 holes, any bet that isn’t even pays out.</li></ul>
 <h3>Result Banner &amp; WINS Row</h3>
-<p>Once all 18 holes are scored, a gold banner shows the final match result — e.g. “Greg Hines wins $38” (1v1) or “Bruce &amp; Greg win $24” (2v2), or “All square — $0.” The amount combines every settled bet and press (and the International result, if one was called). While the round is still in progress no running total is shown — nobody has won until the 18th hole is complete, so check the WINS row and the per-game columns to see where each game stands. (If the International has been called, the banner shows its status instead.)</p>
-<p>The WINS row below shows each bet column’s settlement from the first listed side’s (Player 1 / Side A) perspective: a win shows as a positive dollar amount, a loss as a red negative amount, a halved bet as $0, and a bet folded into the International as 🌍.</p>
+<p>Once all 18 holes are scored, a gold banner shows the final result — e.g. “Greg Hines wins $38” or “All square — $0.” The WINS row shows each bet’s settlement from the first side’s perspective; a bet folded into the International shows 🌍.</p>
 <a class="top" href="#top">↑ Back to top</a>
-<h2 id="6-the-international-the-big-i">6. The International (“The Big I”)</h2>
-<p>The International — “The Big I” — is an optional side bet available only after the 17th hole of an 18-hole Nassau is complete. The trailing side may ask for it; the leading side accepts or declines. It is agreed verbally at the tee, then the scorekeeper engages it in the app.</p>
+<h2 id="s7">7. The International (“The Big I”)</h2>
+<p>The International — “The Big I” — is an optional side bet available only after the 17th hole of an 18-hole Nassau. The trailing side may ask for it; the leading side accepts or declines. Agreed verbally at the tee, then engaged in the app.</p>
 <h3>Leaders and Trailers</h3>
-<p>The side that is UP in total money after 17 holes are the Leaders; the other side are the Trailers. (This is based on the overall money standing, so it is always clear-cut.)</p>
+<p>The side UP in total money after 17 holes are the Leaders; the other side are the Trailers.</p>
 <h3>Protected Games</h3>
-<p>Each game and each press leg is tested on its OWN standing to decide whether it is “protected” (left out of the Big I and settled normally on the 18th hole) or pulled into the pot. There are two rules, depending on whether the piece is a front-nine piece or not.</p>
-<p>FRONT-NINE pieces — the Nassau Front 9, and the front leg (through hole 9) of any press started on the front nine — go into the pot whenever they are NOT EVEN. If anyone is ahead, even by a single hole, the piece goes in the pot. It is protected only when it is dead even. The band cushion below does NOT apply to these.</p>
-<p>EVERYTHING ELSE — the Back 9, Total 18, back-nine presses, and the back leg (through hole 17) of a front-nine press — is protected when its standing is INSIDE the band, and goes into the pot only when it is outside the band. The bands are:</p>
-<ul>
-<li>2v2: −2, −1, even, +1, +2 (in the pot at ±3 or more)</li>
-<li>1v1: −1, even, +1 (in the pot at ±2 or more)</li>
-</ul>
-<p>A front-nine press is judged as two independent halves: the front half (through hole 9) follows the front-nine rule above (in the pot unless even), and the back half (through hole 17) follows the band rule. For example, a press that is +1 after nine holes but even after 17 has its front half in the pot (it isn’t even) while its back half is protected.</p>
+<p>Each game and press leg is tested on its OWN standing to decide whether it’s protected (settled normally on 18) or pulled into the pot.</p>
+<p>FRONT-NINE pieces (the Nassau Front 9 and the front leg of a front-nine press) go into the pot whenever they are NOT EVEN — protected only when dead even.</p>
+<p>EVERYTHING ELSE (Back 9, Total 18, back-nine presses, the back leg of a front-nine press) is protected when inside the band, and goes into the pot only when outside it:</p>
+<ul><li>2v2: −2, −1, even, +1, +2 (in the pot at ±3 or more)</li>
+<li>1v1: −1, even, +1 (in the pot at ±2 or more)</li></ul>
 <h3>The Pot</h3>
-<p>Every game and press leg pulled out of normal settlement is consolidated into one pot. The pot is the NET difference between the two sides on those pieces, measured from the Leaders’ side: a piece the Leaders are ahead in (or have won) ADDS its stake to the pot, and a piece the Trailers are ahead in (or have won) SUBTRACTS its stake. The pot is the resulting net amount.</p>
-<p>Example: if the non-protected pieces tallied $20 for the Leaders and $2 for the Trailers, the pot would be the $18 difference. Those pieces no longer settle on their own — their value lives entirely in the pot.</p>
+<p>Every piece pulled out is consolidated into one pot — the net difference measured from the Leaders’ side (Leaders ahead adds the stake; Trailers ahead subtracts it).</p>
 <h3>Settling on the 18th Hole</h3>
-<p>The 18th hole decides the pot, based on the Leaders’ points on the hole (in a 2v2 the hole is the usual high-low, worth up to two points; in a 1v1 it is a single point). The protected games settle normally on top of this in every case:</p>
-<ul>
-<li>Leaders win at least one point outright on 18 (net ahead on the hole) — the Leaders win TWICE the pot.</li>
-<li>The 18th is a draw — this includes both balls halved, or a 1–1 split where each side wins one ball — the Leaders win the pot ONCE. Protected games pay out as they stood after 17 (a halve doesn’t change them).</li>
-<li>Trailers win at least one point on 18 (net ahead on the hole) — the pot is VOID: nobody collects it. This is the “nothing” in double-or-nothing.</li>
-</ul>
-<p class="tip">Tip: It is a true double-or-nothing for the Leaders: by winning the 18th they double the pot, by halving it they keep a single pot, and if the Trailers take the hole the whole pot disappears. Either way, the protected games still settle normally on top.</p>
+<ul><li>Leaders win at least one point outright on 18 — the Leaders win TWICE the pot.</li>
+<li>The 18th is a draw — the Leaders win the pot ONCE. Protected games pay out as they stood after 17.</li>
+<li>Trailers win at least one point on 18 — the pot is VOID. This is the “nothing” in double-or-nothing.</li></ul>
+<div class="tip"><strong>Tip:</strong> It’s a true double-or-nothing for the Leaders — the protected games still settle normally on top in every case.</div>
 <h3>In the App</h3>
-<ul>
-<li>After the 17th hole, the Nassau match card shows the Big I offer for the trailing side. It lists the pot size and a comparison table of how the match settles for every 18th-hole result — “Not called” versus “Called 🌍” side by side.</li>
-<li>In that table, amounts are shown from the trailing side’s point of view (+ means they win, − means they pay), and rows where calling beats not calling for them are highlighted — so the gamble is easy to read at a glance.</li>
-<li>Tap “🌍 Call The International” to engage it (after both sides have agreed verbally). The card then shows a simple “🌍 International has been Called!” confirmation with an Undo button to reverse it before the round is saved.</li>
-<li>Each individual game or press leg that is in the pot is marked with a 🌍 globe in the match card, placed at the cell where that piece settles: front-nine pieces (the Front 9 and a press’s front leg) show the globe at hole 9, and everything else (the Back 9, Total 18, back-nine presses, and a press’s back leg) shows it at hole 17. A press with both legs in the pot therefore shows two globes — one at hole 9 and one at hole 17. Protected games show their normal running totals with no globe.</li>
-<li>Once the 18th is scored, the card shows the final Big I result and the overall match total.</li>
-</ul>
+<p>After the 17th hole, the match card shows the Big I offer with the pot size and a side-by-side comparison of “Not called” vs “Called 🌍” for every 18th result. Tap “🌍 Call The International” to engage it (with an Undo before the round is saved). Pieces in the pot are marked with 🌍.</p>
 <a class="top" href="#top">↑ Back to top</a>
-<h2 id="7-the-6-point-game">7. The 6-Point Game</h2>
+<h2 id="s8">8. The 6-Point Game</h2>
 <p>A three-player game where 6 points are distributed each hole based on net scores, with handicaps zeroed off the lowest-handicap player among the three.</p>
-<table>
-<tr>
-<th><strong>Result on the hole</strong></th>
-<th><strong>Points awarded</strong></th>
-</tr>
-<tr>
-<td><strong>One player has the outright lowest net score</strong></td>
-<td>6 to that player, 0 to the other two</td>
-</tr>
-<tr>
-<td><strong>Two players tie for lowest net</strong></td>
-<td>3 each to the tied players, 0 to the third</td>
-</tr>
-<tr>
-<td><strong>All three players tie</strong></td>
-<td>2 points each</td>
-</tr>
-</table>
-<p>Every hole distributes exactly 6 points. Across 18 holes the three players’ totals always add up to 108.</p>
-<p>Tap the 6️⃣ icon at the bottom to see the 6-Point card. It uses the same Derrick style as the Nassau cards: Hole, HCP, and Par columns, then the three players’ gross scores (with red stroke circles based on the adjusted handicaps), a spacer column, and then the three players’ points columns, ending with a TOTAL PTS row.</p>
-<p>Below that, the card shows the money standing per player. While the round is in progress this is a “CURRENT $” row — each player’s winnings based on the points so far, calculated the same way the final settlement is. Once all 18 holes are scored it becomes the final “$ WON/LOST” row. The 6-Point result is also included in the money summary on the master scorecard and in Round History.</p>
+<table><tr><th>Result on the hole</th><th>Points awarded</th></tr><tr><td>One player outright lowest net</td><td>6 to that player, 0 to the other two</td></tr>
+<tr><td>Two players tie for lowest</td><td>3 each to the tied players, 0 to the third</td></tr>
+<tr><td>All three tie</td><td>2 points each</td></tr></table>
+<p>Every hole distributes exactly 6 points; across 18 holes the totals add up to 108. Choose any three players and set the dollar value per point (25¢ to $10). The 6-Point card uses the same Derrick style and ends with a TOTAL PTS row, then a money standing per player (CURRENT $ during the round, $ WON/LOST when complete).</p>
 <a class="top" href="#top">↑ Back to top</a>
-<h2 id="8-stableford">8. Stableford</h2>
-<p>Stableford is a points game where you score points on each hole based on your net score relative to par — the better the hole, the more points. Unlike Nassau, a blow-up hole only costs you that hole’s points, never more, so it rewards steady play and keeps everyone in it to the last hole. Any two or more players in the round can be included.</p>
+<h2 id="s9">9. Stableford</h2>
+<p>Stableford scores points each hole based on net score relative to par — the better the hole, the more points. A blow-up only costs that hole’s points, so it rewards steady play. Any two or more players can be included.</p>
 <h3>Setup</h3>
-<ul>
-<li>In the Stableford card on the Setup screen (shown when there are 2 or more players), tap each player you want to include. Only the selected players are scored for Stableford.</li>
-<li>Stableford uses each player’s deck-adjusted playing handicap to compute net scores, the same handicaps as the rest of the app.</li>
-</ul>
+<ul><li>Tap each player to include in the Stableford card (shown with 2+ players).</li>
+<li>Set the dollars per point for a money game, or leave it for points-only.</li>
+<li>Stableford uses each player’s deck-adjusted playing handicap.</li></ul>
 <h3>Points Per Hole</h3>
-<table>
-<tr><th><strong>Net score on the hole</strong></th><th><strong>Points</strong></th></tr>
-<tr><td><strong>Double bogey or worse</strong></td><td>0</td></tr>
-<tr><td><strong>Bogey (net)</strong></td><td>1</td></tr>
-<tr><td><strong>Par (net)</strong></td><td>2</td></tr>
-<tr><td><strong>Birdie (net)</strong></td><td>3</td></tr>
-<tr><td><strong>Eagle (net)</strong></td><td>4</td></tr>
-<tr><td><strong>Albatross (net)</strong></td><td>5</td></tr>
-</table>
-<h3>During &amp; After the Round</h3>
-<ul>
-<li>Tap the Stableford tab in the bottom navigation to see the live points card — each player’s per-hole points and a running total, in the familiar Derrick scorecard style.</li>
-<li>The player with the most points at the end wins. Standings update live as scores are entered.</li>
-<li>Stableford results appear in Round History alongside the round’s other games, and are included in the round’s share/print output.</li>
-</ul>
+<table><tr><th>Net score on the hole</th><th>Points</th></tr><tr><td>Double bogey or worse</td><td>0</td></tr>
+<tr><td>Bogey (net)</td><td>1</td></tr>
+<tr><td>Par (net)</td><td>2</td></tr>
+<tr><td>Birdie (net)</td><td>3</td></tr>
+<tr><td>Eagle (net)</td><td>4</td></tr>
+<tr><td>Albatross (net)</td><td>5</td></tr></table>
+<p>Tap the Stableford tab for the live points card. The player with the most points wins. Results appear in Round History and the share/print output.</p>
 <a class="top" href="#top">↑ Back to top</a>
-<h2 id="9-match-cards">9. Match Cards</h2>
-<p>Match Cards lets you play a 1v1 Nassau against one or two golfers who are in <strong>other</strong> groups — players you aren’t scoring live on your own card. You keep your own scores during your round as usual; your opponents’ scores are entered later, in the clubhouse, once everyone is in. At the end of your round a separate ⚔️ Match Cards round is saved to History with your scores already filled in and the opponents’ columns blank, ready to score.</p>
-<p>You play a separate 1v1 Nassau (Front 9 / Back 9 / Total 18 with automatic presses) against each opponent. Two opponents means two independent matches — your opponents do not play each other.</p>
-<h3>Setting Up Match Cards</h3>
-<ul>
-<li>Enable Match Cards on the Setup screen (it’s offered whenever there’s at least one player and Scorecard only is off). With a single player it’s the only game available.</li>
-<li>Tap <strong>+ Add Opponent</strong> and pick a golfer from your saved-players list. You can add up to two opponents. A player already in your live round can’t be picked, and the same person can’t be chosen for both opponent slots.</li>
-<li>Each opponent shows their <strong>Index</strong>, a <strong>Tee</strong> deck selector, and the resulting <strong>Adjusted</strong> handicap. Pick their tee deck just like a regular player — the adjusted handicap recalculates automatically. They default to their saved favorite deck.</li>
-<li>If an opponent has a Golf Canada ID on file, a green Golf Canada <strong>Fetch</strong> pill appears — tap it to pull their current handicap before the round.</li>
-<li>Set the Nassau bet per side ($1, $2, $5, or $10) for each opponent.</li>
-</ul>
-<p class="tip">Tip: All of the same Match Cards options are also available mid-round under ⚙️ Round, Match &amp; Player Settings, so you can add or adjust opponents after you’ve teed off.</p>
-<h3>Scoring a Match Cards Round Later</h3>
-<p>When your round finishes, the ⚔️ Match Cards round lands in History with a purple border and a 📝 <strong>Score Round</strong> pill. It lists the participants (you and your opponents) so you can see who the match is against before scoring.</p>
-<ul>
-<li>Tap <strong>Score Round</strong> to open it like a normal live scorecard — your scores are already filled in, your opponents’ columns are blank, and it starts on the first unscored hole. There are no “Update / Discard” buttons; you simply keep score.</li>
-<li>Enter the opponents’ scores hole by hole. When the 18th hole is complete for everyone, the round auto-saves back to the same History entry (keeping its ⚔️ mark) — no duplicate is created — and you can start a New Round.</li>
-<li>If you’re interrupted partway, use New Round → 💾 Save &amp; Pause Round. The Match Cards round is re-saved with a ▶ <strong>Resume Scoring</strong> pill; tapping it jumps straight back to the first unentered hole.</li>
-</ul>
-<a class="top" href="#top">↑ Back to top</a>
-<h2 id="10-birdie-juice">10. Birdie Juice</h2>
-<p>A Derrick GWC tradition: a gross birdie, eagle, or hole-in-one earns a round of Birdie Juice — a shot from the flask in someone’s bag, or from the beverage cart. Nassau Golf tracks these automatically.</p>
-<h3>What Earns Credits</h3>
-<table>
-<tr>
-<th><strong>Score</strong></th>
-<th><strong>Credits Earned</strong></th>
-</tr>
-<tr>
-<td><strong>Gross Birdie (1 under par)</strong></td>
-<td>1 credit</td>
-</tr>
-<tr>
-<td><strong>Gross Eagle (2 or more under par)</strong></td>
-<td>2 credits — pour a double!</td>
-</tr>
-<tr>
-<td><strong>Albatross (par 5, 3-under)</strong></td>
-<td>4 credits — the bar is yours tonight!</td>
-</tr>
-<tr>
-<td><strong>Hole-in-One</strong></td>
-<td>5 credits — the whole group owes a round</td>
-</tr>
-</table>
-<h3>Popups</h3>
-<ul>
-<li>Birdie — “Birdie Juice Earned!” popup with a Cheers button.</li>
-<li>Eagle — elevated dark green popup: “Eagle! Birdie Juice × 2” with a Double Cheers button.</li>
-<li>Albatross (par 5, 3-under) — deep purple popup with 🦤 dodo bird: “Albatross! Legendary! Birdie Juice × 4 — the bar is yours tonight!” Closes with “🦤 Legendary!”</li>
-<li>Hole-in-One — full-screen celebration with the player’s name, hole number, and a Did You Know card with real probability stats (1 in 12,500 for amateurs, 1 in 3,000 for Tour pros). Closes with “🏆 What a Shot!”</li>
-</ul>
-<h3>The Birdie Juice Tab</h3>
-<p>Tap the 🐦🥃 icon to open the tracker. It shows:</p>
-<ul>
-<li>Remaining Credits — a large number (earned minus redeemed).</li>
-<li>A 🍻 Redeem button — tap each time a round is poured.</li>
-<li>A list of every birdie, eagle, and hole-in-one this round with the player’s name, score type, and hole number.</li>
-</ul>
-<p class="tip">Tip: A red badge on the 🐦🥃 icon shows the current remaining credit count. It disappears when all credits are redeemed. If a score is later corrected away from a birdie, that credit is automatically removed.</p>
-<a class="top" href="#top">↑ Back to top</a>
-<h2 id="11-round-history-amp-backup">11. Round History &amp; Backup</h2>
-<h3>Saving a Round</h3>
-<ul>
-<li>Once all 18 holes are scored, a 💾 Save Round button appears at the top of the Scorecard screen.</li>
-<li>If you don’t save manually, the round is saved automatically when you confirm starting a New Round.</li>
-</ul>
-<h3>Viewing Past Rounds</h3>
-<p>Tap the 📜 History icon to see all saved rounds. Each entry shows the date, weather icon and temperature, pace of play, score pills for every player (your score is highlighted in dark green and gold), a colour-coded left border (green = played to handicap, gold = near handicap, red = tough day), and the games played. A ⚔️ Match Cards round shows a purple border and badge, and lists its participants. Tap any round to open a detailed view showing Final Totals, weather conditions, the full scorecard, Nassau match cards, 6-Point results, Stableford points, and the Snake settlement table.</p>
-<h3>Editing a History Round</h3>
-<p>Open any completed round from History and tap the ✏️ Edit button in the header. The round loads into the scorecard at hole 1 — all scores are fully editable, just like a live round. When done, tap 💾 Update History to save your changes back, or ↩ Discard Changes to revert. Weather, round date, and elapsed time are never modified. Note: you cannot edit a history round while an active round is in progress.</p>
-<h3>Paused Rounds — Save &amp; Resume</h3>
-<p>If a round is interrupted (rain delay, early call-off), tap ⚙️ End Round Early → 💾 Save &amp; Pause Round. The partial round is saved to History and you are returned to a clean Setup screen. Paused rounds show a ▶ Resume Round button in the History list. Tap it to reload the round at the first unscored hole and continue scoring normally — no games or settings are lost (including any Match Cards setup). When the round is complete and saved, it replaces the paused entry in History.</p>
-<p class="tip">Tip: A paused ⚔️ Match Cards round shows a ▶ Resume Scoring pill instead, and resuming it jumps straight to the first unentered hole — see Section 9.</p>
-<h3>Backup &amp; Restore</h3>
-<p>At the top of the History screen, a Backup &amp; Restore card provides two buttons:</p>
-<ul>
-<li>📤 Export Backup — downloads a nassau-backup-YYYY-MM-DD.json file to your iPhone’s Files app. Contains all saved player contacts, round history, and the current round in progress.</li>
-<li>📥 Import Backup — reads a previously exported backup file and restores everything, showing a confirmation message when done.</li>
-</ul>
-<p>Backup reminder: after every 10 rounds saved, the app prompts you to export a backup. Tap Go to History now? to go straight to the History screen and export. The reminder counts rounds since your last export — not total rounds.</p>
-<p class="warn">⚠️  iOS can wipe a PWA’s local storage when you remove the Home Screen icon, run low on device storage, or in some iOS update scenarios. Export a backup regularly — especially before reinstalling or clearing Safari data. A backup after each round takes seconds.</p>
-<h3>Deleting a Round</h3>
-<p>From the History list, tap the ✕ button next to a round and confirm to permanently delete it.</p>
-<a class="top" href="#top">↑ Back to top</a>
-<h2 id="12-starting-a-new-round">12. Starting a New Round</h2>
-<p>Tap 🔄 New Round in the bottom nav. The confirmation dialog adapts to the situation:</p>
-<ul>
-<li>Round complete and saved — green ✅ dialog with a Hold to Start New Round button. Hold it for 2 seconds to confirm.</li>
-<li>Round complete, not yet saved — the round is saved to History automatically before clearing.</li>
-<li>Round in progress — red ⚠️ dialog with a Hold to Abandon Round button. Hold it for 2 seconds to confirm — release early to cancel. Works on iPhone, iPad, and desktop.</li>
-</ul>
-<p>Blocked on hole 18: if you tap New Round while on hole 18 with scores still missing, the app blocks you and names who still needs to score.</p>
-<p>Save &amp; Pause: tap ⚙️ End Round Early → 💾 Save &amp; Pause Round to save a partial round to History. Resume it anytime from History — perfect for rain delays or early call-offs.</p>
-<a class="top" href="#top">↑ Back to top</a>
-<h2 id="13-the-snake-3-putt-money-game">13. The Snake 3-Putt Money Game</h2>
-<p>An optional money game that settles every 3 holes. Whoever held the snake at holes 3, 6, 9, 12, 15, and 18 pays each other participant the bet amount. The snake resets after each settlement — there are 6 independent stretches per round.</p>
+<h2 id="s10">10. Skins</h2>
+<p>Skins is a hole-by-hole game: each hole is worth one skin. Win the hole outright and you win the skin; tie and the skin carries over, so the pot can build. Any two or more players can play.</p>
 <h3>Setup</h3>
-<p>In the purple 🐍 Snake 3-Putt Game card on the Setup screen:</p>
-<ul>
-<li>Check Enable Snake Game.</li>
-<li>Choose the bet amount per player per settlement ($1, $2, $5, $10, or $20).</li>
-<li>Select Participants — only checked players are in the game. Others are invisible to it.</li>
-</ul>
-<h3>Tracking During the Round</h3>
-<p>A compact bar appears above the player cards on each hole with a dropdown to record who 3-putted, and the current stretch holder shown on the right (e.g. “H4-6: Bruce”). After each settlement hole the stretch holder resets to — for the next stretch. Only participant names appear in the dropdown. You can go back to any past hole and change a 3-putt entry.</p>
+<ul><li><strong>Players</strong> — tap each player in the Skins game (two or more).</li>
+<li><strong>Dollars per skin</strong> — $1, $2, $5, $10, or $20.</li>
+<li><strong>Gross or Net</strong> — Net uses deck-adjusted handicaps so higher handicaps get strokes.</li>
+<li><strong>Carry-over</strong> — on (the usual way), a tied hole’s skin carries forward to whoever next wins a hole. Off, a tied skin is simply not awarded.</li></ul>
+<h3>How a Hole Is Won</h3>
+<ul><li>The single lowest score on a hole (gross or net) wins that skin, plus any skins carried from previous tied holes.</li>
+<li>If two or more tie for lowest, nobody wins the hole; with carry-over on, those skins roll forward.</li>
+<li>On the 18th, any skins still carrying are decided by that hole, or by the end-of-round rule if it’s tied.</li></ul>
+<h3>After 18 Holes</h3>
+<ul><li><strong>Void (default)</strong> — skins unclaimed after a tied 18th simply vanish.</li>
+<li><strong>Last hole sweeps</strong> — the 18th sweeps the entire pot; if it’s also tied, the app flags a play-off and holds the money until the group settles it.</li></ul>
 <h3>Settlement</h3>
-<p>At each settlement hole, whoever holds the snake pays each other participant the bet amount. Example: 5 players at $5 — the holder pays $20 ($5 × 4). If nobody held the snake in a stretch, that settlement is skipped.</p>
+<p>Skins uses a shared-pot settlement — each skin you win pays the per-skin amount from the pool, and everyone contributes their fair share. A player who wins their share comes out even; more than their share is up; none means they pay in. Totals always balance to zero. Tap the 💰 Skins tab for the live card; Skins money also appears in the money summary, share/print, and History.</p>
+<div class="tip"><strong>Tip:</strong> With five players at $5 a skin, a clean sweep of a hole with three skins carried in is worth $15 — the carry-over is where Skins gets exciting.</div>
+<a class="top" href="#top">↑ Back to top</a>
+<h2 id="s11">11. Vegas</h2>
+<p>Vegas is a lively two-against-two team game. Each team’s two scores combine into a single two-digit “number,” and the teams play the difference between their numbers per point. It swings fast.</p>
+<h3>Players</h3>
+<p>Vegas is played by exactly four golfers as two teams of two. You can set it up with four or five players:</p>
+<ul><li><strong>4 players</strong> — pick which of the three pairings forms the two teams.</li>
+<li><strong>5 players</strong> — pick any two teams of two (the picker shows all combinations, like 2v2 Nassau). The fifth player sits out Vegas and settles $0 for it, while playing all other games normally.</li></ul>
+<h3>Setup</h3>
+<ul><li><strong>Teams</strong> — tap the pairing that sets your two teams.</li>
+<li><strong>Dollars per point</strong> — 25¢, 50¢, $1, $2, or $5.</li>
+<li><strong>Gross or Net</strong> — Net uses deck-adjusted handicaps for the numbers (the flip still keys off gross birdies).</li>
+<li><strong>Flip on opponent birdie</strong> — on by default; see below.</li></ul>
+<h3>Forming the Number</h3>
+<p>Each team’s two scores combine low-digit first — a 4 and a 5 become 45. A blow-up runs the digits out: a 4 and a 10 become 410. The lower number wins the hole.</p>
+<h3>The Flip</h3>
+<p>With the flip on, a gross birdie or better by the OPPOSING team flips your number so the high digit leads: 45 flips to 54; 410 flips to 104.</p>
+<ul><li>Only a single flip applies — an eagle does not flip more than a birdie.</li>
+<li>The flip is triggered by a GROSS birdie even in the net version.</li>
+<li>Turn the flip off to play straight numbers.</li></ul>
+<h3>Settlement</h3>
+<p>Each hole, the difference between the two teams’ numbers is multiplied by the dollars per point; the losing team pays the winning team, both partners sharing the result. Tap the 🎲 Vegas tab for the live card (numbers, flip indicator, points, running total, money). Vegas money also appears in the money summary, share/print, and History.</p>
+<div class="tip"><strong>Tip:</strong> A blow-up plus an opponent’s birdie is the classic Vegas disaster — your 4 and 10 become 410, then flip to 104 against the other team’s 34. At a dollar a point that’s a $70 hole.</div>
+<a class="top" href="#top">↑ Back to top</a>
+<h2 id="s12">12. Match Cards</h2>
+<p>Match Cards lets you play a 1v1 Nassau against one or two golfers in OTHER groups — players you aren’t scoring live. You keep your own scores during your round; your opponents’ scores are entered later in the clubhouse. At the end, a separate ⚔️ Match Cards round is saved to History with your scores filled in and the opponents’ columns blank.</p>
+<p>You play a separate 1v1 Nassau against each opponent. Two opponents means two independent matches — your opponents do not play each other.</p>
+<h3>Setting Up Match Cards</h3>
+<ul><li>Enable Match Cards on the Setup screen (offered whenever there’s at least one player and Scorecard only is off).</li>
+<li>Tap <strong>+ Add Opponent</strong> and either pick from your saved players or type a name and index directly. Up to two opponents.</li>
+<li>Each opponent shows their <strong>Index</strong>, a <strong>Tee</strong> deck selector, and the resulting <strong>Adjusted</strong> handicap.</li>
+<li>If an opponent has a Golf Canada ID, a green <strong>Fetch</strong> pill appears — tap it to pull their current handicap.</li>
+<li>Set the Nassau bet per side ($1, $2, $5, or $10) for each opponent.</li></ul>
+<div class="tip"><strong>Tip:</strong> The same Match Cards options are available mid-round under ⚙️ Mid-Round Match &amp; Player Settings.</div>
+<h3>Scoring a Match Cards Round Later</h3>
+<p>The ⚔️ Match Cards round lands in History with a purple border and a <strong>📝 Score Round</strong> pill, listing the participants. Tap Score Round to open it like a live scorecard — your scores filled in, opponents’ blank, starting at the first unscored hole. When complete, it auto-saves back to the same entry (no duplicate). If interrupted, Save &amp; Pause re-saves it with a <strong>▶ Resume Scoring</strong> pill.</p>
+<a class="top" href="#top">↑ Back to top</a>
+<h2 id="s13">13. Birdie Juice</h2>
+<p>A Derrick GWC tradition: a gross birdie, eagle, or hole-in-one earns a round of Birdie Juice — a shot from the flask or the beverage cart. Nassau Golf tracks these automatically.</p>
+<h3>What Earns Credits</h3>
+<table><tr><th>Score</th><th>Credits Earned</th></tr><tr><td>Gross Birdie (1 under par)</td><td>1 credit</td></tr>
+<tr><td>Gross Eagle (2+ under par)</td><td>2 credits — pour a double!</td></tr>
+<tr><td>Albatross (par 5, 3-under)</td><td>4 credits — the bar is yours tonight!</td></tr>
+<tr><td>Hole-in-One</td><td>5 credits — the whole group owes a round</td></tr></table>
+<h3>Popups</h3>
+<ul><li><strong>Birdie</strong> — “Birdie Juice Earned!” with a Cheers button.</li>
+<li><strong>Eagle</strong> — dark-green popup: “Eagle! Birdie Juice × 2.”</li>
+<li><strong>Albatross</strong> — deep-purple popup with 🦤 and “Albatross! Legendary!”</li>
+<li><strong>Hole-in-One</strong> — full-screen celebration with the player’s name, hole, and probability stats.</li></ul>
+<h3>Birdie Streaks</h3>
+<p>Consecutive gross birdies earn an escalating call-out:</p>
+<table><tr><th>Birdies in a row</th><th>Name</th></tr><tr><td>3</td><td>🦃 Turkey</td></tr>
+<tr><td>4</td><td>⚾ Four-Bagger</td></tr>
+<tr><td>5</td><td>🦡 Badger</td></tr>
+<tr><td>6</td><td>🍺 Six-Pack</td></tr>
+<tr><td>7 or more</td><td>👑 Legend</td></tr></table>
+<h3>The Birdie Juice Tab</h3>
+<p>Tap the 🐦🥃 icon for the tracker: remaining credits (earned minus redeemed), a 🍻 Redeem button, and a list of every birdie, eagle, and hole-in-one this round.</p>
+<div class="tip"><strong>Tip:</strong> A red badge on the 🐦🥃 icon shows the remaining credit count. If a score is corrected away from a birdie, that credit is removed automatically.</div>
+<a class="top" href="#top">↑ Back to top</a>
+<h2 id="s14">14. Round History</h2>
+<p>Tap <strong>📜 Round / History</strong> in the Setup action bar to open Round History. (History and Backup are now separate screens — see Section 15 for backups.)</p>
+<h3>Saving a Round</h3>
+<ul><li>Once all 18 holes are scored, a 💾 Save Round button appears at the top of the Scorecard screen.</li>
+<li>If you don’t save manually, the round saves automatically when you confirm a New Round.</li></ul>
+<h3>Viewing Past Rounds</h3>
+<p>Each entry shows the date, weather, pace of play, score pills for every player, a colour-coded border (green = to handicap, gold = near, red = tough day), and the games played. A ⚔️ Match Cards round shows a purple border. Tap any round for a detailed view: Final Totals, weather, the full scorecard, and each game’s detail card (Nassau, 6-Point, Stableford, Skins, Vegas, Snake).</p>
+<h3>Editing a History Round</h3>
+<p>Open a completed round and tap <strong>✏️ Edit</strong>. The round loads at hole 1 with all scores editable. Tap 💾 Update History to save, or ↩ Discard Changes to revert. Weather, date, and elapsed time are never modified. You can’t edit history while an active round is in progress.</p>
+<h3>Paused Rounds — Save &amp; Resume</h3>
+<p>If interrupted, tap <strong>⚙️ End Round Early → 💾 Save &amp; Pause Round</strong>. The partial round is saved and you return to a clean Setup screen. Paused rounds show a ▶ Resume Round button — tap it to reload at the first unscored hole. No games or settings are lost.</p>
+<div class="tip"><strong>Tip:</strong> A paused ⚔️ Match Cards round shows a ▶ Resume Scoring pill instead — see Section 12.</div>
+<h3>Deleting a Round</h3>
+<p>Tap the ✕ button next to a round and confirm to permanently delete it.</p>
+<a class="top" href="#top">↑ Back to top</a>
+<h2 id="s15">15. Backup &amp; Restore</h2>
+<p>Your players and round history live only on your phone, so keeping a backup off the device is the one sure way to protect them. Tap <strong>💾 Backup / Data</strong> in the Setup action bar to open the Backup &amp; Restore screen — now its own dedicated page, separate from History.</p>
+<h3>Exporting a Backup</h3>
+<ul><li><strong>📤 Export Backup</strong> — on iPhone this opens the iOS share sheet so you can save to Files or iCloud, or email it to yourself. The file (e.g. “Nassau-Golf-Backup-Jun-25-2026.json”) contains all saved contacts, your full round history, and any round in progress.</li>
+<li><strong>📥 Import Backup</strong> — reads a previously exported file and restores everything.</li></ul>
+<p>The Backup screen also shows how many rounds are stored and, once you’ve exported at least once, when your last backup was taken.</p>
+<h3>Automatic Safety Copy</h3>
+<p>After every round you save, the app quietly keeps an extra safety copy of your data on the device — an automatic, behind-the-scenes safeguard. It protects against accidental in-app data loss, but because it’s still on the same phone, it is not a substitute for exporting a real backup off the device.</p>
+<h3>Backup Reminders</h3>
+<p>Every couple of rounds, a one-tap <strong>Back Up Now</strong> banner nudges you to export a fresh backup. It counts rounds since your last export — not total rounds — and stays out of the way while you’re scoring. Tapping it takes you to Export; dismissing it resets the count.</p>
+<div class="warn">⚠️  iOS can wipe a PWA’s local storage when you remove the Home Screen icon, run low on storage, or in some iOS update scenarios. Export a backup regularly — especially before reinstalling or clearing Safari data.</div>
+<div class="note">Truly automatic off-device backup isn’t possible from a web app on iOS — saving a file always needs a tap on the share sheet. The in-app safety copy is the automatic part; the Export is the bit only you can trigger.</div>
+<a class="top" href="#top">↑ Back to top</a>
+<h2 id="s16">16. Starting a New Round</h2>
+<p>Tap 🔄 New Round in the bottom nav. The confirmation dialog adapts:</p>
+<ul><li><strong>Round complete and saved</strong> — green ✅ dialog with a Hold to Start New Round button (hold 2 seconds).</li>
+<li><strong>Round complete, not yet saved</strong> — saved to History automatically before clearing.</li>
+<li><strong>Round in progress</strong> — red ⚠️ dialog with a Hold to Abandon Round button (hold 2 seconds; release early to cancel).</li></ul>
+<p>Blocked on hole 18: tapping New Round with scores still missing names who still needs to score. A new round always starts fresh with a single player — your “Me” favorite.</p>
+<p><strong>Save &amp; Pause</strong>: tap ⚙️ End Round Early → 💾 Save &amp; Pause Round to save a partial round to History — perfect for rain delays.</p>
+<a class="top" href="#top">↑ Back to top</a>
+<h2 id="s17">17. The Snake 3-Putt Money Game</h2>
+<p>An optional money game that settles every 3 holes. Whoever held the snake at holes 3, 6, 9, 12, 15, and 18 pays each other participant the bet. The snake resets after each settlement — 6 independent stretches per round.</p>
+<h3>Setup</h3>
+<ul><li>Check Enable Snake Game in the purple 🐍 card.</li>
+<li>Choose the bet per player per settlement ($1, $2, $5, $10, or $20).</li>
+<li>Select Participants — only checked players are in the game.</li></ul>
+<h3>Tracking During the Round</h3>
+<p>A compact bar above the player cards lets you record who 3-putted, with the current stretch holder shown (e.g. “H4-6: Bruce”). You can go back and change a past entry.</p>
+<h3>Settlement</h3>
+<p>At each settlement hole, the holder pays each other participant the bet. Example: 5 players at $5 — the holder pays $20. If nobody held the snake in a stretch, that settlement is skipped.</p>
 <h3>The Snake Tab</h3>
-<p>Tap the 🐍 Snake tab in the bottom nav (visible when Snake is enabled) to see a Settlement Holes table (all 6 stretches colour-coded), Running Totals per player, and the current stretch holder during the round (hidden after hole 18).</p>
-<h3>Money Integration</h3>
-<p>Snake money is included in the live $ amounts beside each player on the scorecard, the 🐍 Snake $ row at the bottom of the master scorecard, and the Total $ Today total.</p>
+<p>Tap the 🐍 Snake tab for a Settlement Holes table, Running Totals per player, and the current stretch holder (hidden after hole 18). Snake money is included in the live amounts, the 🐍 Snake $ row, and Total $ Today.</p>
 <a class="top" href="#top">↑ Back to top</a>
-<h2 id="14-typical-score">14. Typical Score</h2>
-<p>Each saved player can have a Score Wheel Default set in Manage Favorites &amp; Players. Options are Par, Bogey, or Double — all relative to par on each hole.</p>
-<p>When a player has no score entered for a hole, their score wheel automatically centres on their typical score. For example, a player set to Bogey will see 5 in the centre on a par 4, with Par to the left and Double/Triple to the right. Tap to confirm or spin to change.</p>
-<p>The default for all players is Par.</p>
+<h2 id="s18">18. Typical Score</h2>
+<p>Each saved player can have a Score Wheel Default (Par, Bogey, or Double) set in Manage Favorites &amp; Players. When a player has no score for a hole, their wheel centres on their typical score. The default for all players is Par.</p>
 <a class="top" href="#top">↑ Back to top</a>
-<h2 id="15-troubleshooting">15. Troubleshooting</h2>
+<h2 id="s19">19. Troubleshooting</h2>
 <h3>My round disappeared</h3>
-<p>Use 💾 Save &amp; Pause Round before ending a round early — it saves your partial round to History where you can resume it anytime. If you abandoned a round without saving, the data cannot be recovered.</p>
-<h3>The app looks outdated / not on the latest version</h3>
-<p>See “Keeping the App Current” in Section 1. Clear Safari site data for the app, force-close it, and reopen from the Home Screen icon.</p>
+<p>Use 💾 Save &amp; Pause Round before ending a round early — it saves to History where you can resume it. A round abandoned without saving cannot be recovered.</p>
+<h3>The app looks outdated</h3>
+<p>Tap <strong>Update App</strong> in the Setup action bar. If that doesn’t do it, clear Safari site data for the app, force-close, and reopen from the Home Screen icon (Section 1).</p>
 <h3>Pop-ups aren’t appearing</h3>
-<p>Make sure you’re running from the Home Screen icon, not a Safari tab. Some dialogs only work correctly in standalone (installed) mode.</p>
+<p>Make sure you’re running from the Home Screen icon, not a Safari tab. Some dialogs only work in standalone (installed) mode.</p>
 <h3>My player data or history disappeared</h3>
-<p>This can happen if you removed the Home Screen icon using “Remove App,” which wipes PWA local storage on iOS. If you have a backup file (exported from History), use 📥 Import Backup to restore it. To avoid this in future, always export a backup before removing or reinstalling the app, and never use Remove App — use the Safari reinstall method in Section 1 instead.</p>
+<p>This can happen if you removed the Home Screen icon with “Remove App,” which wipes PWA storage on iOS. Restore with 📥 Import Backup if you have a backup. Always export a backup before removing or reinstalling, and never use Remove App.</p>
 <h3>A player has quit, been injured, or left the round</h3>
-<p>If a player can no longer continue mid-round, tap ⚙️ Matches (or ⚙️ Players in a scorecard-only round) at the top of the Scorecard screen to open the manage screen. Remove them there; in a betting round this also drops them from any active Nassau and 6-Point games. Their scorecard column remains (with scores already entered) but they will no longer block the group from advancing holes or settling bets.</p>
-<p class="tip">Tip: The missing-score warning banner is also tappable — tapping it opens Manage Matches directly, so you can remove the player without navigating away manually.</p>
+<p>Tap ⚙️ Mid-Round Match &amp; Player Settings on the Scorecard screen and remove them. In a betting round this also drops them from active games. Their scorecard column remains but they no longer block the group from advancing.</p>
 <h3>A score or game setting looks wrong</h3>
-<ul>
-<li>Handicaps can be edited mid-round by tapping the Idx value and pencil ✏️ on the player’s card.</li>
-<li>Scores can be corrected at any time using the scroll wheel — all match totals, presses, and Birdie Juice credits recalculate automatically.</li>
-</ul>
+<ul><li>Edit a handicap mid-round by tapping the IDX value and ✏️ on the player’s card.</li>
+<li>Correct scores any time with the scroll wheel — totals, presses, and Birdie Juice recalculate automatically.</li></ul>
+<h3>The bottom buttons disappeared on the Setup screen</h3>
+<p>The Setup action bar always reappears when you return to Setup. If it’s ever missing, switch to another screen and back, or force-close and reopen.</p>
 <h3>Still having trouble?</h3>
-<p>Take a screenshot showing the screen, the scores, and the version number at the bottom of the page and reach out for help.</p>
+<p>Take a screenshot showing the screen, the scores, and the version number on the Update App button, and reach out for help.</p>
+<a class="top" href="#top">↑ Back to top</a>
 <p>⛳</p>
 <p><strong>Nassau Golf</strong></p>
-<p>Derrick Golf &amp; Winter Club · Version 67.3</p>
+<p>Derrick Golf &amp; Winter Club · Version 67.27</p>
 <p><strong>Thanks for playing.</strong></p>
 <p>May your drives be long, your putts be true,
 and your opponents’ Birdie Juice credits run dry.</p>
@@ -699,7 +488,7 @@ and your opponents’ Birdie Juice credits run dry.</p>
 <p>For technical support, please lose gracefully and try again next week.</p>
 <p>🏌️  🐦🥃  🌍  ⛳</p>
 
-<p style="text-align:center;font-size:11px;color:rgba(255,255,255,.25);margin-top:40px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08)">Nassau Golf · Derrick Golf &amp; Winter Club · v67.3</p>
+<p style="text-align:center;font-size:11px;color:rgba(255,255,255,.25);margin-top:40px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08)">Nassau Golf · Derrick Golf &amp; Winter Club · v67.27</p>
 </div>
 </body>
 </html>
