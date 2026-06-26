@@ -489,6 +489,20 @@ input::placeholder{color:#bbb}
 <div class="screen active" id="screen-setup">
 <div class="setup">
 
+  <div id="backupNudge" style="display:none;background:linear-gradient(135deg,#7a5c00,#c9a84c);border-radius:12px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.25)">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="font-size:30px;line-height:1">💾</div>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:800;color:#1a1a1a">Time to back up your golf data</div>
+        <div style="font-size:11px;color:#3a2e00;margin-top:2px;line-height:1.4">You've played a couple of rounds since your last backup. One tap saves a dated file you can keep in your email or Files.</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button onclick="exportData()" style="flex:2;background:#1a3a2a;color:#c9a84c;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent">📥 Back Up Now</button>
+      <button onclick="dismissBackupNudge()" style="flex:1;background:rgba(0,0,0,.12);color:#1a1a1a;border:none;border-radius:10px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent">Later</button>
+    </div>
+  </div>
+
   <div style="background:linear-gradient(135deg,#1a3a2a,#2d6a4f);border-radius:12px;padding:16px;margin-bottom:10px;text-align:center">
     <div style="display:flex;align-items:flex-start;justify-content:space-between">
       <div id="setupWx" style="display:flex;flex-direction:column;align-items:center;min-width:54px">
@@ -729,10 +743,10 @@ input::placeholder{color:#bbb}
   </div>
 
   <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--inkl)">
-    💾 Back up your data regularly — tap <b>History</b> → Export Backup
+    💾 Your data is saved on this phone. The app reminds you to back up every 2 rounds — tap <b>Back Up Now</b> when you see it, or <b>History → Export Backup</b> anytime.
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v67.12
+    Nassau Golf · Derrick GWC · v67.14
   </div>
 </div>
 </div>
@@ -826,7 +840,7 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.12</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.14</span></a>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -2438,6 +2452,7 @@ function computeSkins(game){
   const perSkin = game.perSkin || 5;
   const mode = game.mode || 'net';      // 'net' | 'gross'
   const carry = game.carry !== false;   // default true
+  const endgame = game.endgame || 'void'; // 'void' (leftovers vanish) | 'lastHole' (final hole sweeps the pot; tied final flagged)
 
   // Net strokes per player (full handicap, by SI) — only used in net mode
   const strokes = idxs.map(pi => {
@@ -2449,17 +2464,24 @@ function computeSkins(game){
     });
   });
 
-  const holeResult = []; // [hole] = {winner: gameIdx|null, potValue:int(skins decided this hole), carriedIn:int, washed:bool} or null if unplayed
+  // Determine the LAST hole in play order (handles shotgun starts).
+  // The final settlement rule applies on whichever actual hole is played 18th.
+  const lastPlayIdx = 17;
+  const finalActualHole = (typeof actualHoleIdx === 'function') ? actualHoleIdx(lastPlayIdx) : 17;
+
+  const holeResult = []; // [hole] = {winner: gameIdx|null, potValue, carriedIn, washed, unresolved} or null if unplayed
   const skinsWon = idxs.map(() => 0);
   let pot = 0;           // carried skins waiting to be won
   let holesPlayed = 0;
   let lastPlayedHole = -1;
+  let unresolvedPot = 0; // skins left unresolved on a tied final hole (lastHole mode)
 
   for(let h = 0; h < 18; h++){
     const grosses = idxs.map(pi => G.scores[pi] ? G.scores[pi][h] : null);
     if(grosses.some(g => g === null)){ holeResult.push(null); continue; }
     holesPlayed++;
     lastPlayedHole = h;
+    const isFinalHole = (h === finalActualHole);
     const vals = idxs.map((pi, ii) => mode==='gross' ? grosses[ii] : (grosses[ii] - strokes[ii][h]));
     const lo = Math.min(...vals);
     const winners = [];
@@ -2471,7 +2493,14 @@ function computeSkins(game){
       pot = 0;
       holeResult.push({ winner: winners[0], potValue: decided, carriedIn, washed:false });
     } else {
-      if(carry){
+      // Tie on this hole
+      if(isFinalHole && endgame==='lastHole'){
+        // Final hole tied under "last hole takes all": the accumulated pot (this hole + carried)
+        // can't carry anywhere — flag it as unresolved for a real-life playoff.
+        unresolvedPot = 1 + pot;
+        pot = 0;
+        holeResult.push({ winner: null, potValue: 0, carriedIn, washed:false, unresolved:1+carriedIn });
+      } else if(carry){
         pot += 1;                    // tie: this hole's skin carries forward
         holeResult.push({ winner: null, potValue: 0, carriedIn, washed:false });
       } else {
@@ -2481,7 +2510,7 @@ function computeSkins(game){
     }
   }
 
-  // Any pot still carried after the final played hole is washed (no one won it)
+  // Any pot still carried after the final played hole (void mode, or a no-carry round) is washed.
   const pendingPot = pot;
 
   const totalSkins = skinsWon.reduce((a,b)=>a+b,0);
@@ -2493,10 +2522,10 @@ function computeSkins(game){
     const n = idxs.length;
     const share = totalSkins * perSkin / n;
     const money = skinsWon.map(s => (s * perSkin) - share);
-    settlement = { money, skinsWon: [...skinsWon], totalSkins };
+    settlement = { money, skinsWon: [...skinsWon], totalSkins, unresolvedPot, unresolvedDollars: unresolvedPot * perSkin };
   }
 
-  return { holeResult, skinsWon, totalSkins, holesPlayed, lastPlayedHole, pendingPot, perSkin, mode, carry, settlement };
+  return { holeResult, skinsWon, totalSkins, holesPlayed, lastPlayedHole, pendingPot, unresolvedPot, perSkin, mode, carry, endgame, settlement };
 }
 
 
@@ -2565,6 +2594,7 @@ function renderSkinsGamesList(){
   if(game.perSkin===undefined) game.perSkin=5;
   if(game.mode===undefined) game.mode='net';
   if(game.carry===undefined) game.carry=true;
+  if(game.endgame===undefined) game.endgame='void';
 
   const betRow = SKINS_BET_OPTIONS.map(v =>
     `<button onclick="setSkinsBet(${v})" style="padding:6px 12px;border-radius:8px;border:1.5px solid ${game.perSkin===v?'#1a3a2a':'#ccc'};background:${game.perSkin===v?'#1a3a2a':'#fff'};color:${game.perSkin===v?'#c9a84c':'#555'};font-size:12px;font-weight:700;cursor:pointer">$${v}</button>`
@@ -2572,11 +2602,15 @@ function renderSkinsGamesList(){
 
   const modeBtn = (m,label)=>`<button onclick="setSkinsMode('${m}')" style="flex:1;padding:7px;border-radius:8px;border:1.5px solid ${game.mode===m?'#1a3a2a':'#ccc'};background:${game.mode===m?'#1a3a2a':'#fff'};color:${game.mode===m?'#c9a84c':'#555'};font-size:12px;font-weight:700;cursor:pointer">${label}</button>`;
   const carryBtn = (c,label)=>`<button onclick="setSkinsCarry(${c})" style="flex:1;padding:7px;border-radius:8px;border:1.5px solid ${game.carry===c?'#1a3a2a':'#ccc'};background:${game.carry===c?'#1a3a2a':'#fff'};color:${game.carry===c?'#c9a84c':'#555'};font-size:12px;font-weight:700;cursor:pointer">${label}</button>`;
+  const endBtn = (e,label,sub)=>`<button onclick="setSkinsEndgame('${e}')" style="flex:1;padding:8px 6px;border-radius:8px;border:1.5px solid ${game.endgame===e?'#1a3a2a':'#ccc'};background:${game.endgame===e?'#1a3a2a':'#fff'};color:${game.endgame===e?'#c9a84c':'#555'};font-size:12px;font-weight:700;cursor:pointer;line-height:1.3">${label}<br><span style="font-size:9px;font-weight:400;opacity:.8">${sub}</span></button>`;
 
   let h = `<div style="background:#fff;border-radius:8px;padding:10px 12px;border:1px solid #ddd;margin-top:6px">`;
   h += `<div style="font-size:11px;color:#888;margin-bottom:6px">Value per skin:</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">${betRow}</div>`;
   h += `<div style="font-size:11px;color:#888;margin-bottom:6px">Scoring:</div><div style="display:flex;gap:6px;margin-bottom:12px">${modeBtn('net','Net (handicap)')}${modeBtn('gross','Gross')}</div>`;
-  h += `<div style="font-size:11px;color:#888;margin-bottom:6px">On a tie:</div><div style="display:flex;gap:6px">${carryBtn(true,'Carry over')}${carryBtn(false,'No carry')}</div>`;
+  h += `<div style="font-size:11px;color:#888;margin-bottom:6px">On a tie:</div><div style="display:flex;gap:6px${game.carry?';margin-bottom:12px':''}">${carryBtn(true,'Carry over')}${carryBtn(false,'No carry')}</div>`;
+  if(game.carry){
+    h += `<div style="font-size:11px;color:#888;margin-bottom:6px">Skins still carrying after 18:</div><div style="display:flex;gap:6px">${endBtn('void','Wash','leftovers void')}${endBtn('lastHole','Last hole takes all','18 sweeps the pot')}</div>`;
+  }
   h += `</div>`;
   el.innerHTML = h;
 }
@@ -2584,6 +2618,7 @@ function renderSkinsGamesList(){
 function setSkinsBet(v){ if(!G.skinsGames.length) return; G.skinsGames[0].perSkin=v; saveG(); renderSkinsGamesList(); }
 function setSkinsMode(m){ if(!G.skinsGames.length) return; G.skinsGames[0].mode=m; saveG(); renderSkinsGamesList(); }
 function setSkinsCarry(c){ if(!G.skinsGames.length) return; G.skinsGames[0].carry=c; saveG(); renderSkinsGamesList(); }
+function setSkinsEndgame(e){ if(!G.skinsGames.length) return; G.skinsGames[0].endgame=e; saveG(); renderSkinsGamesList(); }
 
 
 // Show/hide the whole Match Cards section based on player count and mode.
@@ -3131,7 +3166,7 @@ function printStablefordCard(gi){
       <div style="font-size:11px;font-weight:800;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Points Table</div>
       <table style="border-collapse:collapse;font-size:12px">${ptTableRows}</table>
     </div>
-    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.12</div>
+    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.14</div>
   </body></html>`;
 
   const blob = new Blob([html],{type:'text/html'});
@@ -3794,7 +3829,7 @@ function renderBirdieJuice(){
   html+='</div>';
 
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.12</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.14</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -4055,7 +4090,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.12</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.14</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -4624,7 +4659,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.12</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.14</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -5569,6 +5604,7 @@ function showS(name){
   if(_gamesTab) _gamesTab.classList.remove('active','ni-games-active');
   if(_gamesTab && _gameScreens.includes(name)) _gamesTab.classList.add('ni-games-active');
   if(name==='setup') startNamesPoll(); else stopNamesPoll();
+  if(name==='setup') maybeShowBackupNudge();
   if(name==='bets') renderBets();
   if(name==='score') renderCard();
   if(name==='sixpoint') renderSixPoint();
@@ -6510,6 +6546,69 @@ function buildRoundSnapshot(){
   };
 }
 
+// ── Automatic backup resiliency ─────────────────────────────────────────────
+// Layer 1: a silent redundant safety copy kept inside the app's own storage,
+//          refreshed after every saved round. Survives data corruption / accidental
+//          clears WHILE the app stays installed (does NOT survive reinstall/iOS eviction).
+// Layer 2: a one-tap "back up now" nudge shown every 2nd saved round, which writes a
+//          dated file off-device via the iOS share sheet (the part that survives reinstall).
+function buildBackupPayload(){
+  return {
+    version:1,
+    exportDate:new Date().toISOString(),
+    contacts: loadContacts(),
+    history:  loadHistory(),
+    currentRound: (() => { try{ return JSON.parse(localStorage.getItem('nassau_G')||'null'); }catch(e){return null;} })()
+  };
+}
+
+// Silent in-app safety copy (Layer 1).
+function writeAutoSafetyCopy(){
+  try{
+    const payload=buildBackupPayload();
+    localStorage.setItem('nassau_autobackup', JSON.stringify(payload));
+    localStorage.setItem('nassau_autobackupAt', payload.exportDate);
+  }catch(e){ /* storage full or unavailable — fail quietly */ }
+}
+
+// Called once whenever a NEW round is saved to history. Refreshes the silent safety
+// copy and bumps the "rounds since last off-device backup" counter that drives the nudge.
+function onRoundSavedForBackup(){
+  writeAutoSafetyCopy();
+  let c=0; try{ c=parseInt(localStorage.getItem('nassau_roundsSinceBackup')||'0',10)||0; }catch(e){}
+  c++;
+  try{ localStorage.setItem('nassau_roundsSinceBackup', String(c)); }catch(e){}
+}
+
+// True when at least 2 saved rounds have happened since the last off-device backup.
+function backupNudgeDue(){
+  let c=0; try{ c=parseInt(localStorage.getItem('nassau_roundsSinceBackup')||'0',10)||0; }catch(e){}
+  return c>=2;
+}
+
+// Obvious, human-readable dated filename, e.g. "Nassau-Golf-Backup-Jun-25-2026.json".
+function backupFileName(){
+  const d=new Date();
+  const mon=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];
+  return `Nassau-Golf-Backup-${mon}-${String(d.getDate()).padStart(2,'0')}-${d.getFullYear()}.json`;
+}
+
+// Show the setup-screen nudge banner if a backup is due (>=2 saved rounds since last backup).
+function maybeShowBackupNudge(){
+  const el=document.getElementById('backupNudge');
+  if(!el) return;
+  el.style.display = backupNudgeDue() ? 'block' : 'none';
+}
+function hideBackupNudge(){
+  const el=document.getElementById('backupNudge');
+  if(el) el.style.display='none';
+}
+// "Later": hide and reset the counter so it reappears after 2 MORE saved rounds (not every open).
+function dismissBackupNudge(){
+  try{ localStorage.setItem('nassau_roundsSinceBackup','0'); }catch(e){}
+  hideBackupNudge();
+}
+
 // Save the current round to history (if not already saved). Returns true if saved.
 function saveRoundToHistory(){
   if(!isRoundComplete()) return false;
@@ -6531,6 +6630,7 @@ function saveRoundToHistory(){
     }
   }
   if(changed) saveHistoryList(hist);
+  if(changed) onRoundSavedForBackup();
   G._scoringMatchCards = false;
   return changed;
 }
@@ -6762,27 +6862,40 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.12</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.14</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
 
 function exportData(){
   localStorage.setItem('nassau_lastBackupAt', new Date().toISOString());
-  const payload={
-    version:1,
-    exportDate:new Date().toISOString(),
-    contacts: loadContacts(),
-    history:  loadHistory(),
-    currentRound: (() => { try{ return JSON.parse(localStorage.getItem('nassau_G')||'null'); }catch(e){return null;} })()
-  };
-  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  // A real off-device backup clears the nudge counter.
+  try{ localStorage.setItem('nassau_roundsSinceBackup','0'); }catch(e){}
+  hideBackupNudge();
+  const payload=buildBackupPayload();
+  const json=JSON.stringify(payload,null,2);
+  const fname=backupFileName();
+
+  // Preferred on iPhone: open the native share sheet with the backup as a file,
+  // so the user can Save to Files / iCloud, Mail it, or Message it in one tap.
+  try{
+    if(navigator.canShare){
+      const file=new File([json],fname,{type:'application/json'});
+      if(navigator.canShare({files:[file]})){
+        navigator.share({files:[file],title:'Nassau Golf Backup',text:'Nassau Golf data backup — keep this file safe.'})
+          .catch(()=>{ /* user cancelled or share failed — fall back below */ downloadBackupFile(json,fname); });
+        return;
+      }
+    }
+  }catch(e){ /* fall through to download */ }
+  downloadBackupFile(json,fname);
+}
+
+function downloadBackupFile(json,fname){
+  const blob=new Blob([json],{type:'application/json'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
-  a.href=url;
-  const d=new Date();
-  a.download=`nassau-backup-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}.json`;
-  a.click();
+  a.href=url; a.download=fname; a.click();
   URL.revokeObjectURL(url);
 }
 
@@ -6995,7 +7108,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.12</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.14</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -7171,7 +7284,7 @@ function openHistoryDetail(i){
     html+=`</div>`; // close card
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.12</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.14</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -7306,7 +7419,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v67.12');
+  lines.push('— Nassau Golf · Derrick GWC · v67.14');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -7891,7 +8004,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v67.12 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v67.14 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -8491,6 +8604,7 @@ function renderMMSkins(){
   const perSkin = game.perSkin || 5;
   const mode = game.mode || 'net';
   const carry = game.carry !== false;
+  const endgame = game.endgame || 'void';
 
   let h = '<div style="font-size:11px;color:#888;margin-bottom:6px">Players in Skins:</div>';
   h += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">';
@@ -8518,6 +8632,14 @@ function renderMMSkins(){
     h += `<button onclick="mmSetSkinsCarry(${c})" style="flex:1;padding:7px;border-radius:8px;border:1.5px solid ${carry===c?'#0d5c4e':'#ccc'};background:${carry===c?'#0d5c4e':'#fff'};color:${carry===c?'#52b788':'#555'};font-size:12px;font-weight:700;cursor:pointer">${label}</button>`;
   });
   h += '</div>';
+
+  if(carry){
+    h += '<div style="font-size:11px;color:#888;margin-bottom:6px">Skins still carrying after 18:</div><div style="display:flex;gap:6px;margin-bottom:8px">';
+    [['void','Wash','leftovers void'],['lastHole','Last hole takes all','18 sweeps the pot']].forEach(([e,label,sub])=>{
+      h += `<button onclick="mmSetSkinsEndgame('${e}')" style="flex:1;padding:8px 6px;border-radius:8px;border:1.5px solid ${endgame===e?'#0d5c4e':'#ccc'};background:${endgame===e?'#0d5c4e':'#fff'};color:${endgame===e?'#52b788':'#555'};font-size:12px;font-weight:700;cursor:pointer;line-height:1.3">${label}<br><span style="font-size:9px;font-weight:400;opacity:.8">${sub}</span></button>`;
+    });
+    h += '</div>';
+  }
 
   if(active.length >= 2){
     const result = computeSkins(game);
@@ -8549,6 +8671,7 @@ function mmToggleSkinsPlayer(pi){
 function mmSetSkinsBet(v){ if(!G.skinsGames.length) return; G.skinsGames[0].perSkin = v; saveG(); renderMMSkins(); renderCard(); }
 function mmSetSkinsMode(m){ if(!G.skinsGames.length) return; G.skinsGames[0].mode = m; saveG(); renderMMSkins(); renderCard(); }
 function mmSetSkinsCarry(c){ if(!G.skinsGames.length) return; G.skinsGames[0].carry = c; saveG(); renderMMSkins(); renderCard(); }
+function mmSetSkinsEndgame(e){ if(!G.skinsGames.length) return; G.skinsGames[0].endgame = e; saveG(); renderMMSkins(); renderCard(); }
 
 
 // ── Match Cards (mid-round) ─────────────────────────────────────────────────
@@ -9406,6 +9529,7 @@ function renderSkinsCard(game, gi){
   const perSkin= game.perSkin || 5;
   const mode   = game.mode || 'net';
   const carry  = game.carry !== false;
+  const endgame= game.endgame || 'void';
   const TEAL='#0d5c4e', GOLD='#c9a84c', RED='#c0392b', WIN='#1a5c3a';
 
   // Net strokes per player (for net mode display circles)
@@ -9424,7 +9548,7 @@ function renderSkinsCard(game, gi){
   let html = `<div class="msum" style="margin-top:14px;border:1.5px solid ${TEAL};border-radius:12px;overflow:hidden" data-skins="1">`;
   html += `<div style="background:linear-gradient(135deg,${TEAL},#1a4a3a);padding:10px 14px;display:flex;align-items:center;justify-content:space-between">`;
   html += `<div style="font-size:15px;font-weight:800;color:${GOLD}">💰 Skins</div>`;
-  html += `<div style="font-size:11px;color:rgba(255,255,255,.6)">$${perSkin}/skin · ${mode==='gross'?'Gross':'Net'} · ${carry?'Carry':'No carry'}</div>`;
+  html += `<div style="font-size:11px;color:rgba(255,255,255,.6)">$${perSkin}/skin · ${mode==='gross'?'Gross':'Net'} · ${carry?(endgame==='lastHole'?'Carry · 18 takes all':'Carry'):'No carry'}</div>`;
   html += `</div>`;
 
   html += `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">`;
@@ -9459,6 +9583,8 @@ function renderSkinsCard(game, gi){
       if(hr.winner!==null){
         const wn=(nm[game.players[hr.winner]]||'').split(' ')[0];
         skinCell=`<span style="display:inline-block;background:${WIN};color:#fff;border-radius:10px;padding:2px 7px;font-size:10px;font-weight:800;white-space:nowrap">${wn} ${hr.potValue>1?'×'+hr.potValue:''}</span>`;
+      } else if(hr.unresolved){
+        skinCell=`<span style="display:inline-block;background:${GOLD};color:#1a3a2a;border-radius:10px;padding:2px 7px;font-size:9px;font-weight:800;white-space:nowrap">playoff ×${hr.unresolved}</span>`;
       } else if(hr.washed){
         skinCell=`<span style="color:#999;font-size:10px">wash</span>`;
       } else {
@@ -9497,6 +9623,9 @@ function renderSkinsCard(game, gi){
     html += `</div>`;
     if(result.pendingPot>0 && !result.settlement){
       html += `<div style="font-size:10px;color:#999;margin-top:8px;text-align:center">${result.pendingPot} skin${result.pendingPot===1?'':'s'} carrying into the next hole</div>`;
+    }
+    if(result.settlement && result.settlement.unresolvedPot>0){
+      html += `<div style="margin-top:10px;background:#fff8e1;border:1.5px solid ${GOLD};border-radius:8px;padding:8px 10px;text-align:center"><div style="font-size:12px;font-weight:800;color:#1a3a2a">🏌️ Playoff needed</div><div style="font-size:11px;color:#666;margin-top:2px">${result.settlement.unresolvedPot} skin${result.settlement.unresolvedPot===1?'':'s'} ($${result.settlement.unresolvedDollars}) still up for grabs — the 18th tied. Settle it with a playoff; the totals above don't include this pot.</div></div>`;
     }
     html += `</div>`;
   }
@@ -9606,9 +9735,11 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v67.12';
+const CURRENT_VERSION = 'nassau-v67.14';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v67.14 — Skins: new "after 18" rule for carried skins — keep the old wash (leftovers void) or choose "Last hole takes all" so the 18th sweeps the carried pot; if the 18th ties, the app flags a playoff for the unresolved pot instead of letting it vanish. Set it in Skins setup or the mid-round settings.',
+  'v67.13 — More resilient backups: the app now keeps a silent in-app safety copy after every round and shows a one-tap "Back Up Now" reminder every 2nd round. Backup files now have clear dated names (e.g. Nassau-Golf-Backup-Jun-25-2026) and save via the share sheet (email / Files / iCloud) on iPhone.',
   'v67.12 — Added Skins game (per-hole, gross or net, configurable value, carryover pots) with full scoring tab, live + final money, print/share, history and mid-round settings. All setup-screen game sections now collapse by default.',
   'v67.11 — Birdie-streak celebrations re-themed: 4 in a row is now "Four-Bagger" (baseball), 5 is "Badger," and a new 6-in-a-row "Six-Pack" tier was added; Legend now starts at 7.',
   'v67.10 — Further hardened the bottom Help bar and in-round nav bar against iOS momentum-scroll drift (GPU layer + translate3d) so they stay pinned to the bottom.',
@@ -9950,6 +10081,7 @@ setInterval(checkForUpdate,90000);
     // Restore autoAdvance preference
     initAdvanceMode();
   }
+  maybeShowBackupNudge();
 })();
 
 // ── Setup screen weather widget init ──
@@ -9967,7 +10099,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v67.12';
+const CACHE='nassau-v67.14';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
