@@ -450,6 +450,14 @@ input::placeholder{color:#bbb}
 .bnav{position:fixed;bottom:calc(46px + env(safe-area-inset-bottom));left:0;right:0;background:var(--gd);border-top:1px solid rgba(201,168,76,.3);display:flex;z-index:200;transform:translate3d(0,0,0);-webkit-transform:translate3d(0,0,0);backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .help-bar{position:fixed;bottom:0;left:0;right:0;z-index:201;display:block;text-align:center;background:#13291d;color:var(--gold);text-decoration:none;font-size:13px;font-weight:700;letter-spacing:.5px;padding-top:10px;padding-bottom:max(20px, calc(8px + env(safe-area-inset-bottom)));border-top:1px solid rgba(201,168,76,.25);-webkit-tap-highlight-color:transparent;transform:translate3d(0,0,0);-webkit-transform:translate3d(0,0,0);backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .help-bar:active{background:#0d1f16}
+/* Setup-only sticky bottom action bar (4 pills) */
+.setup-bar{position:fixed;bottom:0;left:0;right:0;z-index:202;display:none;background:#13291d;border-top:1px solid rgba(201,168,76,.25);padding:8px 8px max(12px, calc(6px + env(safe-area-inset-bottom)));gap:6px;transform:translate3d(0,0,0);-webkit-transform:translate3d(0,0,0);backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.setup-bar.show{display:flex}
+.setup-bar button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:rgba(168,213,181,.12);border:1.5px solid rgba(168,213,181,.32);color:#a8d5b5;border-radius:10px;padding:7px 3px;font-size:10px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;line-height:1.1;text-align:center}
+.setup-bar button:active{background:rgba(168,213,181,.22)}
+.setup-bar button .sb-ico{font-size:17px;line-height:1}
+.setup-bar button.sb-reset{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.28);color:#d6b9b9}
+.setup-bar button.sb-reset:active{background:rgba(192,57,43,.25)}
 .wi-step{width:36px;height:36px;border-radius:18px;border:1.5px solid var(--gm);background:var(--gp);color:var(--gm);font-size:20px;font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .wi-match{background:var(--cream);border:1px solid var(--border);border-radius:10px;padding:11px 14px;margin-bottom:8px}
 .wi-vs{font-size:14px;color:#333;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
@@ -519,14 +527,9 @@ input::placeholder{color:#bbb}
         <div id="setupRainDay" style="font-size:10px;color:#a8d5b5;text-align:center;line-height:1.3"></div>
       </div>
     </div>
-    <!-- Row 1: Reset + Load Favorites -->
+    <!-- Favorites: Load + Manage side by side -->
     <div style="display:flex;gap:8px;margin-top:12px">
-      <button class="btn-reset" onclick="showResetConfirm()" style="flex:1;border-radius:10px;padding:10px 8px;font-size:13px;font-weight:600;margin:0;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.3);color:#a8d5b5;cursor:pointer">↺ Reset Setup</button>
       <button id="favPreview" onclick="loadFavoritesButton()" style="flex:1;background:rgba(168,213,181,.15);border:1.5px solid rgba(168,213,181,.4);color:#a8d5b5;border-radius:10px;padding:10px 8px;cursor:pointer;text-align:center;font-size:13px;font-weight:700">⭐ Load My Favorites<div id="favNames" style="display:none"></div></button>
-    </div>
-    <!-- Row 2: History + Manage Favorites -->
-    <div style="display:flex;gap:8px;margin-top:8px">
-      <button style="flex:1;border-radius:10px;padding:10px 8px;font-size:13px;font-weight:600;margin:0;background:rgba(168,213,181,.15);border:1.5px solid rgba(168,213,181,.4);color:#a8d5b5;cursor:pointer" onclick="showS('history')">📜 History &amp; Backup</button>
       <button style="flex:1;border-radius:10px;padding:10px 8px;font-size:13px;font-weight:600;margin:0;background:rgba(168,213,181,.15);border:1.5px solid rgba(168,213,181,.4);color:#a8d5b5;cursor:pointer" onclick="openFavorites()">⭐ Manage Favorites</button>
     </div>
     <div id="resetConfirm" style="display:none;margin-top:8px" class="save-dialog save-dialog-warn">
@@ -752,15 +755,11 @@ input::placeholder{color:#bbb}
   <div class="errmsg" id="setupErr"></div>
   <button class="btn-go" onclick="startRound()">Start Round →</button>
 
-  <div style="text-align:center;margin-top:10px">
-    <button onclick="manualCheckForUpdate(this)" style="background:none;border:1px solid rgba(255,255,255,.15);border-radius:20px;color:rgba(255,255,255,.4);font-size:11px;padding:5px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent">🔄 Check for Update</button>
-  </div>
-
   <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--inkl)">
-    💾 Your data is saved on this phone. The app reminds you to back up every 2 rounds — tap <b>Back Up Now</b> when you see it, or <b>History → Export Backup</b> anytime.
+    💾 Your data is saved on this phone. The app reminds you to back up every 2 rounds — tap <b>Back Up Now</b> when you see it, or the <b>💾 Backup</b> button anytime.
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v67.17
+    Nassau Golf · Derrick GWC · v67.20
   </div>
 </div>
 </div>
@@ -826,6 +825,15 @@ input::placeholder{color:#bbb}
   <div class="sbody" id="historyBody"></div>
 </div>
 
+<!-- ══════════ BACKUP & RESTORE ══════════ -->
+<div class="screen" id="screen-backup">
+  <div class="shdr" style="display:flex;align-items:center;gap:10px;padding:10px 14px">
+    <button class="hnav-btn" onclick="showS('setup')">‹</button>
+    <div class="hnum" style="font-size:16px">Backup &amp; Restore</div>
+  </div>
+  <div class="sbody" id="backupBody"></div>
+</div>
+
 <!-- ══════════ HISTORY DETAIL (read-only round view) ══════════ -->
 <div class="screen" id="screen-history-detail">
   <div class="shdr" style="display:flex;align-items:center;gap:10px;padding:10px 14px">
@@ -859,7 +867,16 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.17</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.20</span></a>
+
+<!-- ══════════ SETUP-ONLY STICKY ACTION BAR ══════════ -->
+<div class="setup-bar" id="setupBar">
+  <a href="help.html" target="_blank" rel="noopener" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:rgba(168,213,181,.12);border:1.5px solid rgba(168,213,181,.32);color:#a8d5b5;border-radius:10px;padding:7px 3px;font-size:10px;font-weight:700;text-decoration:none;-webkit-tap-highlight-color:transparent;line-height:1.1"><span class="sb-ico">❓</span>Help</a>
+  <button onclick="manualCheckForUpdate(this)"><span class="sb-ico">⬆️</span>Update App<span style="font-size:8px;font-weight:600;opacity:.6">v67.20</span></button>
+  <button class="sb-reset" onclick="showResetConfirm()"><span class="sb-ico">♻️</span>Reset</button>
+  <button onclick="showS('history')"><span class="sb-ico">📜</span>History</button>
+  <button onclick="showS('backup')"><span class="sb-ico">💾</span>Backup</button>
+</div>
 
 <script>
 /* ═══════════════════════════════════════════════
@@ -3365,7 +3382,7 @@ function printStablefordCard(gi){
       <div style="font-size:11px;font-weight:800;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Points Table</div>
       <table style="border-collapse:collapse;font-size:12px">${ptTableRows}</table>
     </div>
-    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.17</div>
+    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.20</div>
   </body></html>`;
 
   const blob = new Blob([html],{type:'text/html'});
@@ -4028,7 +4045,7 @@ function renderBirdieJuice(){
   html+='</div>';
 
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.17</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.20</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -4289,7 +4306,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.17</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.20</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -4858,7 +4875,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.17</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.20</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -4994,6 +5011,7 @@ function renderMasterScorecard(){
   // Money summary rows (once round complete) — skipped entirely in scorecard-only rounds
   if(isRoundComplete() && !G.scorecardOnly){
     const nassau = computeMoney();
+    const hasNassau = (G.teamGames && G.teamGames.length) || (G.singleGames && G.singleGames.length);
     const hasSix = G.sixPointGames && G.sixPointGames.length;
     const six = hasSix ? computeSixPointMoney() : null;
     const hasSnake = G.snake && G.snake.enabled;
@@ -5005,7 +5023,7 @@ function renderMasterScorecard(){
     const hasVegas = !!(G.vegasGames && G.vegasGames.length && G.vegasGames[0].teamA && G.vegasGames[0].teamA.length===2 && G.vegasGames[0].teamB && G.vegasGames[0].teamB.length===2);
     const vegas = hasVegas ? computeVegasMoney() : null;
     const total = G.players.map((_,pi) => nassau[pi] + (six?six[pi]:0) + (snake?snake[pi]:0) + (sf?sf[pi]:0) + (skins?skins[pi]:0) + (vegas?vegas[pi]:0));
-    html += moneyRow('Nassau $', nassau, '#1f5135');
+    if(hasNassau) html += moneyRow('Nassau $', nassau, '#1f5135');
     if(hasSix) html += moneyRow('6-Point $', six, '#1f5135');
     if(hasSF) html += moneyRow('🏆 Stableford $', sf, '#0d5c4e');
     if(hasSkins) html += moneyRow('💰 Skins $', skins, '#0d5c4e');
@@ -5807,6 +5825,11 @@ function showS(name){
   if(_gamesTab && _gameScreens.includes(name)) _gamesTab.classList.add('ni-games-active');
   if(name==='setup') startNamesPoll(); else stopNamesPoll();
   if(name==='setup') maybeShowBackupNudge();
+  // Setup-only sticky action bar replaces the global help bar on the setup screen.
+  const _setupBar=document.getElementById('setupBar');
+  const _helpBar=document.querySelector('.help-bar');
+  if(_setupBar) _setupBar.classList.toggle('show', name==='setup');
+  if(_helpBar) _helpBar.style.display = (name==='setup') ? 'none' : 'block';
   if(name==='bets') renderBets();
   if(name==='score') renderCard();
   if(name==='sixpoint') renderSixPoint();
@@ -5820,6 +5843,7 @@ function showS(name){
     const bnavVisible = document.getElementById('bnav').style.display!=='none';
     document.getElementById('historyBackHdr').style.display = bnavVisible ? 'none' : 'flex';
   }
+  if(name==='backup') renderBackup();
 }
 function newRound(){
   const existing=document.getElementById('newRoundConfirm');
@@ -6961,10 +6985,10 @@ function manualSaveRound(){
           '⚠️ Backup Reminder\n\n'
           +'You have played '+roundsSinceBackup+' rounds since your last backup.\n\n'
           +'It\'s a good time to export your round history.\n\n'
-          +'Go to History → Export Backup to save a copy.\n\n'
-          +'Go to History now?'
+          +'Open the Backup screen to save a copy.\n\n'
+          +'Open Backup now?'
         )){
-          showS('history');
+          showS('backup');
         }
       }, 1500);
     }
@@ -7084,7 +7108,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.17</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.20</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -7167,27 +7191,38 @@ function showImportResult(msg, isError){
   setTimeout(()=>{ el.style.display='none'; },4000);
 }
 
-function renderHistory(){
+function renderBackup(){
+  const el=document.getElementById('backupBody');
+  if(!el) return;
   const hist=loadHistory();
+  const roundCount=hist.length;
+  let last='';
+  try{ const at=localStorage.getItem('nassau_lastBackupAt'); if(at){ const d=new Date(at); last=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' at '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}); } }catch(e){}
   let html='<div style="padding:12px 16px;padding-bottom:170px">';
-  html+='<div class="tottitle" style="color:var(--gold)">Round History</div>';
-
-
-  // ── Backup / Restore ──
+  html+='<div class="tottitle" style="color:var(--gold)">Backup &amp; Restore</div>';
   html+=`<div class="msum" style="margin-bottom:14px">
-    <div class="msum-hdr">💾 Backup & Restore</div>
+    <div class="msum-hdr">💾 Backup &amp; Restore</div>
     <div style="padding:12px 14px">
       <div style="font-size:12px;color:var(--inkl);margin-bottom:12px;line-height:1.5">
-        Export saves your player contacts, all round history, and your current round to a file.
-        Import restores everything from a previous export.
+        Export saves your player contacts, all round history (${roundCount} round${roundCount===1?'':'s'}), and your current round to a file you can keep in email, Files, or iCloud. Import restores everything from a previous export.
       </div>
+      ${last?`<div style="font-size:11px;color:var(--inkl);margin-bottom:12px;text-align:center;opacity:.8">Last backup: ${last}</div>`:''}
       <div style="display:flex;gap:8px">
-        <button onclick="exportData()" style="flex:1;background:var(--gm);color:#fff;border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:700;cursor:pointer">📤 Export Backup</button>
-        <button onclick="importData()" style="flex:1;background:#2c3e50;color:#fff;border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:700;cursor:pointer">📥 Import Backup</button>
+        <button onclick="exportData()" style="flex:1;background:var(--gm);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer">📤 Export Backup</button>
+        <button onclick="importData()" style="flex:1;background:#2c3e50;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer">📥 Import Backup</button>
       </div>
       <div id="importResult" style="display:none;font-size:12px;font-weight:600;margin-top:8px;text-align:center"></div>
     </div>
   </div>`;
+  html+=`<div style="font-size:11px;color:rgba(255,255,255,.45);text-align:center;line-height:1.6;padding:0 8px">On iPhone, Export opens the share sheet so you can save the file to Files / iCloud or email it to yourself. Keeping a recent backup off your phone is the only way to recover your data if the app is reinstalled.</div>`;
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+function renderHistory(){
+  const hist=loadHistory();
+  let html='<div style="padding:12px 16px;padding-bottom:170px">';
+  html+='<div class="tottitle" style="color:var(--gold)">Round History</div>';
 
   if(!hist.length){
     html+='<div style="text-align:center;color:rgba(255,255,255,.5);padding:40px 0">No saved rounds yet.<br>Complete a round and tap "Save Round" to archive it here.</div>';
@@ -7331,7 +7366,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.17</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.20</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -7513,7 +7548,7 @@ function openHistoryDetail(i){
     html+=`</div>`; // close card
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.17</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.20</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -7649,7 +7684,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v67.17');
+  lines.push('— Nassau Golf · Derrick GWC · v67.20');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -8061,6 +8096,7 @@ function buildPrintHTML(snap){
   sc+=netR+'</tr>';
   if(isRoundComplete()&&!G.scorecardOnly){
     const nassau=computeMoney(),hasSix=!!(G.sixPointGames&&G.sixPointGames.length);
+    const hasNassau=!!((G.teamGames&&G.teamGames.length)||(G.singleGames&&G.singleGames.length));
     const six=hasSix?computeSixPointMoney():null;
     const hasSnake=!!(G.snake&&G.snake.enabled),snake=hasSnake?computeSnakeMoney():null;
     const hasSF=!!(G.stablefordGames&&G.stablefordGames.length&&G.stablefordGames[0].players&&G.stablefordGames[0].players.length>=2);
@@ -8071,7 +8107,7 @@ function buildPrintHTML(snap){
     const vegas=hasVegas?computeVegasMoney():null;
     const total=players.map((_,pi)=>nassau[pi]+(six?six[pi]:0)+(snake?snake[pi]:0)+(sf?sf[pi]:0)+(skins?skins[pi]:0)+(vegas?vegas[pi]:0));
     function moneyR(label,money,bg){let r=`<tr>${tdl(label,bg,'rgba(255,255,255,.85)',700)}<td colspan="6" style="background:${bg};border:1px solid #ddd"></td>`;money.forEach(v=>r+=td(v>0?'+$'+v:v<0?'-$'+Math.abs(v):'$0',bg,v>0?'#7CFC9E':v<0?'#ff9b9b':'#fff',700));return r+'</tr>';}
-    sc+=moneyR('Nassau $',nassau,'#1f5135');
+    if(hasNassau)sc+=moneyR('Nassau $',nassau,'#1f5135');
     if(hasSix)sc+=moneyR('6-Point $',six,'#1f5135');
     if(hasSF)sc+=moneyR('🏆 Stableford $',sf,'#0d5c4e');
     if(hasSkins)sc+=moneyR('💰 Skins $',skins,'#0d5c4e');
@@ -8248,7 +8284,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v67.17 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v67.20 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -8558,10 +8594,9 @@ function buildGamesMenuList(){
   const games=[];
   if(!so){
     const nassauCount = (G.teamGames?G.teamGames.length:0) + (G.singleGames?G.singleGames.length:0);
-    const nassauSub = nassauCount > 0
-      ? nassauCount + ' active game' + (nassauCount > 1 ? 's' : '')
-      : 'Match betting & presses';
-    games.push({id:'bets',icon:'💰',label:'Nassau',sub:nassauSub});
+    if(nassauCount > 0){
+      games.push({id:'bets',icon:'💰',label:'Nassau',sub:nassauCount + ' active game' + (nassauCount > 1 ? 's' : '')});
+    }
   }
   if(!so && G.sixPointGames&&G.sixPointGames.length)
     games.push({id:'sixpoint',icon:'6️⃣',label:'6-Point Game',sub:G.sixPointGames.length+' active game'+(G.sixPointGames.length>1?'s':'')});
@@ -10186,9 +10221,12 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v67.17';
+const CURRENT_VERSION = 'nassau-v67.20';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v67.20 — Setup bar now has five buttons (Help, Update App, Reset, History, Backup). History and Backup are separate screens. The app version moved onto the Update App button.',
+  'v67.19 — Setup screen redesign: Help, Update, Reset and Backup are now four pinned buttons along the bottom that stay put as you scroll. Load and Manage Favorites sit side by side up top, and the version number moved to the top header.',
+  'v67.18 — Fixed: Nassau no longer appears in the Games menu or money summary when no Nassau game is set up (e.g. a Vegas-only round). It shows up only when you actually have a Nassau match.',
   'v67.17 — New game: Vegas (fixed 2v2). Each team\u2019s two scores combine low-digit-first into a number; teams play the difference per point. Birdie by the other team flips your number high-first (toggle). Gross or net, configurable $/point. Full tab, live + final money, print, history, and mid-round settings.',
   'v67.16 — Match Cards: you can now add an opponent by typing their name and index directly, so they don\u2019t have to be a saved favorite — handy when your whole group is already in the round. Also fixed the \u201cAdd Opponent\u201d button doing nothing when all your saved players were in the round.',
   'v67.15 — The "Back Up Now" reminder no longer appears while a scoring round is in play; it only shows on the setup screen when no round is active.',
@@ -10447,6 +10485,8 @@ window.showUpdateNotes=function(){
 };
 
 async function manualCheckForUpdate(btn){
+  const _orig = btn ? btn.innerHTML : null;
+  const _restore = () => { if(btn){ btn.innerHTML=_orig; btn.disabled=false; } };
   if(btn){ btn.textContent='🔄 Checking…'; btn.disabled=true; }
   try{
     const res=await fetch(LIVE_URL+'?t='+Date.now(),{cache:'no-store'});
@@ -10462,10 +10502,10 @@ async function manualCheckForUpdate(btn){
       showUpdateBanner(notes);
       if(btn){ btn.textContent='✅ Updating…'; }
     } else {
-      if(btn){ btn.textContent='✓ You\'re up to date'; setTimeout(()=>{ btn.textContent='🔄 Check for Update'; btn.disabled=false; },3000); }
+      if(btn){ btn.textContent='✓ Up to date'; setTimeout(_restore,3000); }
     }
   }catch(e){
-    if(btn){ btn.textContent='⚠️ No connection'; setTimeout(()=>{ btn.textContent='🔄 Check for Update'; btn.disabled=false; },3000); }
+    if(btn){ btn.textContent='⚠️ No connection'; setTimeout(_restore,3000); }
   }
 }
 
@@ -10534,6 +10574,9 @@ setInterval(checkForUpdate,90000);
     renderAllPairOptions();
     // Restore autoAdvance preference
     initAdvanceMode();
+    // Fresh launch lands on setup — show its sticky action bar, hide the global help bar.
+    const _sb=document.getElementById('setupBar'); if(_sb) _sb.classList.add('show');
+    const _hb=document.querySelector('.help-bar'); if(_hb) _hb.style.display='none';
   }
   maybeShowBackupNudge();
 })();
@@ -10553,7 +10596,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v67.17';
+const CACHE='nassau-v67.20';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
