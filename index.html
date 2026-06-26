@@ -759,7 +759,7 @@ input::placeholder{color:#bbb}
     💾 Your data is saved on this phone. The app reminds you to back up every 2 rounds — tap <b>Back Up Now</b> when you see it, or the <b>💾 Backup</b> button anytime.
   </div>
   <div style="text-align:center;margin-top:16px;color:var(--inkl);font-size:11px">
-    Nassau Golf · Derrick GWC · v67.20
+    Nassau Golf · Derrick GWC · v67.21
   </div>
 </div>
 </div>
@@ -867,12 +867,12 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.20</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.21</span></a>
 
 <!-- ══════════ SETUP-ONLY STICKY ACTION BAR ══════════ -->
 <div class="setup-bar" id="setupBar">
   <a href="help.html" target="_blank" rel="noopener" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:rgba(168,213,181,.12);border:1.5px solid rgba(168,213,181,.32);color:#a8d5b5;border-radius:10px;padding:7px 3px;font-size:10px;font-weight:700;text-decoration:none;-webkit-tap-highlight-color:transparent;line-height:1.1"><span class="sb-ico">❓</span>Help</a>
-  <button onclick="manualCheckForUpdate(this)"><span class="sb-ico">⬆️</span>Update App<span style="font-size:8px;font-weight:600;opacity:.6">v67.20</span></button>
+  <button onclick="manualCheckForUpdate(this)"><span class="sb-ico">⬆️</span>Update App<span style="font-size:8px;font-weight:600;opacity:.6">v67.21</span></button>
   <button class="sb-reset" onclick="showResetConfirm()"><span class="sb-ico">♻️</span>Reset</button>
   <button onclick="showS('history')"><span class="sb-ico">📜</span>History</button>
   <button onclick="showS('backup')"><span class="sb-ico">💾</span>Backup</button>
@@ -1910,22 +1910,9 @@ function toggleScorecardOnly(){
   const snakeSection = document.getElementById('snakeSection');
   const hideSnake = solo || on;
   if(snakeSection) snakeSection.style.display = hideSnake ? 'none' : '';
-  let soloNote = document.getElementById('soloModeNote');
-  if(solo){
-    if(!soloNote){
-      soloNote = document.createElement('div');
-      soloNote.id = 'soloModeNote';
-      soloNote.style.cssText = 'font-size:12px;color:#888;text-align:center;margin:4px 0 8px;font-style:italic';
-      const cntCard = document.getElementById('cntVal') ? document.getElementById('cntVal').closest('.card') : null;
-      if(cntCard) cntCard.insertAdjacentElement('afterend', soloNote);
-    }
-    soloNote.textContent = on
-      ? 'Solo — keeping score only'
-      : 'Solo — only Match Cards available (add players for Nassau, 6-Point, Snake, Stableford)';
-    soloNote.style.display = '';
-  } else {
-    if(soloNote) soloNote.style.display = 'none';
-  }
+  // (Removed the "Solo — only Match Cards…" note under the player selector.)
+  const soloNote = document.getElementById('soloModeNote');
+  if(soloNote) soloNote.style.display = 'none';
   // Keep Stableford + Skins + Match Cards sections in sync with scores-only mode
   if(typeof renderStablefordOptions==='function') renderStablefordOptions();
   if(typeof renderSkinsOptions==='function') renderSkinsOptions();
@@ -3382,7 +3369,7 @@ function printStablefordCard(gi){
       <div style="font-size:11px;font-weight:800;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Points Table</div>
       <table style="border-collapse:collapse;font-size:12px">${ptTableRows}</table>
     </div>
-    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.20</div>
+    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.21</div>
   </body></html>`;
 
   const blob = new Blob([html],{type:'text/html'});
@@ -4045,7 +4032,7 @@ function renderBirdieJuice(){
   html+='</div>';
 
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.20</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.21</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -4306,7 +4293,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.20</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.21</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -4875,7 +4862,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.20</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.21</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -7108,7 +7095,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.20</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.21</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -7366,7 +7353,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.20</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.21</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -7548,7 +7535,7 @@ function openHistoryDetail(i){
     html+=`</div>`; // close card
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.20</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.21</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -7684,7 +7671,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v67.20');
+  lines.push('— Nassau Golf · Derrick GWC · v67.21');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -8284,7 +8271,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v67.20 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v67.21 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -10221,9 +10208,10 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v67.20';
+const CURRENT_VERSION = 'nassau-v67.21';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v67.21 — Removed the "Solo" helper text under the player selector. Fixed the setup action bar disappearing after opening Help and tapping back.',
   'v67.20 — Setup bar now has five buttons (Help, Update App, Reset, History, Backup). History and Backup are separate screens. The app version moved onto the Update App button.',
   'v67.19 — Setup screen redesign: Help, Update, Reset and Backup are now four pinned buttons along the bottom that stay put as you scroll. Load and Manage Favorites sit side by side up top, and the version number moved to the top header.',
   'v67.18 — Fixed: Nassau no longer appears in the Games menu or money summary when no Nassau game is set up (e.g. a Vegas-only round). It shows up only when you actually have a Nassau match.',
@@ -10581,6 +10569,20 @@ setInterval(checkForUpdate,90000);
   maybeShowBackupNudge();
 })();
 
+// Re-apply the correct bottom-bar state for whichever screen is active.
+// Used on bfcache restore (e.g. returning from help.html via the back button),
+// which doesn't re-run boot or showS.
+function syncBottomBars(){
+  const active=document.querySelector('.screen.active');
+  const onSetup = !!(active && active.id==='screen-setup');
+  const sb=document.getElementById('setupBar');
+  const hb=document.querySelector('.help-bar');
+  if(sb) sb.classList.toggle('show', onSetup);
+  if(hb) hb.style.display = onSetup ? 'none' : 'block';
+}
+window.addEventListener('pageshow', syncBottomBars);
+window.addEventListener('focus', syncBottomBars);
+
 // ── Setup screen weather widget init ──
 (function(){
   // If we already have a cached reading, show it immediately
@@ -10596,7 +10598,7 @@ setInterval(checkForUpdate,90000);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v67.20';
+const CACHE='nassau-v67.21';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
