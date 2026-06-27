@@ -853,12 +853,12 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.43</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.44</span></a>
 
 <!-- ══════════ SETUP-ONLY STICKY ACTION BAR ══════════ -->
 <div class="setup-bar" id="setupBar">
   <a href="help.html" target="_blank" rel="noopener" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:rgba(168,213,181,.12);border:1.5px solid rgba(168,213,181,.32);color:#a8d5b5;border-radius:10px;padding:6px 3px;font-size:10px;font-weight:700;text-decoration:none;-webkit-tap-highlight-color:transparent;line-height:1.1;text-align:center"><span class="sb-top">User</span><span class="sb-ico">❓</span><span class="sb-sub">Manual</span></a>
-  <button onclick="manualCheckForUpdate(this)"><span class="sb-top">Update App</span><span class="sb-ico">⬆️</span><span class="sb-sub">v67.43</span></button>
+  <button onclick="manualCheckForUpdate(this)"><span class="sb-top">Update App</span><span class="sb-ico">⬆️</span><span class="sb-sub">v67.44</span></button>
   <button class="sb-reset" onclick="showResetConfirm()"><span class="sb-top">Reset</span><span class="sb-ico">♻️</span><span class="sb-sub">Setup</span></button>
   <button onclick="showS('history')"><span class="sb-top">Round</span><span class="sb-ico">📜</span><span class="sb-sub">History</span></button>
   <button onclick="showS('backup')"><span class="sb-top">Backup</span><span class="sb-ico">💾</span><span class="sb-sub">Data</span></button>
@@ -3381,7 +3381,7 @@ function printStablefordCard(gi){
       <div style="font-size:11px;font-weight:800;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Points Table</div>
       <table style="border-collapse:collapse;font-size:12px">${ptTableRows}</table>
     </div>
-    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.43</div>
+    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.44</div>
   </body></html>`;
 
   const blob = new Blob([html],{type:'text/html'});
@@ -4044,7 +4044,7 @@ function renderBirdieJuice(){
   html+='</div>';
 
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.43</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.44</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -4308,7 +4308,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.43</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.44</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -4877,7 +4877,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.43</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.44</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -7121,7 +7121,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.43</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.44</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -7379,7 +7379,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.43</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.44</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -7561,7 +7561,7 @@ function openHistoryDetail(i){
     html+=`</div>`; // close card
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.43</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.44</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -7697,7 +7697,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v67.43');
+  lines.push('— Nassau Golf · Derrick GWC · v67.44');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -8025,12 +8025,21 @@ function printHistoryRound(){
   const blobUrl = URL.createObjectURL(blob);
   const win = window.open(blobUrl, '_blank');
   if(!win){
-    // Popup blocked — fall back to iframe
-    const frame=document.getElementById('printFrame');
-    if(frame){
+    // Popup blocked (common in installed PWA) — fall back to a print iframe, creating it if needed
+    let frame=document.getElementById('printFrame');
+    if(!frame){
+      frame=document.createElement('iframe');
+      frame.id='printFrame';
+      frame.style.cssText='position:fixed;left:-9999px;top:0;width:1px;height:1px;border:none;visibility:hidden';
+      document.body.appendChild(frame);
+    }
+    try{
       const doc=frame.contentDocument||frame.contentWindow.document;
       doc.open(); doc.write(printHTML); doc.close();
       setTimeout(()=>{ try{ frame.contentWindow.focus(); frame.contentWindow.print(); }catch(e){ window.print(); } },350);
+    }catch(e){
+      // Last resort: navigate the current tab to the printable page
+      try{ location.href=blobUrl; }catch(_){ alert('Could not open the print page.'); }
     }
     return;
   }
@@ -8297,7 +8306,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v67.43 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v67.44 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -10278,9 +10287,10 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v67.43';
+const CURRENT_VERSION = 'nassau-v67.44';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v67.44 — Fixed the Share / Print button in Round History doing nothing on the installed app. When the new print tab was blocked, the fallback referenced a print frame that was never actually created, so nothing happened. The fallback now builds the print frame on demand (and navigates to the print page as a last resort), so Share / Print from history always works.',
   'v67.43 — Restored every Share / Print path in the app to exactly match the known-good v60.0 behaviour (master totals, current round, 6-Point, match cards, card export, and the image overlay). Removed the experimental Share / Text button and image/PDF share attempts that had degraded the output. Newer games (Stableford, Skins, Vegas) still print correctly.',
   'v67.42 — Restored the master-scorecard Share / Print to the known-good behaviour: it opens the printable scorecard page, where Print / Save PDF lets you save or share it. (The image and PDF auto-share attempts in 67.40/67.41 did not work well, so this reverts to what reliably worked.)',
   'v67.41 — Share / Print now builds a proper multi-page PDF of the scorecard and opens the share sheet with it as a real file, so it texts and emails cleanly as a readable document instead of one giant unreadable image strip. Falls back to the print page if PDF building is unavailable.',
@@ -10690,7 +10700,7 @@ window.addEventListener('focus', syncBottomBars);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v67.43';
+const CACHE='nassau-v67.44';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
