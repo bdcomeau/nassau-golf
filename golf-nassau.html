@@ -853,12 +853,12 @@ input::placeholder{color:#bbb}
 </div>
 
 <!-- ══════════ PERSISTENT HELP BAR (all screens) ══════════ -->
-<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.49</span></a>
+<a class="help-bar" href="help.html" target="_blank" rel="noopener">❓ Help <span style="opacity:.5;font-weight:400;font-size:11px;margin-left:6px">v67.50</span></a>
 
 <!-- ══════════ SETUP-ONLY STICKY ACTION BAR ══════════ -->
 <div class="setup-bar" id="setupBar">
   <a href="help.html" target="_blank" rel="noopener" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:rgba(168,213,181,.12);border:1.5px solid rgba(168,213,181,.32);color:#a8d5b5;border-radius:10px;padding:6px 3px;font-size:10px;font-weight:700;text-decoration:none;-webkit-tap-highlight-color:transparent;line-height:1.1;text-align:center"><span class="sb-top">User</span><span class="sb-ico">❓</span><span class="sb-sub">Manual</span></a>
-  <button onclick="manualCheckForUpdate(this)"><span class="sb-top">Update App</span><span class="sb-ico">⬆️</span><span class="sb-sub">v67.49</span></button>
+  <button onclick="manualCheckForUpdate(this)"><span class="sb-top">Update App</span><span class="sb-ico">⬆️</span><span class="sb-sub">v67.50</span></button>
   <button class="sb-reset" onclick="showResetConfirm()"><span class="sb-top">Reset</span><span class="sb-ico">♻️</span><span class="sb-sub">Setup</span></button>
   <button onclick="showS('history')"><span class="sb-top">Round</span><span class="sb-ico">📜</span><span class="sb-sub">History</span></button>
   <button onclick="showS('backup')"><span class="sb-top">Backup</span><span class="sb-ico">💾</span><span class="sb-sub">Data</span></button>
@@ -1139,6 +1139,7 @@ function renderPlayers(){
         </div>
         <div style="font-size:10px;color:#1a1a1a;margin-top:2px;line-height:1.3;font-weight:600">${act&&gid?'Golf Canada ID (locked — tap 🔒 to edit)':'10 Digit Golf Canada Member ID'}</div>
         <div id="hdcpStamp${i}" class="hdcp-stamp">${G.players[i]&&G.players[i].hdcpFetchedAt?('🟢 Handicap current as of '+fmtFetchTime(G.players[i].hdcpFetchedAt)):''}</div>
+        ${(()=>{ if(!gid) return ''; const e=_lifeById.get(gid); if(e===undefined) return ''; const lt=e.total; const pos=lt>0,neg=lt<0; const col=pos?'#1f7a32':(neg?'#a01818':'#555'); const bg=pos?'rgba(31,122,50,.12)':(neg?'rgba(160,24,24,.10)':'rgba(0,0,0,.05)'); const sign=pos?'+':(neg?'−':''); return `<div style="display:inline-flex;align-items:center;gap:5px;margin-top:5px;background:${bg};border-radius:8px;padding:4px 9px"><span style="font-size:9px;font-weight:800;letter-spacing:.5px;color:#1a1a1a;text-transform:uppercase">💰 Lifetime</span><span style="font-size:14px;font-weight:800;color:${col}">${sign}${fmtMoney(lt)}</span></div>`; })()}
       </div>
       <div class="hdcp-stack">
         <div class="hdcp-wrap hdcp-wrap-idx">
@@ -1146,7 +1147,6 @@ function renderPlayers(){
           <input type="number" id="ph${i}" placeholder="0.0" step=".1" min="0" max="54" value="${idxShown}" class="hdcp-box" oninput="onHdcpTyped(${i})" ${act?'':'disabled'}>
         </div>
         <span class="hdcp-delta" id="idxlbl${i}"></span>
-        ${(()=>{ if(!gid) return ''; const e=_lifeById.get(gid); if(e===undefined) return ''; const lt=e.total; const pos=lt>0,neg=lt<0; const col=pos?'#1f7a32':(neg?'#a01818':'#555'); const sign=pos?'+':(neg?'−':''); return `<div style="text-align:center;margin:1px 0 2px;line-height:1.05"><div style="font-size:8px;font-weight:800;letter-spacing:.6px;color:#1a1a1a">LIFETIME</div><div style="font-size:14px;font-weight:800;color:${col}">${sign}$${Math.abs(lt).toFixed(0)}</div></div>`; })()}
         <div class="hdcp-wrap hdcp-wrap-adj">
           <span class="hdcp-tag hdcp-tag-adj">ADJ</span>
           <input type="text" id="phAdj${i}" value="${adjShown}" class="hdcp-box hdcp-adj" readonly tabindex="-1">
@@ -3384,7 +3384,7 @@ function printStablefordCard(gi){
       <div style="font-size:11px;font-weight:800;color:#666;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Points Table</div>
       <table style="border-collapse:collapse;font-size:12px">${ptTableRows}</table>
     </div>
-    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.49</div>
+    <div style="margin-top:16px;font-size:10px;color:#bbb;text-align:center">Nassau Golf · Derrick GWC · v67.50</div>
   </body></html>`;
 
   const blob = new Blob([html],{type:'text/html'});
@@ -4047,7 +4047,7 @@ function renderBirdieJuice(){
   html+='</div>';
 
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.49</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.50</div>';
   html+='</div>';
   document.getElementById('birdieJuiceBody').innerHTML=html;
 }
@@ -4311,7 +4311,7 @@ function renderCard(){
     </div>`;
   }
 
-  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.49</div>';
+  html += '<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.50</div>';
 
   document.getElementById('sbody').innerHTML=html;
 
@@ -4880,7 +4880,7 @@ function renderBets(){
     matchups.forEach((m,mi)=>{ html+=renderOneMatchCard(m, mi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.49</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.50</div></div>';
   document.getElementById('betsBody').innerHTML=html;
 }
 
@@ -7192,7 +7192,7 @@ function renderSixPoint(){
     G.sixPointGames.forEach((game,gi)=>{ html+=renderSixPointCard(game, gi); });
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.49</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.50</div>';
   html+='</div>';
   document.getElementById('sixPointBody').innerHTML=html;
 }
@@ -7514,7 +7514,7 @@ function renderHistory(){
       </div>`;
     });
   }
-  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.49</div></div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:rgba(255,255,255,.35);font-size:10px">Nassau Golf · Derrick GWC · v67.50</div></div>';
   document.getElementById('historyBody').innerHTML=html;
 }
 
@@ -7696,7 +7696,7 @@ function openHistoryDetail(i){
     html+=`</div>`; // close card
   }
 
-  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.49</div>';
+  html+='<div style="text-align:center;padding:14px 0 8px;color:var(--inkl);font-size:10px;opacity:.6">Nassau Golf · Derrick GWC · v67.50</div>';
 
   document.getElementById('historyDetailBody').innerHTML=html;
 
@@ -7832,7 +7832,7 @@ function shareRoundText(){
     }
     lines.push('');
   }
-  lines.push('— Nassau Golf · Derrick GWC · v67.49');
+  lines.push('— Nassau Golf · Derrick GWC · v67.50');
   const text=lines.join('\n');
   if(navigator.share){ navigator.share({title:'Nassau Golf — '+_historyDateStr,text}).catch(()=>{}); }
   else { navigator.clipboard.writeText(text).then(()=>{ const btn=document.getElementById('historyTextBtn');const orig=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=orig,2000); }).catch(()=>alert(text)); }
@@ -8441,7 +8441,7 @@ ${matchSections ? '<div style="page-break-before:always"></div>'+matchSections :
 ${snakeSection}
 
 ${paceOfPlayStr()?`<div style="text-align:center;font-size:11px;color:#555;margin-top:10px;padding-top:6px;border-top:1px solid #eee">⏱️ ${paceOfPlayStr()}</div>`:''}
-<div class="foot">Nassau Golf · Derrick GWC · v67.49 · ${dateStr}</div>
+<div class="foot">Nassau Golf · Derrick GWC · v67.50 · ${dateStr}</div>
 </body></html>`;
 }
 
@@ -10428,9 +10428,10 @@ seedContactsIfEmpty();renderAllPairOptions();initSetup();startNamesPoll();
 /* ═══════════════════════════════════════════════
    VERSION POLLING + UPDATE BANNER
 ═══════════════════════════════════════════════ */
-const CURRENT_VERSION = 'nassau-v67.49';
+const CURRENT_VERSION = 'nassau-v67.50';
 const LIVE_URL = 'https://bdcomeau.github.io/nassau-golf/';
 const RELEASE_NOTES = [
+  'v67.50 — Moved each player lifetime money total on the Setup card to a full-width line under their name (shown as a "💰 Lifetime" pill), so it has room for large amounts with commas and cents (e.g. +$123,456.78) instead of being squeezed in the narrow handicap column.',
   'v67.49 — Money amounts in Round History and Manage Favorites now show with a dollar sign, thousands commas, and cents (e.g. $2,456.75). The top of Round History got a redesigned "Career Ledger" card showing your lifetime total with a verdict (in the black / in the hole), plus rounds played, win-loss record, and best single round.',
   'v67.48 — The Scorecard now always jumps to the top of the screen whenever you select it, so you start at hole/player view every time. It does not disturb your position while you are entering scores \\u2014 only when you switch to the Scorecard tab.',
   'v67.47 — Each player card on the Setup screen now shows that player lifetime money total (summed by Golf Canada ID) between the IDX and ADJ boxes, so you can see where everyone stands before the round starts. Players without a Golf Canada ID show no total, keeping their card clean.',
@@ -10846,7 +10847,7 @@ window.addEventListener('focus', syncBottomBars);
 // Inline service worker for PWA offline support
 if('serviceWorker' in navigator && !location.protocol.startsWith('blob')){
   const swCode=`
-const CACHE='nassau-v67.49';
+const CACHE='nassau-v67.50';
 self.addEventListener('install',e=>{
   e.waitUntil(
     caches.open(CACHE).then(c=>c.addAll(['./','help.html','gc_id.jpg']))
